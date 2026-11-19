@@ -134,6 +134,18 @@ final class AutoTest {
 					mc.gui.screen().mouseReleased(ev);
 				}
 			}
+			case "ui" -> {
+				var screen = mc.gui.screen();
+				if (screen != null) {
+					try {
+						screen.getClass().getMethod("autotest", String[].class).invoke(screen, (Object) java.util.Arrays.copyOfRange(a, 1, a.length));
+					} catch (ReflectiveOperationException e) {
+						LOG.error("UI-Schritt nicht möglich auf {}", screen.getClass().getSimpleName(), e);
+					}
+				}
+			}
+			case "import" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.ImportScreen(null,
+					java.util.Arrays.stream(a, 1, a.length).map(java.nio.file.Path::of).toList()));
 			case "shot" -> {
 				Screenshot.grab(mc.gameDirectory, a[1] + ".png", mc.gameRenderer.mainRenderTarget(), 1, c -> LOG.info("Screenshot {}", a[1]));
 			}

@@ -89,11 +89,13 @@ public final class CosmeticDrawer {
 		AttachmentPoint ap = def.attachment;
 		float ax, ay, az;
 		if (ap.part == part) {
-			ax = (ap.anchorX - part.pivotX) / 16f;
-			ay = -(ap.anchorY - part.pivotY) / 16f;
-			az = (ap.anchorZ - part.pivotZ) / 16f;
+			ax = (ap.anchorX + t.pivot[0] - part.pivotX) / 16f;
+			ay = -(ap.anchorY + t.pivot[1] - part.pivotY) / 16f;
+			az = (ap.anchorZ + t.pivot[2] - part.pivotZ) / 16f;
 		} else {
-			ax = ay = az = 0;
+			ax = t.pivot[0] / 16f;
+			ay = -t.pivot[1] / 16f;
+			az = t.pivot[2] / 16f;
 		}
 		ps.translate(ax + t.offset[0] / 16f, ay - t.offset[1] / 16f, az + t.offset[2] / 16f);
 		if (t.rotation[0] != 0 || t.rotation[1] != 0 || t.rotation[2] != 0) {

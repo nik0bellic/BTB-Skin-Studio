@@ -7,8 +7,8 @@
     "en": "Headband Torch"
   },
   "description": {
-    "de": "Breites Lederstirnband mit eingesteckter Fackel für Höhlenforscher.",
-    "en": "A wide leather headband with a torch tucked in for cave explorers."
+    "de": "Breites Lederstirnband mit einer Fackel vorne in der Mitte – wie eine Stirnlampe.",
+    "en": "A wide leather headband with a torch at the front center – like a head lamp."
   },
   "author": "BTB Studios",
   "type": "head_decoration",
@@ -21,13 +21,13 @@
   ],
   "preview": "preview.png",
   "glow": {
-    "color": "#FFB347",
+    "color": "#FFC94A",
     "size": 6,
     "intensity": 0.5,
     "offset": [
-      3.5,
-      4,
-      -5.5
+      0,
+      2.5,
+      -5
     ],
     "flicker": true
   },
@@ -35,15 +35,16 @@
     "type": "minecraft:small_flame",
     "rate": 0.8,
     "offset": [
-      3.5,
-      5,
-      -5.5
+      0,
+      4,
+      -5
     ],
     "spread": 0.4
   },
   "tags": [
     "fackel",
     "höhle",
-    "licht"
+    "licht",
+    "stirnlampe"
   ]
 }

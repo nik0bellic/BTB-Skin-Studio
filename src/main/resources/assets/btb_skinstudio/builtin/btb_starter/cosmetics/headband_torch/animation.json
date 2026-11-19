@@ -7,13 +7,8 @@
         "flame": {
           "scale": [
             1,
-            "1 + math.sin(q.anim_time * 900) * 0.08 + math.sin(q.anim_time * 2100) * 0.05",
+            "1 + math.sin(q.anim_time * 900) * 0.06",
             1
-          ],
-          "rotation": [
-            0,
-            "q.anim_time * 40",
-            "math.sin(q.anim_time * 500) * 4"
           ]
         }
       }

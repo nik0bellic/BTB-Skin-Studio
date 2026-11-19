@@ -51,16 +51,19 @@ public final class CosmeticDefinition {
 		/** Degrees. */
 		public float[] rotation = new float[3];
 		public float[] scale = {1, 1, 1};
+		/** Rotation/scale pivot relative to the attachment anchor (pixels, Bedrock space). */
+		public float[] pivot = new float[3];
 
 		public boolean isIdentity() {
 			return offset[0] == 0 && offset[1] == 0 && offset[2] == 0 && rotation[0] == 0 && rotation[1] == 0 && rotation[2] == 0
-					&& scale[0] == 1 && scale[1] == 1 && scale[2] == 1;
+					&& scale[0] == 1 && scale[1] == 1 && scale[2] == 1 && pivot[0] == 0 && pivot[1] == 0 && pivot[2] == 0;
 		}
 
 		public void copyFrom(Transform o) {
 			offset = o.offset.clone();
 			rotation = o.rotation.clone();
 			scale = o.scale.clone();
+			pivot = o.pivot.clone();
 		}
 	}
 

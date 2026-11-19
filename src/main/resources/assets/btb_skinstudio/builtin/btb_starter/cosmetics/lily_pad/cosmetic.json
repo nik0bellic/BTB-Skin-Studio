@@ -1,0 +1,24 @@
+{
+  "format": 1,
+  "id": "btb:lily_pad",
+  "version": "1.0.0",
+  "name": {
+    "de": "Seerosenblatt",
+    "en": "Lily Pad"
+  },
+  "description": {
+    "de": "Ein flaches Seerosenblatt, das oben auf dem Kopf liegt.",
+    "en": "A flat lily pad resting on top of your head."
+  },
+  "author": "BTB Studios",
+  "type": "flower",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "tags": [
+    "seerose",
+    "pflanze",
+    "natur",
+    "wasser"
+  ]
+}

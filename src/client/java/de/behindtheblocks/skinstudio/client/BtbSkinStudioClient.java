@@ -40,7 +40,11 @@ public final class BtbSkinStudioClient implements ClientModInitializer {
 			ActiveCosmetic.clearCache();
 			Set<String> live = new HashSet<>();
 			for (CosmeticAsset a : lib.all()) {
-				live.add(a.contentHash);
+				for (byte[] img : new byte[][]{a.texture(), a.emissive(), a.preview()}) {
+					if (img != null) {
+						live.add(CosmeticTextures.fileKey(img));
+					}
+				}
 			}
 			CosmeticTextures.retain(live);
 		});
@@ -52,6 +56,7 @@ public final class BtbSkinStudioClient implements ClientModInitializer {
 		ClientCosmeticSync.register();
 		SkinStudioCommands.register();
 		AutoTest.init();
+		de.behindtheblocks.skinstudio.client.gui.WardrobeScreen.registerMenuButtons();
 
 		openWardrobe = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.btb_skinstudio.wardrobe", InputConstants.KEY_J, CATEGORY));
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> {

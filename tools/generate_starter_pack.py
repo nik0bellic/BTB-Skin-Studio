@@ -92,39 +92,52 @@ def build():
                 tags=['fackel', 'torch', 'licht', 'feuer', 'kerze']),
                 m, {'animation.btb.torch_hat.flicker': anim(flame=FLICKER)}, HEAD))
 
-    # ---------------------------------------------------------------- 2 Stirnband mit Fackel
+    # ---------------------------------------------------------------- 2 Stirnband mit Fackel (Fackel mittig vorne)
     m = Model('geometry.btb.headband_torch', seed=12)
     b = m.bone('band', [0, 28, 0])
-    band = lambda f_, x, y, w, h, r: ((rgb('#4a3628') + (255,)) if y == 0 else (rgb('#1e1612') + (255,)) if y == h - 1 else
-                                      shade(rgb('#2e221a'), 0.85 + r.random() * 0.25) + (255,))
-    ring(m, b, 27, 3, band, r=5)
-    m.box(b, (2.5, 29, -5.5), (2, 2, 1), solid('#3a2a1e'), inflate=0.1)
-    stick = lambda f_, x, y, w, h, r: (rgb('#c79a5e') + (255,)) if y == 0 else shade(rgb('#7a4f27'), 0.85 + r.random() * 0.25) + (255,)
-    m.box(b, (3, 29, -6), (1, 6, 1), stick)
-    torch_flame(m, 'band', 3.5, 35, -5.5, w=1.2)
+    band = lambda f_, x, y, w, h, r: ((rgb('#5a4330') + (255,)) if y == 0 and r.random() < 0.5 else (rgb('#1c1511') + (255,)) if y == h - 1 else
+                                      shade(rgb('#3a2b20'), 0.85 + r.random() * 0.25) + (255,))
+    ring(m, b, 28, 2, band, r=5)
+    stick = lambda f_, x, y, w, h, r: ((rgb('#c9a06a') + (255,)) if (f_ in ('front', 'left', 'right', 'back') and x == 0) else
+                                       shade(rgb('#6e4724'), 0.85 + r.random() * 0.25) + (255,))
+    m.box(b, (-1, 28.5, -6), (2, 5, 2), stick)
+    fb = m.bone('flame', [0, 33.5, -5], parent='band')
+    fl = lambda f_, x, y, w, h, r: ((rgb('#fffbe0') + (255,)) if (y == 0 and x == 0) else (rgb('#ffe14a') + (255,)) if y == 0 else (rgb('#ffc21a') + (255,)))
+    m.box(fb, (-1, 33.5, -6), (2, 2, 2), fl, emissive=fl)
     cos.append(('headband_torch', meta('headband_torch', 'Stirnband mit Fackel', 'Headband Torch', 'head_decoration',
-                desc_de='Breites Lederstirnband mit eingesteckter Fackel für Höhlenforscher.', desc_en='A wide leather headband with a torch tucked in for cave explorers.',
+                desc_de='Breites Lederstirnband mit einer Fackel vorne in der Mitte – wie eine Stirnlampe.', desc_en='A wide leather headband with a torch at the front center – like a head lamp.',
                 animations=['animation.btb.headband_torch.flicker'],
-                glow={'color': '#FFB347', 'size': 6, 'intensity': 0.5, 'offset': [3.5, 4, -5.5], 'flicker': True},
-                particles={'type': 'minecraft:small_flame', 'rate': 0.8, 'offset': [3.5, 5, -5.5], 'spread': 0.4},
-                tags=['fackel', 'höhle', 'licht']),
-                m, {'animation.btb.headband_torch.flicker': anim(flame=FLICKER)}, HEAD))
+                glow={'color': '#FFC94A', 'size': 6, 'intensity': 0.5, 'offset': [0, 2.5, -5], 'flicker': True},
+                particles={'type': 'minecraft:small_flame', 'rate': 0.8, 'offset': [0, 4, -5], 'spread': 0.4},
+                tags=['fackel', 'höhle', 'licht', 'stirnlampe']),
+                m, {'animation.btb.headband_torch.flicker': anim(flame={'scale': [1, '1 + math.sin(q.anim_time * 900) * 0.06', 1]})}, HEAD))
 
-    # ---------------------------------------------------------------- 3 Moosbüschel
-    m = Model('geometry.btb.moss_tuft', seed=13)
-    b = m.bone('moss', [0, 32, 0])
-    moss = palette_noise(['#9ccc3a', '#86b52f', '#b7dc55', '#6f9a26', '#c8ea6a'], [5, 4, 3, 2, 1])
-    m.box(b, (-3, 32, -3), (6, 1, 5), moss)
-    m.box(b, (-2, 33, -2), (3, 1, 3), moss)
-    m.box(b, (0, 33, -1), (2, 2, 2), moss)
-    m.box(b, (-2, 34, 0), (1, 2, 1), moss)
-    m.box(b, (1, 35, 0), (1, 1, 1), solid('#d9f27a'))
-    m.box(b, (-3, 31, -4), (3, 1, 1), moss, inflate=0.1)
-    m.box(b, (1, 30, -4), (1, 2, 1), moss, inflate=0.1)
-    m.box(b, (-1, 31, -4), (1, 1, 1), moss, inflate=0.1)
-    cos.append(('moss_tuft', meta('moss_tuft', 'Moosbüschel', 'Moss Tuft', 'hair_accessory',
-                desc_de='Ein Büschel frisches Moos, das sich auf dem Kopf breitgemacht hat.', desc_en='A tuft of fresh moss that settled on your head.',
-                tags=['moos', 'pflanze', 'natur']), m, None, HEAD))
+    # ---------------------------------------------------------------- 3 Seerosenblatt (flach)
+    m = Model('geometry.btb.lily_pad', seed=13)
+    b = m.bone('lily_pad', [0, 32, 0], rotation=[-4, 0, 3])
+    pad = palette_noise(['#a6d23a', '#97c632', '#b8de4c', '#8abb2a', '#d4ee6a'], [6, 4, 3, 2, 1])
+    vein = palette_noise(['#7aab25', '#6f9f22'])
+    R = 4.8
+    for row in range(-5, 5):
+        zc = row + 0.5
+        half = math.sqrt(max(0, R * R - zc * zc))
+        if half < 1:
+            continue
+        x0, x1 = -round(half), round(half)
+        if row < 0:  # notch: a wedge cut from the center towards the front-right
+            cut0, cut1 = 0, int(-row * 0.9) + 1
+            segs = [(x0, cut0), (cut1, x1)] if cut1 < x1 else [(x0, cut0)]
+        else:
+            segs = [(x0, x1)]
+        for a, c in segs:
+            if c - a <= 0:
+                continue
+            m.box(b, (a, 32, row), (c - a, 1, 1), vein if (row == 0 and a < 0) else pad, inflate=0.0)
+    for x, z, h in [(-5, -2, 1), (-4, -4, 2), (4, -1, 1), (-2, 4, 1), (2, 4, 2)]:
+        m.box(b, (x, 32 - h, z), (1, h, 1), pad)
+    cos.append(('lily_pad', meta('lily_pad', 'Seerosenblatt', 'Lily Pad', 'flower',
+                desc_de='Ein flaches Seerosenblatt, das oben auf dem Kopf liegt.', desc_en='A flat lily pad resting on top of your head.',
+                tags=['seerose', 'pflanze', 'natur', 'wasser']), m, None, HEAD))
 
     # ---------------------------------------------------------------- 4 Glas-Terrarium (Schulter)
     m = Model('geometry.btb.terrarium', seed=14)

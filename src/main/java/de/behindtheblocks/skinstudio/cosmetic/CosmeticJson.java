@@ -75,6 +75,7 @@ public final class CosmeticJson {
 			d.transform.offset = Json.vec(t, "offset", new float[3]);
 			d.transform.rotation = Json.vec(t, "rotation", new float[3]);
 			d.transform.scale = Json.vec(t, "scale", new float[]{1, 1, 1});
+			d.transform.pivot = Json.vec(t, "pivot", new float[3]);
 			for (float s : d.transform.scale) {
 				if (s <= 0 || s > 16) {
 					throw new FormatException("Skalierung muss zwischen 0 und 16 liegen");
@@ -189,6 +190,9 @@ public final class CosmeticJson {
 			t.add("offset", Json.array(d.transform.offset));
 			t.add("rotation", Json.array(d.transform.rotation));
 			t.add("scale", Json.array(d.transform.scale));
+			if (d.transform.pivot[0] != 0 || d.transform.pivot[1] != 0 || d.transform.pivot[2] != 0) {
+				t.add("pivot", Json.array(d.transform.pivot));
+			}
 			o.add("transform", t);
 		}
 		if (d.tint.enabled) {

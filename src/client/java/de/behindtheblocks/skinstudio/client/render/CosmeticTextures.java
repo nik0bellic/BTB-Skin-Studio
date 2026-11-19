@@ -42,21 +42,21 @@ public final class CosmeticTextures {
 	/** @return the texture id if uploaded; otherwise starts loading and returns null (skip this frame). */
 	public static Identifier get(CosmeticAsset asset, int color, Layer layer) {
 		int tint = layer == Layer.BASE && asset.definition.tint.enabled ? (color == 0 ? asset.definition.tint.defaultColor : color) : 0xFFFFFFFF;
-		String key = asset.contentHash + "_" + Integer.toHexString(tint) + "_" + layer.name().toLowerCase(Locale.ROOT);
-		Identifier id = READY.get(key);
-		if (id != null || FAILED.contains(key) || PENDING.contains(key)) {
-			return id;
-		}
 		byte[] png = switch (layer) {
 			case BASE -> asset.texture();
 			case EMISSIVE -> asset.emissive();
 			case PREVIEW -> asset.preview();
 		};
 		if (png == null) {
-			FAILED.add(key);
 			return null;
 		}
 		byte[] mask = layer == Layer.BASE && tint != 0xFFFFFFFF ? asset.tintMask() : null;
+		// keyed by image content, so editing metadata (transform, name …) never re-uploads textures
+		String key = fileKey(png) + (mask == null ? "" : "m" + fileKey(mask)) + "_" + Integer.toHexString(tint) + "_" + layer.name().toLowerCase(Locale.ROOT);
+		Identifier id = READY.get(key);
+		if (id != null || FAILED.contains(key) || PENDING.contains(key)) {
+			return id;
+		}
 		PENDING.add(key);
 		String label = asset.id() + " (" + layer + ")";
 		CompletableFuture.supplyAsync(() -> decode(png, mask, tint), CosmeticLibrary.IO).whenCompleteAsync((image, error) -> {
@@ -123,13 +123,23 @@ public final class CosmeticTextures {
 		}
 	}
 
-	/** Releases textures of cosmetics that no longer exist (call on the render thread after a reload). */
-	public static void retain(Set<String> liveHashes) {
+	private static final Map<byte[], String> FILE_KEYS = new java.util.WeakHashMap<>();
+
+	/** Short content key of an image file (identity-cached; the arrays are immutable once loaded). */
+	public static String fileKey(byte[] data) {
+		return FILE_KEYS.computeIfAbsent(data, d -> Integer.toHexString(java.util.Arrays.hashCode(d)) + Integer.toHexString(d.length));
+	}
+
+	/** Releases textures whose image is no longer used by any known cosmetic (render thread, after a reload). */
+	public static void retain(Set<String> liveFileKeys) {
 		Iterator<Map.Entry<String, Identifier>> it = READY.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<String, Identifier> e = it.next();
-			String hash = e.getKey().substring(0, e.getKey().indexOf('_'));
-			if (!liveHashes.contains(hash)) {
+			String k = e.getKey();
+			int cut = k.indexOf('_');
+			int m = k.indexOf('m');
+			String file = k.substring(0, m >= 0 && m < cut ? m : cut);
+			if (!liveFileKeys.contains(file)) {
 				Minecraft.getInstance().getTextureManager().release(e.getValue());
 				it.remove();
 			}
