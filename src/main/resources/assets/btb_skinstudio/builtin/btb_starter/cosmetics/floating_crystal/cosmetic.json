@@ -1,0 +1,48 @@
+{
+  "format": 1,
+  "id": "btb:floating_crystal",
+  "version": "1.0.0",
+  "name": {
+    "de": "Schwebender Kristall",
+    "en": "Floating Crystal"
+  },
+  "description": {
+    "de": "Ein leuchtender Kristall, der neben dem Kopf kreist.",
+    "en": "A glowing crystal hovering next to your head."
+  },
+  "author": "BTB Studios",
+  "type": "floating",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "emissive_texture": "emissive.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.floating_crystal.hover"
+  ],
+  "preview": "preview.png",
+  "glow": {
+    "color": "#7FE8FF",
+    "size": 5,
+    "intensity": 0.4,
+    "offset": [
+      9,
+      2,
+      0
+    ],
+    "flicker": false
+  },
+  "particles": {
+    "type": "minecraft:end_rod",
+    "rate": 0.3,
+    "offset": [
+      9,
+      2,
+      0
+    ],
+    "spread": 2
+  },
+  "tags": [
+    "kristall",
+    "magie"
+  ]
+}

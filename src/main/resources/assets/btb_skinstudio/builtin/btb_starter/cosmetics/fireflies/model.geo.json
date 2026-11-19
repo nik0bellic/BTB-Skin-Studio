@@ -1,0 +1,106 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.btb.fireflies",
+        "texture_width": 32,
+        "texture_height": 32
+      },
+      "bones": [
+        {
+          "name": "swarm",
+          "pivot": [
+            0,
+            18,
+            0
+          ]
+        },
+        {
+          "name": "fly0",
+          "pivot": [
+            0,
+            20,
+            0
+          ],
+          "parent": "swarm",
+          "cubes": [
+            {
+              "origin": [
+                8.5,
+                19.5,
+                -0.5
+              ],
+              "size": [
+                1,
+                1,
+                1
+              ],
+              "uv": [
+                0,
+                0
+              ],
+              "inflate": -0.1
+            }
+          ]
+        },
+        {
+          "name": "fly1",
+          "pivot": [
+            0,
+            14,
+            0
+          ],
+          "parent": "swarm",
+          "cubes": [
+            {
+              "origin": [
+                10.5,
+                13.5,
+                -0.5
+              ],
+              "size": [
+                1,
+                1,
+                1
+              ],
+              "uv": [
+                4,
+                0
+              ],
+              "inflate": -0.1
+            }
+          ]
+        },
+        {
+          "name": "fly2",
+          "pivot": [
+            0,
+            27,
+            0
+          ],
+          "parent": "swarm",
+          "cubes": [
+            {
+              "origin": [
+                7.5,
+                26.5,
+                -0.5
+              ],
+              "size": [
+                1,
+                1,
+                1
+              ],
+              "uv": [
+                8,
+                0
+              ],
+              "inflate": -0.1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "format": 1,
+  "id": "btb:ice_tiara",
+  "version": "1.0.0",
+  "name": {
+    "de": "Eis-Tiara",
+    "en": "Ice Tiara"
+  },
+  "description": {
+    "de": "Kühle Tiara mit pinkem Edelstein und schwebendem Funkelkreuz.",
+    "en": "A frosty tiara with a pink gem and a floating sparkle."
+  },
+  "author": "BTB Studios",
+  "type": "crown",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "emissive_texture": "emissive.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.ice_tiara.sparkle"
+  ],
+  "preview": "preview.png",
+  "glow": {
+    "color": "#7CFFD4",
+    "size": 4,
+    "intensity": 0.35,
+    "offset": [
+      0,
+      6.5,
+      -2
+    ],
+    "flicker": false
+  },
+  "particles": {
+    "type": "minecraft:end_rod",
+    "rate": 0.25,
+    "offset": [
+      0,
+      7,
+      -2
+    ],
+    "spread": 3
+  },
+  "tags": [
+    "krone",
+    "eis",
+    "tiara"
+  ]
+}

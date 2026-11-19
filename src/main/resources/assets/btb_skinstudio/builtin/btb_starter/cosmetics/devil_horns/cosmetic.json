@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "id": "btb:devil_horns",
+  "version": "1.0.0",
+  "name": {
+    "de": "Teufelshörner",
+    "en": "Devil Horns"
+  },
+  "description": {
+    "de": "Zwei gebogene rote Hörner.",
+    "en": "Two curved red horns."
+  },
+  "author": "BTB Studios",
+  "type": "horns",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "tags": [
+    "hörner",
+    "teufel",
+    "halloween"
+  ]
+}

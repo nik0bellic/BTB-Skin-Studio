@@ -1,0 +1,40 @@
+{
+  "format": 1,
+  "id": "btb:cape",
+  "version": "1.0.0",
+  "name": {
+    "de": "Umhang",
+    "en": "Cape"
+  },
+  "description": {
+    "de": "Ein langer Umhang mit Goldborte, der beim Laufen weht.",
+    "en": "A long cape with golden trim that flows while walking."
+  },
+  "author": "BTB Studios",
+  "type": "cape",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.cape.flow"
+  ],
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#6060FF",
+      "#40C060",
+      "#202020",
+      "#B060FF"
+    ]
+  },
+  "hide_layers": [],
+  "tags": [
+    "umhang",
+    "cape",
+    "held"
+  ]
+}

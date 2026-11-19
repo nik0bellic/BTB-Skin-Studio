@@ -1,0 +1,39 @@
+{
+  "format": 1,
+  "id": "btb:wings",
+  "version": "1.0.0",
+  "name": {
+    "de": "Flügel",
+    "en": "Wings"
+  },
+  "description": {
+    "de": "Weiße Federflügel, die sanft schlagen – einfärbbar.",
+    "en": "White feathered wings that flap softly – recolorable."
+  },
+  "author": "BTB Studios",
+  "type": "wings",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.wings.flap"
+  ],
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#303030",
+      "#FFB0E0",
+      "#A0D8FF",
+      "#FFE08A"
+    ]
+  },
+  "tags": [
+    "flügel",
+    "engel",
+    "fliegen"
+  ]
+}

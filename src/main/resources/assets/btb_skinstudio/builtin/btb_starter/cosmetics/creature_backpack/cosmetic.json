@@ -1,0 +1,37 @@
+{
+  "format": 1,
+  "id": "btb:creature_backpack",
+  "version": "1.0.0",
+  "name": {
+    "de": "Mini-Rucksack mit Augen",
+    "en": "Creature Backpack"
+  },
+  "description": {
+    "de": "Ein Leder-Rucksack, der zurückschaut – in verschiedenen Farben.",
+    "en": "A leather backpack that looks back – in different colors."
+  },
+  "author": "BTB Studios",
+  "type": "backpack",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "emissive_texture": "emissive.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#C0C0C0",
+      "#FFB0B0",
+      "#B0FFC0",
+      "#B0C8FF",
+      "#FFD890"
+    ]
+  },
+  "tags": [
+    "rucksack",
+    "monster",
+    "leder"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "id": "btb:explorer_vest",
+  "version": "1.0.0",
+  "name": {
+    "de": "Abenteurer-Weste",
+    "en": "Explorer Vest"
+  },
+  "description": {
+    "de": "Offene Lederweste mit Messingknöpfen.",
+    "en": "An open leather vest with brass buttons."
+  },
+  "author": "BTB Studios",
+  "type": "vest",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#708090",
+      "#406040",
+      "#202020"
+    ]
+  },
+  "tags": [
+    "weste",
+    "kleidung"
+  ]
+}

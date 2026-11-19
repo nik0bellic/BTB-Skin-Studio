@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "id": "btb:boots",
+  "version": "1.0.0",
+  "name": {
+    "de": "Wanderstiefel",
+    "en": "Hiking Boots"
+  },
+  "description": {
+    "de": "Robuste Lederstiefel mit Umschlag.",
+    "en": "Sturdy leather boots with a cuff."
+  },
+  "author": "BTB Studios",
+  "type": "boots",
+  "attachment": "right_leg",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#505050",
+      "#A08060"
+    ]
+  },
+  "tags": [
+    "schuhe",
+    "stiefel"
+  ]
+}

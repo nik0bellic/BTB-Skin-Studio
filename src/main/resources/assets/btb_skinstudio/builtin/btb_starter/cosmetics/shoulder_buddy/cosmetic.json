@@ -1,0 +1,28 @@
+{
+  "format": 1,
+  "id": "btb:shoulder_buddy",
+  "version": "1.0.0",
+  "name": {
+    "de": "Schleimi",
+    "en": "Slimy Buddy"
+  },
+  "description": {
+    "de": "Ein kleiner Schleim-Freund, der auf der Schulter hüpft.",
+    "en": "A little slime friend bouncing on your shoulder."
+  },
+  "author": "BTB Studios",
+  "type": "companion",
+  "attachment": "left_shoulder",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.shoulder_buddy.bounce"
+  ],
+  "preview": "preview.png",
+  "tags": [
+    "begleiter",
+    "schleim",
+    "haustier"
+  ]
+}

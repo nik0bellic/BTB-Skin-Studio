@@ -1,0 +1,36 @@
+{
+  "format": 1,
+  "id": "btb:gold_crown",
+  "version": "1.0.0",
+  "name": {
+    "de": "Goldene Krone",
+    "en": "Golden Crown"
+  },
+  "description": {
+    "de": "Klassische Krone mit Rubinen – frei einfärbbar.",
+    "en": "A classic crown with rubies – freely recolorable."
+  },
+  "author": "BTB Studios",
+  "type": "crown",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#FFB0C0",
+      "#B8F0FF",
+      "#B4FFB0",
+      "#D0B0FF",
+      "#FFD080"
+    ]
+  },
+  "tags": [
+    "krone",
+    "könig",
+    "gold"
+  ]
+}

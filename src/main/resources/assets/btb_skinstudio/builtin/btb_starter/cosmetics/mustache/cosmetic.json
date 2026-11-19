@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "id": "btb:mustache",
+  "version": "1.0.0",
+  "name": {
+    "de": "Schnurrbart",
+    "en": "Mustache"
+  },
+  "description": {
+    "de": "Gezwirbelter Schnurrbart.",
+    "en": "A curled mustache."
+  },
+  "author": "BTB Studios",
+  "type": "mustache",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF"
+  },
+  "tags": [
+    "bart",
+    "gesicht"
+  ]
+}

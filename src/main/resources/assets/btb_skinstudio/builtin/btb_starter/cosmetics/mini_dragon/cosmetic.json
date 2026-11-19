@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "id": "btb:mini_dragon",
+  "version": "1.0.0",
+  "name": {
+    "de": "Mini-Drache",
+    "en": "Mini Dragon"
+  },
+  "description": {
+    "de": "Ein kleiner violetter Drache mit leuchtenden Augen auf der Schulter.",
+    "en": "A tiny purple dragon with glowing eyes on your shoulder."
+  },
+  "author": "BTB Studios",
+  "type": "companion",
+  "attachment": "right_shoulder",
+  "slots": [
+    "shoulder_right"
+  ],
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "emissive_texture": "emissive.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.mini_dragon.idle"
+  ],
+  "preview": "preview.png",
+  "tags": [
+    "drache",
+    "begleiter",
+    "fantasy"
+  ]
+}

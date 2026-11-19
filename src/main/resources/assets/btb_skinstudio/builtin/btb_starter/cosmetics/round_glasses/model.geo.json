@@ -1,0 +1,104 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.btb.round_glasses",
+        "texture_width": 32,
+        "texture_height": 32
+      },
+      "bones": [
+        {
+          "name": "glasses",
+          "pivot": [
+            0,
+            28,
+            -4
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -4,
+                27,
+                -5
+              ],
+              "size": [
+                3,
+                3,
+                1
+              ],
+              "uv": [
+                24,
+                0
+              ]
+            },
+            {
+              "origin": [
+                1,
+                27,
+                -5
+              ],
+              "size": [
+                3,
+                3,
+                1
+              ],
+              "uv": [
+                0,
+                6
+              ]
+            },
+            {
+              "origin": [
+                -1,
+                28,
+                -5
+              ],
+              "size": [
+                2,
+                1,
+                1
+              ],
+              "uv": [
+                8,
+                6
+              ]
+            },
+            {
+              "origin": [
+                -5,
+                28,
+                -5
+              ],
+              "size": [
+                1,
+                1,
+                5
+              ],
+              "uv": [
+                0,
+                0
+              ]
+            },
+            {
+              "origin": [
+                4,
+                28,
+                -5
+              ],
+              "size": [
+                1,
+                1,
+                5
+              ],
+              "uv": [
+                12,
+                0
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

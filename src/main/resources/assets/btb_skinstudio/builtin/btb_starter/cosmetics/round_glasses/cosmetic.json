@@ -1,0 +1,21 @@
+{
+  "format": 1,
+  "id": "btb:round_glasses",
+  "version": "1.0.0",
+  "name": {
+    "de": "Runde Brille",
+    "en": "Round Glasses"
+  },
+  "description": {
+    "de": "Klassische Brille mit dünnem Holzrahmen.",
+    "en": "Classic glasses with a thin wooden frame."
+  },
+  "author": "BTB Studios",
+  "type": "glasses",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "tags": [
+    "brille"
+  ]
+}

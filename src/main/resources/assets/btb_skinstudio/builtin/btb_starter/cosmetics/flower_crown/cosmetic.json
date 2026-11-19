@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "id": "btb:flower_crown",
+  "version": "1.0.0",
+  "name": {
+    "de": "Kleine Blumenkrone",
+    "en": "Little Flower Crown"
+  },
+  "description": {
+    "de": "Ein Kranz aus Ranken und bunten Blüten.",
+    "en": "A wreath of vines and colorful blossoms."
+  },
+  "author": "BTB Studios",
+  "type": "flower",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "particles": {
+    "type": "minecraft:cherry_leaves",
+    "rate": 0.15,
+    "offset": [
+      0,
+      0,
+      0
+    ],
+    "spread": 8
+  },
+  "tags": [
+    "blumen",
+    "frühling",
+    "kranz"
+  ]
+}

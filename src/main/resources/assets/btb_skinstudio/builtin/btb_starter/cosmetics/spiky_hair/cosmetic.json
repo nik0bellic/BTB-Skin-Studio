@@ -1,0 +1,35 @@
+{
+  "format": 1,
+  "id": "btb:spiky_hair",
+  "version": "1.0.0",
+  "name": {
+    "de": "Stachelfrisur",
+    "en": "Spiky Hair"
+  },
+  "description": {
+    "de": "Wilde Stachelfrisur – in jeder Haarfarbe.",
+    "en": "Wild spiky hair – in any hair color."
+  },
+  "author": "BTB Studios",
+  "type": "hairstyle",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#FFE0A0",
+      "#202020",
+      "#FF8060",
+      "#A0C0FF",
+      "#FFB0E0"
+    ]
+  },
+  "tags": [
+    "haare",
+    "frisur"
+  ]
+}

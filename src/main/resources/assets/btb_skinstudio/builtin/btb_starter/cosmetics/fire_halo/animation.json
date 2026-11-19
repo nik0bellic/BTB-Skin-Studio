@@ -1,0 +1,22 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.fire_halo.spin": {
+      "loop": true,
+      "bones": {
+        "ring": {
+          "rotation": [
+            0,
+            0,
+            "q.anim_time * -30"
+          ],
+          "scale": [
+            "1 + math.sin(q.anim_time * 400) * 0.02",
+            "1 + math.sin(q.anim_time * 400) * 0.02",
+            1
+          ]
+        }
+      }
+    }
+  }
+}

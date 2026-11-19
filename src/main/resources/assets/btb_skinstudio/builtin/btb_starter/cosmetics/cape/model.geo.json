@@ -1,0 +1,57 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.btb.cape",
+        "texture_width": 32,
+        "texture_height": 32
+      },
+      "bones": [
+        {
+          "name": "cape",
+          "pivot": [
+            0,
+            24,
+            2
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -5,
+                8,
+                2
+              ],
+              "size": [
+                10,
+                16,
+                1
+              ],
+              "uv": [
+                0,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -4,
+                23,
+                1.5
+              ],
+              "size": [
+                8,
+                1,
+                1
+              ],
+              "uv": [
+                0,
+                17
+              ],
+              "inflate": 0.1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

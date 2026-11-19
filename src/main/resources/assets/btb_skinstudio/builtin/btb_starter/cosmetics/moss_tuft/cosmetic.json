@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "id": "btb:moss_tuft",
+  "version": "1.0.0",
+  "name": {
+    "de": "Moosbüschel",
+    "en": "Moss Tuft"
+  },
+  "description": {
+    "de": "Ein Büschel frisches Moos, das sich auf dem Kopf breitgemacht hat.",
+    "en": "A tuft of fresh moss that settled on your head."
+  },
+  "author": "BTB Studios",
+  "type": "hair_accessory",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "tags": [
+    "moos",
+    "pflanze",
+    "natur"
+  ]
+}

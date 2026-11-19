@@ -1,0 +1,36 @@
+{
+  "format": 1,
+  "id": "btb:backpack_classic",
+  "version": "1.0.0",
+  "name": {
+    "de": "Klassischer Rucksack",
+    "en": "Classic Backpack"
+  },
+  "description": {
+    "de": "Robuster Rucksack mit Fronttasche – in jeder Farbe.",
+    "en": "A sturdy backpack with front pocket – in any color."
+  },
+  "author": "BTB Studios",
+  "type": "backpack",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#FF9A9A",
+      "#9AFF9A",
+      "#FFE08A",
+      "#D0A0FF",
+      "#A0A0A0"
+    ]
+  },
+  "tags": [
+    "rucksack",
+    "schule",
+    "reise"
+  ]
+}

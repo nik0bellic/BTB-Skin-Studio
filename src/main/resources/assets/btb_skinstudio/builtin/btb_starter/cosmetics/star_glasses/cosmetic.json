@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "id": "btb:star_glasses",
+  "version": "1.0.0",
+  "name": {
+    "de": "Party-Sternbrille",
+    "en": "Star Party Glasses"
+  },
+  "description": {
+    "de": "Pinke Sternbrille für jede Party.",
+    "en": "Pink star glasses for every party."
+  },
+  "author": "BTB Studios",
+  "type": "glasses",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "emissive_texture": "emissive.png",
+  "preview": "preview.png",
+  "tags": [
+    "brille",
+    "party"
+  ]
+}

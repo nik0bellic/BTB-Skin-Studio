@@ -1,0 +1,22 @@
+{
+  "format": 1,
+  "id": "btb:sunglasses",
+  "version": "1.0.0",
+  "name": {
+    "de": "Sonnenbrille",
+    "en": "Sunglasses"
+  },
+  "description": {
+    "de": "Dunkle Gläser, cooler Auftritt.",
+    "en": "Dark lenses, cool entrance."
+  },
+  "author": "BTB Studios",
+  "type": "glasses",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "tags": [
+    "brille",
+    "sommer"
+  ]
+}

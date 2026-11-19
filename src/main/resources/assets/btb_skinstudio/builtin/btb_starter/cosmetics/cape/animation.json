@@ -1,0 +1,17 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.cape.flow": {
+      "loop": true,
+      "bones": {
+        "cape": {
+          "rotation": [
+            "6 + q.modified_move_speed * 55 + math.sin(q.anim_time * 110) * 2",
+            0,
+            "math.sin(q.anim_time * 70) * 1.5"
+          ]
+        }
+      }
+    }
+  }
+}

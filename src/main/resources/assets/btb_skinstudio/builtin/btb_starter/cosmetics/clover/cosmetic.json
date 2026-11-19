@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "id": "btb:clover",
+  "version": "1.0.0",
+  "name": {
+    "de": "Kleeblatt",
+    "en": "Four-Leaf Clover"
+  },
+  "description": {
+    "de": "Ein vierblättriges Glückskleeblatt, das im Wind wippt.",
+    "en": "A lucky four-leaf clover swaying in the wind."
+  },
+  "author": "BTB Studios",
+  "type": "flower",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.clover.sway"
+  ],
+  "preview": "preview.png",
+  "tags": [
+    "glück",
+    "klee",
+    "pflanze"
+  ]
+}

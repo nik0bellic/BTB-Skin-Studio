@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "id": "btb:silver_crown",
+  "version": "1.0.0",
+  "name": {
+    "de": "Silberne Krone",
+    "en": "Silver Crown"
+  },
+  "description": {
+    "de": "Schlichte Silberkrone mit Saphiren.",
+    "en": "A simple silver crown with sapphires."
+  },
+  "author": "BTB Studios",
+  "type": "crown",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#FFE0A0",
+      "#C0E8FF"
+    ]
+  },
+  "tags": [
+    "krone",
+    "silber"
+  ]
+}

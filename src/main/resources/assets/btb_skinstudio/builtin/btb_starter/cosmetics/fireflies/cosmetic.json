@@ -1,0 +1,42 @@
+{
+  "format": 1,
+  "id": "btb:fireflies",
+  "version": "1.0.0",
+  "name": {
+    "de": "Glühwürmchen",
+    "en": "Fireflies"
+  },
+  "description": {
+    "de": "Drei Glühwürmchen umkreisen dich – mit echten Leuchtpartikeln.",
+    "en": "Three fireflies circle around you – with glowing particles."
+  },
+  "author": "BTB Studios",
+  "type": "moving_decoration",
+  "attachment": "body",
+  "slots": [
+    "floating"
+  ],
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "emissive_texture": "emissive.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.fireflies.orbit"
+  ],
+  "preview": "preview.png",
+  "particles": {
+    "type": "minecraft:firefly",
+    "rate": 0.6,
+    "offset": [
+      0,
+      0,
+      0
+    ],
+    "spread": 18
+  },
+  "tags": [
+    "natur",
+    "licht",
+    "partikel"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "format": 1,
+  "id": "btb:headphones",
+  "version": "1.0.0",
+  "name": {
+    "de": "Kopfhörer",
+    "en": "Headphones"
+  },
+  "description": {
+    "de": "Große Over-Ear-Kopfhörer mit farbigem Bügel.",
+    "en": "Big over-ear headphones with a colored band."
+  },
+  "author": "BTB Studios",
+  "type": "headphones",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#FF6A6A",
+      "#6AD0FF",
+      "#FFE16A",
+      "#B06AFF",
+      "#404040"
+    ]
+  },
+  "tags": [
+    "musik",
+    "kopfhörer"
+  ]
+}

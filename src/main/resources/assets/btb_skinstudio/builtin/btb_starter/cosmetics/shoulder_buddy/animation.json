@@ -1,0 +1,22 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.shoulder_buddy.bounce": {
+      "loop": true,
+      "bones": {
+        "buddy": {
+          "position": [
+            0,
+            "math.abs(math.sin(q.anim_time * 160)) * 1.2",
+            0
+          ],
+          "scale": [
+            "1 + math.sin(q.anim_time * 320) * 0.04",
+            "1 - math.sin(q.anim_time * 320) * 0.06",
+            "1 + math.sin(q.anim_time * 320) * 0.04"
+          ]
+        }
+      }
+    }
+  }
+}

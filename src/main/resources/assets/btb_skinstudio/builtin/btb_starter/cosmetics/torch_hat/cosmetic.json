@@ -1,0 +1,51 @@
+{
+  "format": 1,
+  "id": "btb:torch_hat",
+  "version": "1.0.0",
+  "name": {
+    "de": "Fackel auf dem Kopf",
+    "en": "Torch Hat"
+  },
+  "description": {
+    "de": "Eine Kerzenfackel auf Holzsockel und Kupferteller – mit Flammenanimation und Lichtschein.",
+    "en": "A candle torch on a wooden base and copper plate – with flame animation and light glow."
+  },
+  "author": "BTB Studios",
+  "type": "head_decoration",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "emissive_texture": "emissive.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.torch_hat.flicker"
+  ],
+  "preview": "preview.png",
+  "glow": {
+    "color": "#FFB347",
+    "size": 7,
+    "intensity": 0.6,
+    "offset": [
+      0,
+      10,
+      0
+    ],
+    "flicker": true
+  },
+  "particles": {
+    "type": "minecraft:small_flame",
+    "rate": 1.2,
+    "offset": [
+      0,
+      11.5,
+      0
+    ],
+    "spread": 0.6
+  },
+  "tags": [
+    "fackel",
+    "torch",
+    "licht",
+    "feuer",
+    "kerze"
+  ]
+}

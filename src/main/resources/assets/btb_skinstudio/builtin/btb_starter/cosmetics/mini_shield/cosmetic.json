@@ -1,0 +1,22 @@
+{
+  "format": 1,
+  "id": "btb:mini_shield",
+  "version": "1.0.0",
+  "name": {
+    "de": "Mini-Schild",
+    "en": "Mini Shield"
+  },
+  "description": {
+    "de": "Ein kleiner Holzschild mit Wappen auf dem Rücken.",
+    "en": "A little wooden shield with a crest on your back."
+  },
+  "author": "BTB Studios",
+  "type": "shield",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "tags": [
+    "schild",
+    "ritter"
+  ]
+}

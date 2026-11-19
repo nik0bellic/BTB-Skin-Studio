@@ -1,0 +1,22 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.ice_tiara.sparkle": {
+      "loop": true,
+      "bones": {
+        "sparkle": {
+          "rotation": [
+            0,
+            "q.anim_time * 90",
+            0
+          ],
+          "position": [
+            0,
+            "math.sin(q.anim_time * 120) * 0.6",
+            0
+          ]
+        }
+      }
+    }
+  }
+}

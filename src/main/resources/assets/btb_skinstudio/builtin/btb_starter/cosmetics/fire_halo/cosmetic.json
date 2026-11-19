@@ -1,0 +1,52 @@
+{
+  "format": 1,
+  "id": "btb:fire_halo",
+  "version": "1.0.0",
+  "name": {
+    "de": "Feuer-Halo",
+    "en": "Fire Halo"
+  },
+  "description": {
+    "de": "Ein großer lodernder Flammenring hinter Kopf und Schultern.",
+    "en": "A large blazing ring of fire behind head and shoulders."
+  },
+  "author": "BTB Studios",
+  "type": "halo",
+  "slots": [
+    "halo"
+  ],
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "emissive_texture": "emissive.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.fire_halo.spin"
+  ],
+  "preview": "preview.png",
+  "glow": {
+    "color": "#FF8A2A",
+    "size": 14,
+    "intensity": 0.4,
+    "offset": [
+      0,
+      -6,
+      5
+    ],
+    "flicker": true
+  },
+  "particles": {
+    "type": "minecraft:flame",
+    "rate": 3,
+    "offset": [
+      0,
+      -6,
+      5
+    ],
+    "spread": 22
+  },
+  "tags": [
+    "feuer",
+    "halo",
+    "flammen"
+  ]
+}

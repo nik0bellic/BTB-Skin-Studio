@@ -1,0 +1,17 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.clover.sway": {
+      "loop": true,
+      "bones": {
+        "clover": {
+          "rotation": [
+            "math.sin(q.anim_time * 140) * 4",
+            0,
+            "math.sin(q.anim_time * 90) * 7"
+          ]
+        }
+      }
+    }
+  }
+}

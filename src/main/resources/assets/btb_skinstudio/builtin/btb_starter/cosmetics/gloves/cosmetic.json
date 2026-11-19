@@ -1,0 +1,36 @@
+{
+  "format": 1,
+  "id": "btb:gloves",
+  "version": "1.0.0",
+  "name": {
+    "de": "Lederhandschuhe",
+    "en": "Leather Gloves"
+  },
+  "description": {
+    "de": "Feste Handschuhe mit goldenem Saum (beide Hände).",
+    "en": "Sturdy gloves with a golden hem (both hands)."
+  },
+  "author": "BTB Studios",
+  "type": "gloves",
+  "attachment": "right_arm",
+  "slots": [
+    "hands"
+  ],
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#FF9090",
+      "#202020"
+    ]
+  },
+  "tags": [
+    "handschuhe",
+    "hände"
+  ]
+}

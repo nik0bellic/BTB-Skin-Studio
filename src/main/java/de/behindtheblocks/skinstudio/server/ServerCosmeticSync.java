@@ -1,0 +1,271 @@
+package de.behindtheblocks.skinstudio.server;
+
+import de.behindtheblocks.skinstudio.BtbSkinStudio;
+import de.behindtheblocks.skinstudio.cosmetic.CosmeticJson;
+import de.behindtheblocks.skinstudio.loadout.Loadout;
+import de.behindtheblocks.skinstudio.network.SkinStudioPayloads;
+import de.behindtheblocks.skinstudio.network.SkinStudioPayloads.CosmeticChunk;
+import de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Hello;
+import de.behindtheblocks.skinstudio.network.SkinStudioPayloads.PlayerLoadout;
+import de.behindtheblocks.skinstudio.network.SkinStudioPayloads.RemovePlayer;
+import de.behindtheblocks.skinstudio.network.SkinStudioPayloads.RequestCosmetic;
+import de.behindtheblocks.skinstudio.network.SkinStudioPayloads.SetLoadout;
+import de.behindtheblocks.skinstudio.network.SkinStudioPayloads.SyncLoadouts;
+import de.behindtheblocks.skinstudio.pack.ArchiveFiles;
+import de.behindtheblocks.skinstudio.pack.CosmeticAsset;
+import de.behindtheblocks.skinstudio.pack.PackReader;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
+
+/**
+ * Server side of the cosmetic sync. The server never renders anything; it only
+ * <ul>
+ *   <li>validates and relays loadouts (ids + colors + hashes),</li>
+ *   <li>brokers on-demand transfers of cosmetics other clients do not have, with an in-memory cache,
+ *       so every archive crosses the network at most once per server session and client cache.</li>
+ * </ul>
+ * Vanilla clients and clients without the mod are simply skipped.
+ */
+public final class ServerCosmeticSync {
+	private static final Logger LOG = LoggerFactory.getLogger("BTB Skin Studio/Sync");
+	private static final Pattern HASH = Pattern.compile("[0-9a-f]{32}");
+	private static final long CACHE_LIMIT_BYTES = 32L * 1024 * 1024;
+	private static final long OWNER_ASK_COOLDOWN_MS = 30_000;
+	private static final int MAX_LOADOUT_UPDATES_PER_10S = 20;
+
+	private final Map<UUID, List<Loadout.Entry>> loadouts = new HashMap<>();
+	private final Set<UUID> modded = new HashSet<>();
+	private final Map<UUID, long[]> rate = new HashMap<>();
+	/** content hash → validated .btbcosmetic archive (LRU). */
+	private final LinkedHashMap<String, byte[]> blobs = new LinkedHashMap<>(16, 0.75f, true);
+	private long blobBytes;
+	private final Map<String, Set<UUID>> waiting = new HashMap<>();
+	private final Map<String, Long> askedOwner = new HashMap<>();
+	private final Map<String, SkinStudioPayloads.Assembly> uploads = new HashMap<>();
+	private boolean transferAllowed = true;
+
+	public void register() {
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+			if (ServerPlayNetworking.canSend(handler.player, Hello.TYPE)) {
+				ServerPlayNetworking.send(handler.player, new Hello(SkinStudioPayloads.PROTOCOL, BtbSkinStudio.version(), transferAllowed));
+			}
+		});
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> onLeave(handler.player, server));
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> reset());
+
+		ServerPlayNetworking.registerGlobalReceiver(Hello.TYPE, (payload, ctx) -> onHello(ctx.player(), payload, ctx.server()));
+		ServerPlayNetworking.registerGlobalReceiver(SetLoadout.TYPE, (payload, ctx) -> onSetLoadout(ctx.player(), payload, ctx.server()));
+		ServerPlayNetworking.registerGlobalReceiver(RequestCosmetic.TYPE, (payload, ctx) -> onRequest(ctx.player(), payload.hash(), ctx.server()));
+		ServerPlayNetworking.registerGlobalReceiver(CosmeticChunk.TYPE, (payload, ctx) -> onUploadChunk(ctx.player(), payload, ctx.server()));
+	}
+
+	private void reset() {
+		loadouts.clear();
+		modded.clear();
+		rate.clear();
+		blobs.clear();
+		blobBytes = 0;
+		waiting.clear();
+		askedOwner.clear();
+		uploads.clear();
+	}
+
+	private void onHello(ServerPlayer player, Hello hello, MinecraftServer server) {
+		if (hello.protocol() != SkinStudioPayloads.PROTOCOL) {
+			LOG.warn("{} nutzt BTB Skin Studio {} (Protokoll {}), Server erwartet Protokoll {} – Cosmetics für diesen Spieler deaktiviert",
+					player.getName().getString(), hello.modVersion(), hello.protocol(), SkinStudioPayloads.PROTOCOL);
+			return;
+		}
+		modded.add(player.getUUID());
+		List<PlayerLoadout> all = new ArrayList<>();
+		loadouts.forEach((id, entries) -> all.add(new PlayerLoadout(id, entries)));
+		if (!all.isEmpty()) {
+			ServerPlayNetworking.send(player, new SyncLoadouts(all));
+		}
+	}
+
+	private void onLeave(ServerPlayer player, MinecraftServer server) {
+		UUID id = player.getUUID();
+		modded.remove(id);
+		rate.remove(id);
+		uploads.keySet().removeIf(k -> k.startsWith(id + "/"));
+		waiting.values().forEach(s -> s.remove(id));
+		if (loadouts.remove(id) != null) {
+			broadcast(server, new RemovePlayer(id), null);
+		}
+	}
+
+	/** Validates ids, colors and hashes; drops anything malformed instead of trusting the client. */
+	static List<Loadout.Entry> sanitize(List<Loadout.Entry> in) {
+		List<Loadout.Entry> out = new ArrayList<>();
+		Set<String> seen = new HashSet<>();
+		for (Loadout.Entry e : in) {
+			if (out.size() >= Loadout.MAX_ENTRIES) {
+				break;
+			}
+			if (!CosmeticJson.isValidId(e.id()) || !seen.add(e.id())) {
+				continue;
+			}
+			String hash = HASH.matcher(e.hash()).matches() ? e.hash() : "";
+			out.add(new Loadout.Entry(e.id(), e.color(), hash));
+		}
+		return out;
+	}
+
+	private boolean rateLimited(UUID id) {
+		long now = System.currentTimeMillis();
+		long[] r = rate.computeIfAbsent(id, k -> new long[]{now, 0});
+		if (now - r[0] > 10_000) {
+			r[0] = now;
+			r[1] = 0;
+		}
+		return ++r[1] > MAX_LOADOUT_UPDATES_PER_10S;
+	}
+
+	private void onSetLoadout(ServerPlayer player, SetLoadout payload, MinecraftServer server) {
+		if (!modded.contains(player.getUUID()) || rateLimited(player.getUUID())) {
+			return;
+		}
+		List<Loadout.Entry> clean = sanitize(payload.entries());
+		if (clean.equals(loadouts.get(player.getUUID()))) {
+			return;
+		}
+		loadouts.put(player.getUUID(), clean);
+		broadcast(server, new SyncLoadouts(List.of(new PlayerLoadout(player.getUUID(), clean))), null);
+	}
+
+	private void broadcast(MinecraftServer server, net.minecraft.network.protocol.common.custom.CustomPacketPayload payload, UUID except) {
+		for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+			if (modded.contains(p.getUUID()) && !p.getUUID().equals(except)) {
+				ServerPlayNetworking.send(p, payload);
+			}
+		}
+	}
+
+	// ------------------------------------------------------------------ transfer broker
+
+	private void onRequest(ServerPlayer requester, String hash, MinecraftServer server) {
+		if (!transferAllowed || !modded.contains(requester.getUUID()) || !HASH.matcher(hash).matches()) {
+			return;
+		}
+		byte[] blob = blobs.get(hash);
+		if (blob != null) {
+			send(requester, hash, blob);
+			return;
+		}
+		ServerPlayer owner = findOwner(hash, server);
+		if (owner == null || owner == requester) {
+			return;
+		}
+		Set<UUID> w = waiting.computeIfAbsent(hash, k -> new HashSet<>());
+		if (w.size() > 256) {
+			return;
+		}
+		w.add(requester.getUUID());
+		long now = System.currentTimeMillis();
+		Long asked = askedOwner.get(hash);
+		if (asked == null || now - asked > OWNER_ASK_COOLDOWN_MS) {
+			askedOwner.put(hash, now);
+			ServerPlayNetworking.send(owner, new RequestCosmetic(hash));
+		}
+	}
+
+	private ServerPlayer findOwner(String hash, MinecraftServer server) {
+		for (Map.Entry<UUID, List<Loadout.Entry>> e : loadouts.entrySet()) {
+			for (Loadout.Entry entry : e.getValue()) {
+				if (entry.hash().equals(hash)) {
+					ServerPlayer p = server.getPlayerList().getPlayer(e.getKey());
+					if (p != null) {
+						return p;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private void onUploadChunk(ServerPlayer owner, CosmeticChunk chunk, MinecraftServer server) {
+		String hash = chunk.hash();
+		if (!transferAllowed || !HASH.matcher(hash).matches() || !askedOwner.containsKey(hash) || blobs.containsKey(hash)) {
+			return;
+		}
+		boolean ownsIt = loadouts.getOrDefault(owner.getUUID(), List.of()).stream().anyMatch(e -> e.hash().equals(hash));
+		if (!ownsIt) {
+			return;
+		}
+		String key = owner.getUUID() + "/" + hash;
+		byte[] complete;
+		try {
+			SkinStudioPayloads.Assembly a = uploads.computeIfAbsent(key, k -> new SkinStudioPayloads.Assembly(chunk.total()));
+			complete = a.add(chunk);
+		} catch (IllegalArgumentException e) {
+			uploads.remove(key);
+			LOG.warn("Ungültiger Upload von {}: {}", owner.getName().getString(), e.getMessage());
+			return;
+		}
+		if (complete == null) {
+			return;
+		}
+		uploads.remove(key);
+		String who = owner.getName().getString();
+		CompletableFuture.supplyAsync(() -> verify(complete, hash)).thenAcceptAsync(ok -> {
+			if (!ok) {
+				LOG.warn("Upload von {} verworfen: Inhalt ungültig oder Hash stimmt nicht", who);
+				waiting.remove(hash);
+				return;
+			}
+			store(hash, complete);
+			Set<UUID> targets = waiting.remove(hash);
+			if (targets != null) {
+				for (UUID t : targets) {
+					ServerPlayer p = server.getPlayerList().getPlayer(t);
+					if (p != null) {
+						send(p, hash, complete);
+					}
+				}
+			}
+		}, server);
+	}
+
+	/** Parses the archive like a client would and checks that the content hash matches. */
+	static boolean verify(byte[] zip, String hash) {
+		try {
+			CosmeticAsset a = PackReader.readSingle(ArchiveFiles.readZip(zip), "remote", new ArrayList<>());
+			return a.contentHash.equals(hash);
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	private void store(String hash, byte[] data) {
+		blobs.put(hash, data);
+		blobBytes += data.length;
+		var it = blobs.entrySet().iterator();
+		while (blobBytes > CACHE_LIMIT_BYTES && it.hasNext()) {
+			blobBytes -= it.next().getValue().length;
+			it.remove();
+		}
+	}
+
+	private static void send(ServerPlayer p, String hash, byte[] data) {
+		for (CosmeticChunk c : SkinStudioPayloads.split(hash, data)) {
+			ServerPlayNetworking.send(p, c);
+		}
+	}
+}

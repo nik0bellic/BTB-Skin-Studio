@@ -1,0 +1,39 @@
+{
+  "format": 1,
+  "id": "btb:halo",
+  "version": "1.0.0",
+  "name": {
+    "de": "Heiligenschein",
+    "en": "Halo"
+  },
+  "description": {
+    "de": "Ein leuchtender Ring schwebt über dem Kopf.",
+    "en": "A glowing ring floats above your head."
+  },
+  "author": "BTB Studios",
+  "type": "halo",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "emissive_texture": "emissive.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.halo.float"
+  ],
+  "preview": "preview.png",
+  "glow": {
+    "color": "#FFF0A0",
+    "size": 9,
+    "intensity": 0.35,
+    "offset": [
+      0,
+      3.5,
+      0
+    ],
+    "flicker": false
+  },
+  "tags": [
+    "halo",
+    "engel",
+    "licht"
+  ]
+}

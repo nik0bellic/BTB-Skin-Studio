@@ -1,0 +1,26 @@
+{
+  "format": 1,
+  "id": "btb:knight_helmet",
+  "version": "1.0.0",
+  "name": {
+    "de": "Ritterhelm",
+    "en": "Knight Helmet"
+  },
+  "description": {
+    "de": "Polierter Eisenhelm mit rotem Federbusch.",
+    "en": "A polished iron helmet with a red plume."
+  },
+  "author": "BTB Studios",
+  "type": "helmet",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "hide_layers": [
+    "hat"
+  ],
+  "tags": [
+    "helm",
+    "ritter",
+    "rüstung"
+  ]
+}

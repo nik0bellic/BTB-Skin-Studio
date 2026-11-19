@@ -1,0 +1,27 @@
+{
+	"schemaVersion": 1,
+	"id": "btb_skinstudio",
+	"version": "${version}",
+	"name": "BTB Skin Studio",
+	"description": "Cosmetics, Garderobe und Cosmetic-Editor der BTB-Studios-Mod-Familie.",
+	"authors": ["Nik2810"],
+	"contact": {
+		"sources": "https://github.com/nik0bellic/BTB-Skin-Studio"
+	},
+	"license": "MIT",
+	"icon": "assets/btb_skinstudio/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["de.behindtheblocks.skinstudio.BtbSkinStudio"],
+		"client": ["de.behindtheblocks.skinstudio.client.BtbSkinStudioClient"]
+	},
+	"mixins": [
+		{ "config": "btb_skinstudio.client.mixins.json", "environment": "client" }
+	],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

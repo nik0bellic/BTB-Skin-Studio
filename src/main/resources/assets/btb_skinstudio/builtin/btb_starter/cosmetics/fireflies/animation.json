@@ -1,0 +1,46 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.fireflies.orbit": {
+      "loop": true,
+      "bones": {
+        "fly0": {
+          "rotation": [
+            0,
+            "q.anim_time * 70 + 0",
+            0
+          ],
+          "position": [
+            0,
+            "math.sin(q.anim_time * 140) * 1.5",
+            0
+          ]
+        },
+        "fly1": {
+          "rotation": [
+            0,
+            "q.anim_time * -55 + 120",
+            0
+          ],
+          "position": [
+            0,
+            "math.sin(q.anim_time * 110) * 1.5",
+            0
+          ]
+        },
+        "fly2": {
+          "rotation": [
+            0,
+            "q.anim_time * 90 + 240",
+            0
+          ],
+          "position": [
+            0,
+            "math.sin(q.anim_time * 180) * 1.5",
+            0
+          ]
+        }
+      }
+    }
+  }
+}

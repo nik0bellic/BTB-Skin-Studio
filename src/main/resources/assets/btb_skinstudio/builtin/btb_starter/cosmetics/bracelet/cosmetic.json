@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "id": "btb:bracelet",
+  "version": "1.0.0",
+  "name": {
+    "de": "Armband",
+    "en": "Bracelet"
+  },
+  "description": {
+    "de": "Goldenes Armband mit Türkis.",
+    "en": "A golden bracelet with a turquoise stone."
+  },
+  "author": "BTB Studios",
+  "type": "bracelet",
+  "attachment": "right_arm",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#D8D8E0",
+      "#FFB0A0"
+    ]
+  },
+  "tags": [
+    "schmuck",
+    "arm"
+  ]
+}

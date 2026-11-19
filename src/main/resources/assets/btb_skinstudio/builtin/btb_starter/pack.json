@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "id": "btb_builtin_starter",
+  "version": "1.0.0",
+  "name": {
+    "de": "BTB Starter",
+    "en": "BTB Starter"
+  },
+  "description": {
+    "de": "Die eingebauten Cosmetics von BTB Skin Studio.",
+    "en": "The built-in cosmetics of BTB Skin Studio."
+  },
+  "author": "BTB Studios",
+  "icon": "pack.png",
+  "categories": [
+    "BTB",
+    "Starter"
+  ]
+}

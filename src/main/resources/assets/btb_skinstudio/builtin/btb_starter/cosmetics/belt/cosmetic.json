@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "id": "btb:belt",
+  "version": "1.0.0",
+  "name": {
+    "de": "Dekorativer Gürtel",
+    "en": "Decorative Belt"
+  },
+  "description": {
+    "de": "Ledergürtel mit großer Schnalle und kleiner Tasche.",
+    "en": "A leather belt with a big buckle and a small pouch."
+  },
+  "author": "BTB Studios",
+  "type": "belt",
+  "attachment": "body",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#505050",
+      "#A07050"
+    ]
+  },
+  "tags": [
+    "gürtel",
+    "leder"
+  ]
+}

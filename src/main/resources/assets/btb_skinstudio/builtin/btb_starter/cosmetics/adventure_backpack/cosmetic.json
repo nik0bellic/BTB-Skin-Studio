@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "id": "btb:adventure_backpack",
+  "version": "1.0.0",
+  "name": {
+    "de": "Kleiner Abenteuerrucksack",
+    "en": "Small Adventure Pack"
+  },
+  "description": {
+    "de": "Kompakter Rucksack mit Schlafrolle und Feldflasche.",
+    "en": "A compact pack with bedroll and canteen."
+  },
+  "author": "BTB Studios",
+  "type": "backpack",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "tags": [
+    "rucksack",
+    "abenteuer",
+    "camping"
+  ]
+}

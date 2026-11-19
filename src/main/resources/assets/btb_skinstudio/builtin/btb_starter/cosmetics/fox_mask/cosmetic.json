@@ -1,0 +1,22 @@
+{
+  "format": 1,
+  "id": "btb:fox_mask",
+  "version": "1.0.0",
+  "name": {
+    "de": "Fuchsmaske",
+    "en": "Fox Mask"
+  },
+  "description": {
+    "de": "Eine Fuchsmaske mit spitzen Ohren.",
+    "en": "A fox mask with pointy ears."
+  },
+  "author": "BTB Studios",
+  "type": "mask",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "tags": [
+    "maske",
+    "fuchs"
+  ]
+}
