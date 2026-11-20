@@ -66,10 +66,14 @@ public class EmoteScreen extends Screen {
 		ui.begin(g, font, mouseX, mouseY);
 		Theme t = ui.t;
 		boolean pad = controllerActive();
-		int outer = Math.min(100, height / 2 - 30), inner = (int) (outer * 0.4);
-		int previewW = 120, gap = 28;
+		// the hint below the wheel is measured first, so wheel + hint always fit on the screen
+		String hint = Tr.t(pad ? "btb.ui.emotes.hint_pad" : "btb.ui.emotes.hint");
+		var hl = font.split(Component.literal(hint), Math.min(width - 20, 300));
+		int hintH = hl.size() * 10 + 10;
+		int outer = Math.max(40, Math.min(100, (height - hintH - 24) / 2)), inner = (int) (outer * 0.4);
+		int previewW = Math.min(120, Math.max(70, width - outer * 2 - 60)), gap = 24;
 		int total = outer * 2 + gap + previewW;
-		int cx = (width - total) / 2 + outer, cy = height / 2;
+		int cx = (width - total) / 2 + outer, cy = Math.max(outer + 6, (height - (outer * 2 + hintH)) / 2 + outer);
 		this.cx = cx;
 		this.cy = cy;
 		this.inner = inner;
@@ -132,11 +136,11 @@ public class EmoteScreen extends Screen {
 			ty += 10;
 		}
 		// hint below the wheel
-		String hint = Tr.t(pad ? "btb.ui.emotes.hint_pad" : "btb.ui.emotes.hint");
-		var hl = font.split(Component.literal(hint), outer * 2 + 40);
 		int hy = cy + outer + 8;
+		int hcx = Math.max(cx, width / 2);
 		for (var l : hl) {
-			g.text(font, l, cx - font.width(l) / 2, hy, 0xFFE8E8EC, true);
+			int lx = Math.max(4, Math.min(width - 4 - font.width(l), hcx - font.width(l) / 2));
+			g.text(font, l, lx, hy, 0xFFE8E8EC, true);
 			hy += 10;
 		}
 		// figure next to the wheel showing the hovered emote
@@ -230,11 +234,11 @@ public class EmoteScreen extends Screen {
 			return true;
 		}
 		// left click anywhere plays the selected emote, right click closes
-		if (event.button() == 1) {
+		if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
 			onClose();
 			return true;
 		}
-		if (event.button() == 0 && sel >= 0) {
+		if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && sel >= 0) {
 			play(sel);
 			return true;
 		}
@@ -274,5 +278,17 @@ public class EmoteScreen extends Screen {
 			sel = Integer.parseInt(args[1]);
 			lastMx = lastMy = -1;
 		}
+	}
+
+	@Override
+	protected void init() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.fit(this);
+		super.init();
+	}
+
+	@Override
+	public void removed() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.restore();
+		super.removed();
 	}
 }

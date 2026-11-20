@@ -19,7 +19,7 @@ public final class Emotes {
 		void at(float t, float[] out);
 	}
 
-	/** duration in seconds, loop = repeats until the player moves, item = game item held in the right hand (or null). */
+	/** duration in seconds (one cycle), loop = the cycle repeats a fixed number of times ({@link #length}), item = game item held in the right hand (or null). */
 	public record Emote(String id, float duration, boolean loop, Pose pose, String item) {
 	}
 
@@ -171,19 +171,31 @@ public final class Emotes {
 	 */
 	public static float[] sample(String id, float t) {
 		Emote e = get(id);
-		if (e == null || t < 0 || (!e.loop() && t > e.duration())) {
+		float total = e == null ? 0 : length(e);
+		if (e == null || t < 0 || t > total) {
 			return null;
 		}
 		float[] out = new float[SIZE + 1];
 		java.util.Arrays.fill(out, N);
 		float local = e.loop() ? t % e.duration() : t;
 		e.pose().at(local, out);
-		float w = Math.min(1, t / BLEND);
-		if (!e.loop()) {
-			w = Math.min(w, (e.duration() - t) / BLEND);
-		}
+		float w = Math.min(1, Math.min(t / BLEND, (total - t) / BLEND));
 		out[SIZE] = Math.max(0, Math.min(1, w));
 		return out;
+	}
+
+	/** Every emote has a fixed length: repeating ones play their cycle a few times (about 6 s), then end. */
+	public static float length(Emote e) {
+		return e.loop() ? e.duration() * cycles(e) : e.duration();
+	}
+
+	public static float length(String id) {
+		Emote e = get(id);
+		return e == null ? 0 : length(e);
+	}
+
+	private static int cycles(Emote e) {
+		return Math.max(2, Math.round(6f / e.duration()));
 	}
 
 	private static void set(float[] o, int part, float x, float y, float z) {

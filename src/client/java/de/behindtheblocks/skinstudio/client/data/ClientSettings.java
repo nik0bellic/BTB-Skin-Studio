@@ -86,6 +86,13 @@ public final class ClientSettings {
 					slots.add(de.behindtheblocks.skinstudio.emote.Emotes.DEFAULT_WHEEL.get(slots.size()));
 				}
 				s.emoteSlots = new java.util.ArrayList<>(slots.subList(0, 5));
+				// empty or unknown places (older versions) get the default emote of that place
+				for (int i = 0; i < 5; i++) {
+					String id = s.emoteSlots.get(i);
+					if (id == null || id.isBlank() || !de.behindtheblocks.skinstudio.emote.Emotes.exists(id)) {
+						s.emoteSlots.set(i, de.behindtheblocks.skinstudio.emote.Emotes.DEFAULT_WHEEL.get(i));
+					}
+				}
 			}
 			if (o.has("skin_pack_catalogs")) {
 				s.skinPackCatalogs = new java.util.ArrayList<>(Json.strings(o, "skin_pack_catalogs"));

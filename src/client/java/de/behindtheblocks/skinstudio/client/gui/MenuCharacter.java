@@ -99,11 +99,13 @@ public final class MenuCharacter {
 			g.fill(cx - sw / 2 + i * 3, y1 - 6 + i, cx + sw / 2 - i * 3, y1 - 5 + i, a << 24);
 		}
 		// the figure turns a little towards the mouse, like in Bedrock
-		if (follow) {
-			float target = Math.max(-45, Math.min(45, (mouseX - cx) * 0.35f));
-			preview.yaw += (target - preview.yaw) * 0.12f;
-			preview.pitch = Math.max(-20, Math.min(20, (mouseY - (y0 + (y1 - y0) / 4)) * 0.12f));
-		}
+		// only while the window has focus: after tabbing out the cursor sits anywhere and would tilt the figure
+		boolean active = mc.isWindowActive() && mouseX >= 0 && mouseY >= 0 && mouseX < mc.getWindow().getGuiScaledWidth()
+				&& mouseY < mc.getWindow().getGuiScaledHeight();
+		float targetYaw = follow && active ? Math.max(-40, Math.min(40, (mouseX - cx) * 0.3f)) : (follow ? -15 : preview.yaw);
+		float targetPitch = follow && active ? Math.max(-8, Math.min(8, (mouseY - (y0 + (y1 - y0) / 4)) * 0.06f)) : (follow ? -4 : preview.pitch);
+		preview.yaw += (targetYaw - preview.yaw) * 0.12f;
+		preview.pitch += (targetPitch - preview.pitch) * 0.12f;
 		try {
 			preview.draw(g, x0, y0 - 2, x0 + boxW, y1, cosmetics());
 		} catch (RuntimeException e) {

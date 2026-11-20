@@ -42,8 +42,8 @@ public class PackManagerScreen extends Screen {
 	private String confirmUninstall;
 	private String status;
 	private boolean statusError;
-	private int scroll;
-	private int detailScroll;
+	private int scroll, scrollMax;
+	private int detailScroll, detailMax;
 
 	public PackManagerScreen(Screen parent) {
 		super(Component.literal(Tr.t("btb.t.packs")));
@@ -127,6 +127,8 @@ public class PackManagerScreen extends Screen {
 			y += 37;
 		}
 		g.disableScissor();
+		scrollMax = Math.max(0, packs.size() * 37 - 3 - (bottom - 4 - (top + 6)));
+		scroll = Math.min(scroll, scrollMax);
 
 		int dx = m + listW + 6, dw = width - m - dx;
 		ui.glass(dx, top, dw, bottom - top, 10);
@@ -229,6 +231,8 @@ public class PackManagerScreen extends Screen {
 			cx += 40;
 		}
 		ui.g.disableScissor();
+		detailMax = p.cosmetics.isEmpty() ? 0 : Math.max(0, rowY + 36 + detailScroll - cy - (listBottom - cy));
+		detailScroll = Math.min(detailScroll, detailMax);
 		if (p.origin == LoadedPack.Origin.CUSTOM && !p.cosmetics.isEmpty()) {
 			ui.text(Tr.t("btb.t.klick_als_btbcosmetic_exportieren_rechts"), x + 8, listBottom - 10, t.textFaint);
 		}
@@ -371,9 +375,9 @@ public class PackManagerScreen extends Screen {
 	@Override
 	public boolean mouseScrolled(double x, double y, double sx, double sy) {
 		if (x < width * 2 / 5 + 8) {
-			scroll = Math.max(0, scroll - (int) (sy * 20));
+			scroll = Math.max(0, Math.min(scrollMax, scroll - (int) Math.round(sy * 20)));
 		} else {
-			detailScroll = Math.max(0, detailScroll - (int) (sy * 20));
+			detailScroll = Math.max(0, Math.min(detailMax, detailScroll - (int) Math.round(sy * 20)));
 		}
 		return true;
 	}
@@ -381,5 +385,17 @@ public class PackManagerScreen extends Screen {
 	@Override
 	public void onFilesDrop(List<Path> files) {
 		minecraft.gui.setScreen(new ImportScreen(this, files));
+	}
+
+	@Override
+	protected void init() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.fit(this);
+		super.init();
+	}
+
+	@Override
+	public void removed() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.restore();
+		super.removed();
 	}
 }

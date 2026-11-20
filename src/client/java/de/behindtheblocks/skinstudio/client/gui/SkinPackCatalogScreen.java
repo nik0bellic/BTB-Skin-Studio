@@ -32,7 +32,7 @@ public class SkinPackCatalogScreen extends Screen {
 	private boolean loading = true;
 	private String status;
 	private boolean statusError;
-	private int scroll;
+	private int scroll, scrollMax;
 	private int queued;
 
 	public SkinPackCatalogScreen(Screen parent) {
@@ -141,7 +141,8 @@ public class SkinPackCatalogScreen extends Screen {
 		}
 		int cols = Math.max(1, w / 230), cw = (w - (cols - 1) * 6) / cols, ch = 44;
 		int rows = (entries.size() + cols - 1) / cols;
-		scroll = Math.max(0, Math.min(scroll, Math.max(0, rows * (ch + 6) - (listBottom - y))));
+		scrollMax = Math.max(0, rows * (ch + 6) - (listBottom - y));
+		scroll = Math.max(0, Math.min(scroll, scrollMax));
 		g.enableScissor(m + 2, y, width - m - 2, listBottom);
 		for (int i = 0; i < entries.size(); i++) {
 			SkinPackCatalog.Entry e = entries.get(i);
@@ -193,7 +194,7 @@ public class SkinPackCatalogScreen extends Screen {
 
 	@Override
 	public boolean mouseScrolled(double x, double y, double sx, double sy) {
-		scroll = Math.max(0, scroll - (int) (sy * 24));
+		scroll = Math.max(0, Math.min(scrollMax, scroll - (int) Math.round(sy * 24)));
 		return true;
 	}
 
@@ -204,5 +205,17 @@ public class SkinPackCatalogScreen extends Screen {
 			default -> {
 			}
 		}
+	}
+
+	@Override
+	protected void init() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.fit(this);
+		super.init();
+	}
+
+	@Override
+	public void removed() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.restore();
+		super.removed();
 	}
 }

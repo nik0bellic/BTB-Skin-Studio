@@ -617,7 +617,7 @@
 	"btb.ui.emotes.change_keys": "Tasten ändern",
 	"btb.ui.emotes.assign": "Auf Platz %s legen",
 	"btb.ui.emotes.assigned": "%s liegt auf Platz %s.",
-	"btb.ui.emotes.pick_slot": "Platz wählen, dann Emote anklicken. Direkttasten unter „Tasten ändern“.",
+	"btb.ui.emotes.pick_slot": "Platz wählen, dann auf ein Emote klicken – es liegt sofort dort. Maus drüber zeigt es an der Figur.",
 	"btb.ui.emotes.with_item": "mit Gegenstand",
 	"btb.ui.emotes.loop": "Endlos, bis du dich bewegst",
 	"btb.ui.emotes.play": "Abspielen",
@@ -650,5 +650,13 @@
 	"btb.ui.setting.layers3d.body": "Körper",
 	"btb.ui.setting.layers3d.arms": "Arme",
 	"btb.ui.setting.layers3d.legs": "Beine",
-	"btb.ui.setting.blinking": "Skins blinzeln"
+	"btb.ui.setting.blinking": "Skins blinzeln",
+	"btb.ui.info": "Info & Credits",
+	"btb.ui.info.version": "Version",
+	"btb.ui.info.author": "Von",
+	"btb.ui.info.family": "Teil von",
+	"btb.ui.info.license": "Lizenz",
+	"btb.ui.info.thanks": "Idee, Design und Entwicklung: Nik2810. Persona-Texturlayout nach „Bedrock Skins“ von BrandonItaly (MIT). Kein offizielles Minecraft-Produkt.",
+	"btb.ui.emotes.on_place": "auf Platz %s",
+	"btb.ui.emotes.click_to_assign": "Klick auf ein Emote legt es auf Platz %s."
 }

@@ -617,7 +617,7 @@
 	"btb.ui.emotes.change_keys": "Change keys",
 	"btb.ui.emotes.assign": "Put on place %s",
 	"btb.ui.emotes.assigned": "%s is on place %s.",
-	"btb.ui.emotes.pick_slot": "Pick a place, then click an emote. Direct keys under \"Change keys\".",
+	"btb.ui.emotes.pick_slot": "Pick a place, then click an emote – it is put there right away. Hover to see it on the figure.",
 	"btb.ui.emotes.with_item": "with item",
 	"btb.ui.emotes.loop": "Loops until you move",
 	"btb.ui.emotes.play": "Play",
@@ -650,5 +650,13 @@
 	"btb.ui.setting.layers3d.body": "Body",
 	"btb.ui.setting.layers3d.arms": "Arms",
 	"btb.ui.setting.layers3d.legs": "Legs",
-	"btb.ui.setting.blinking": "Skins blink"
+	"btb.ui.setting.blinking": "Skins blink",
+	"btb.ui.info": "Info & credits",
+	"btb.ui.info.version": "Version",
+	"btb.ui.info.author": "By",
+	"btb.ui.info.family": "Part of",
+	"btb.ui.info.license": "License",
+	"btb.ui.info.thanks": "Idea, design and development: Nik2810. Persona texture layout after “Bedrock Skins” by BrandonItaly (MIT). Not an official Minecraft product.",
+	"btb.ui.emotes.on_place": "on place %s",
+	"btb.ui.emotes.click_to_assign": "Click an emote to put it on place %s."
 }

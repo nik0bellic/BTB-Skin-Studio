@@ -72,12 +72,17 @@ public final class Ui {
 		for (int i = lastHits.size() - 1; i >= 0; i--) {
 			Hit h = lastHits.get(i);
 			if (h.contains(mx, my)) {
-				Runnable r = button == 1 ? h.rightAction : h.action;
+				// Minecraft 26 uses SDL3 button numbers: left = 1, right = 3 (not 0/1 as before)
+				if (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT
+						&& button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
+					return false;
+				}
+				Runnable r = button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT ? h.rightAction : h.action;
 				if (r != null) {
 					r.run();
 					return true;
 				}
-				return button == 0;
+				return button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT;
 			}
 		}
 		return false;

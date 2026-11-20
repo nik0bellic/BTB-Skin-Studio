@@ -39,6 +39,7 @@ public class PlayerSkinScreen extends Screen {
 
 	@Override
 	protected void init() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.fit(this);
 		String old = nameBox == null ? "" : nameBox.getValue();
 		nameBox = new EditBox(font, 0, 0, 100, 12, Component.literal(Tr.t("btb.ui.player.name")));
 		nameBox.setBordered(false);
@@ -205,5 +206,11 @@ public class PlayerSkinScreen extends Screen {
 			default -> {
 			}
 		}
+	}
+
+	@Override
+	public void removed() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.restore();
+		super.removed();
 	}
 }

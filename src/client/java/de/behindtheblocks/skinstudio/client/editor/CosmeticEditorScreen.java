@@ -183,6 +183,7 @@ public class CosmeticEditorScreen extends Screen {
 
 	@Override
 	protected void init() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.fit(this);
 		// name and description are edited in the game language; the other language is only filled if empty
 		String lang = Tr.german() ? "de" : "en", other = Tr.german() ? "en" : "de";
 		String n = nameBox == null ? def.name(lang) : nameBox.getValue();
@@ -958,5 +959,11 @@ public class CosmeticEditorScreen extends Screen {
 			default -> {
 			}
 		}
+	}
+
+	@Override
+	public void removed() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.restore();
+		super.removed();
 	}
 }

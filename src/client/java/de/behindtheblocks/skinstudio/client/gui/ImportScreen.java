@@ -42,7 +42,7 @@ public class ImportScreen extends Screen {
 	private boolean dragging;
 	private boolean busy;
 	private String status;
-	private int problemScroll;
+	private int problemScroll, problemMax;
 
 	public ImportScreen(Screen parent, List<Path> files) {
 		super(Component.literal(Tr.t("btb.t.import")));
@@ -179,6 +179,8 @@ public class ImportScreen extends Screen {
 				py += 3;
 			}
 			g.disableScissor();
+			problemMax = Math.max(0, py + problemScroll - cy - (listBottom - cy));
+			problemScroll = Math.min(problemScroll, problemMax);
 			String label = busy ? de.behindtheblocks.skinstudio.util.Tr.t("btb.ui.wait") : plan.actionLabel;
 			int bw = Math.min(font.width(label) + 32, dw - 16);
 			ui.button(dx + dw - 8 - bw, bottom - 26, bw, 18, label, Icon.IMPORT, Ui.Style.PRIMARY,
@@ -252,7 +254,7 @@ public class ImportScreen extends Screen {
 
 	@Override
 	public boolean mouseScrolled(double x, double y, double sx, double sy) {
-		problemScroll = Math.max(0, problemScroll - (int) (sy * 20));
+		problemScroll = Math.max(0, Math.min(problemMax, problemScroll - (int) Math.round(sy * 20)));
 		return true;
 	}
 
@@ -277,5 +279,17 @@ public class ImportScreen extends Screen {
 			default -> {
 			}
 		}
+	}
+
+	@Override
+	protected void init() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.fit(this);
+		super.init();
+	}
+
+	@Override
+	public void removed() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.restore();
+		super.removed();
 	}
 }

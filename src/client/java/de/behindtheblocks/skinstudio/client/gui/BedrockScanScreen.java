@@ -34,7 +34,7 @@ public class BedrockScanScreen extends Screen {
 	private boolean scanning;
 	private String status;
 	private boolean statusError;
-	private int scroll;
+	private int scroll, scrollMax;
 
 	public BedrockScanScreen(Screen parent) {
 		super(Component.literal(Tr.t("btb.ui.bedrock.scan")));
@@ -129,6 +129,8 @@ public class BedrockScanScreen extends Screen {
 				ry += 27;
 			}
 			g.disableScissor();
+			scrollMax = Math.max(0, found.size() * 27 - 3 - (bottom - 30 - y));
+			scroll = Math.min(scroll, scrollMax);
 		}
 		if (status != null) {
 			ui.text(ui.ellipsize(status, w), x, bottom - 20, statusError ? t.danger : t.textMuted);
@@ -183,7 +185,19 @@ public class BedrockScanScreen extends Screen {
 
 	@Override
 	public boolean mouseScrolled(double x, double y, double sx, double sy) {
-		scroll = Math.max(0, scroll - (int) (sy * 20));
+		scroll = Math.max(0, Math.min(scrollMax, scroll - (int) Math.round(sy * 20)));
 		return true;
+	}
+
+	@Override
+	protected void init() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.fit(this);
+		super.init();
+	}
+
+	@Override
+	public void removed() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.restore();
+		super.removed();
 	}
 }

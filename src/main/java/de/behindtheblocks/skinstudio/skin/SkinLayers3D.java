@@ -71,6 +71,10 @@ public final class SkinLayers3D {
 				if ((bit == BODY && (face == 0 || face == 1)) || (bit == LEGS && face == 0)) {
 					continue;
 				}
+				// the inner sides of the legs touch each other: voxels there would only poke into the other leg
+				if ((r.bone.equals("rightLeg") && face == 4) || (r.bone.equals("leftLeg") && face == 2)) {
+					continue;
+				}
 				addFace(bone, skin, s, r, face);
 			}
 			if (!bone.cubes.isEmpty()) {
@@ -109,6 +113,13 @@ public final class SkinLayers3D {
 				}
 				float[] o = cellOrigin(r, face, i, j, p, t);
 				closeEdges(o, r, face, i, j, gc, gr, t);
+				// vanilla legs overlap by 0.2 px in the middle: trim there, or both legs' voxels fight for the same plane
+				if (r.bone.equals("rightLeg") && o[0] + o[3] > 0) {
+					o[3] = Math.max(0.05f, -o[0]);
+				} else if (r.bone.equals("leftLeg") && o[0] < 0) {
+					o[3] = Math.max(0.05f, o[3] + o[0]);
+					o[0] = 0;
+				}
 				GeoCube c = new GeoCube();
 				c.origin = new float[]{o[0], o[1], o[2]};
 				c.size = new float[]{o[3], o[4], o[5]};

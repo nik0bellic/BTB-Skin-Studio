@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** Applies a playing emote on top of the vanilla pose (blended in and out). Cosmetics follow automatically. */
-@Mixin(PlayerModel.class)
+@Mixin(value = PlayerModel.class, priority = 1500) // after other animation mods (e.g. Not Enough Animations)
 public abstract class PlayerModelMixin {
 	@Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("TAIL"))
 	private void btbSkinStudio$emote(AvatarRenderState state, CallbackInfo ci) {
@@ -27,6 +27,13 @@ public abstract class PlayerModelMixin {
 		}
 		float[] pose = state.getData(CosmeticRenderData.EMOTE);
 		if (pose == null) {
+			if (Boolean.TRUE.equals(state.getData(CosmeticRenderData.PREVIEW))) {
+				// GUI previews: no idle arm sway – in a small still picture it only looks like jitter
+				model.rightArm.xRot = 0;
+				model.rightArm.zRot = 0.05f;
+				model.leftArm.xRot = 0;
+				model.leftArm.zRot = -0.05f;
+			}
 			return;
 		}
 		float w = pose[Emotes.SIZE];

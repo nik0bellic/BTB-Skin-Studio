@@ -73,6 +73,8 @@ public class WardrobeScreen extends Screen {
 
 	private int emoteSlot;
 	private String selectedEmote;
+	/** Emote card under the mouse: the figure shows it while hovering. */
+	private String hoverEmote;
 	private int emoteScroll;
 
 	private enum Filter {
@@ -99,10 +101,15 @@ public class WardrobeScreen extends Screen {
 	// layout & state
 	private int gridScroll;
 	private int sideScroll;
+	/** Largest scroll values of the last frame, so the wheel never goes past the end (no jump back). */
+	private int gridMax, sideMax, clothMax, emoteMax;
 	private boolean draggingPreview;
 	/** The drag hint disappears for the rest of the session once the player has turned the preview. */
 	private static boolean rotatedOnce;
 	private boolean settingsOpen;
+	private boolean infoOpen;
+	static final String AUTHOR = "Nik2810";
+	static final String SOURCE_URL = "https://github.com/nik0bellic/BTB-Skin-Studio";
 	private String toast;
 	private long toastUntil;
 	private boolean toastError;
@@ -123,6 +130,7 @@ public class WardrobeScreen extends Screen {
 
 	@Override
 	protected void init() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.fit(this);
 		Tr.setLanguage(CosmeticLibrary.language());
 		String old = search == null ? "" : search.getValue();
 		search = new EditBox(font, 0, 0, 100, 12, Component.literal(Tr.t("btb.ui.search")));
@@ -320,8 +328,9 @@ public class WardrobeScreen extends Screen {
 			if (selectedEmote == null) {
 				selectedEmote = de.behindtheblocks.skinstudio.client.emote.EmoteKeys.slot(emoteSlot);
 			}
-			if (selectedEmote != null && !selectedEmote.equals(preview.emote)) {
-				preview.playEmote(selectedEmote);
+			String show = hoverEmote != null ? hoverEmote : selectedEmote;
+			if (show != null && !show.equals(preview.emote)) {
+				preview.playEmote(show);
 			}
 		} else if (preview.emote != null) {
 			preview.emote = null;
@@ -341,6 +350,9 @@ public class WardrobeScreen extends Screen {
 		}
 		if (settingsOpen) {
 			drawSettings(width - m - 190, 30);
+		}
+		if (infoOpen) {
+			drawInfo(width - m - 214, 30);
 		}
 		if (toast != null && System.currentTimeMillis() < toastUntil) {
 			String msg = ui.ellipsize(toast, stageW + rightW);
@@ -384,7 +396,9 @@ public class WardrobeScreen extends Screen {
 		int bx = width - m - 18;
 		ui.iconButton(bx, 7, 18, Icon.CLOSE, false, this::onClose, Tr.t("btb.ui.close"));
 		bx -= 22;
-		ui.iconButton(bx, 7, 18, Icon.GEAR, settingsOpen, () -> settingsOpen = !settingsOpen, Tr.t("btb.ui.settings"));
+		ui.iconButton(bx, 7, 18, Icon.GEAR, settingsOpen, () -> { settingsOpen = !settingsOpen; infoOpen = false; }, Tr.t("btb.ui.settings"));
+		bx -= 22;
+		ui.iconButton(bx, 7, 18, Icon.INFO, infoOpen, () -> { infoOpen = !infoOpen; settingsOpen = false; }, Tr.t("btb.ui.info"));
 		bx -= 22;
 		ui.iconButton(bx, 7, 18, t.dark ? Icon.SUN : Icon.MOON, false, () -> {
 			ClientSettings s = ClientSettings.get();
@@ -392,12 +406,21 @@ public class WardrobeScreen extends Screen {
 			s.save();
 		}, Tr.t(t.dark ? "btb.ui.theme.light" : "btb.ui.theme.dark"));
 		String packs = Tr.t("btb.ui.packs"), editor = Tr.t("btb.ui.editor");
-		int w1 = font.width(packs) + 28;
-		bx -= w1 + 6;
-		ui.button(bx, 7, w1, 18, packs, Icon.BOX, Ui.Style.SECONDARY, true, () -> minecraft.gui.setScreen(new PackManagerScreen(this)), Tr.t("btb.ui.packs.tooltip"));
-		int w2 = font.width(editor) + 28;
-		bx -= w2 + 4;
-		ui.button(bx, 7, w2, 18, editor, Icon.EDIT, Ui.Style.SECONDARY, true, () -> minecraft.gui.setScreen(CosmeticEditorScreen.open(this, null)), Tr.t("btb.ui.editor.tooltip"));
+		int w1 = font.width(packs) + 28, w2 = font.width(editor) + 28;
+		Runnable openPacks = () -> minecraft.gui.setScreen(new PackManagerScreen(this));
+		Runnable openEditor = () -> minecraft.gui.setScreen(CosmeticEditorScreen.open(this, null));
+		if (bx - 6 - w1 - 4 - w2 >= tx + 4) {
+			bx -= w1 + 6;
+			ui.button(bx, 7, w1, 18, packs, Icon.BOX, Ui.Style.SECONDARY, true, openPacks, Tr.t("btb.ui.packs.tooltip"));
+			bx -= w2 + 4;
+			ui.button(bx, 7, w2, 18, editor, Icon.EDIT, Ui.Style.SECONDARY, true, openEditor, Tr.t("btb.ui.editor.tooltip"));
+		} else {
+			// not enough room next to the tabs: icons only (the tooltip names them)
+			bx -= 24;
+			ui.iconButton(bx, 7, 18, Icon.BOX, false, openPacks, packs + " – " + Tr.t("btb.ui.packs.tooltip"));
+			bx -= 22;
+			ui.iconButton(bx, 7, 18, Icon.EDIT, false, openEditor, editor + " – " + Tr.t("btb.ui.editor.tooltip"));
+		}
 	}
 
 	private void navItem(int x, int y, int w, String label, int count, boolean active, Icon icon, Runnable action) {
@@ -478,7 +501,8 @@ public class WardrobeScreen extends Screen {
 			}
 		}
 		int contentH = cy + sideScroll - (y + 6);
-		sideScroll = Math.max(0, Math.min(sideScroll, Math.max(0, contentH - h + 12)));
+		sideMax = Math.max(0, contentH - h + 12);
+		sideScroll = Math.max(0, Math.min(sideScroll, sideMax));
 		ui.g.disableScissor();
 	}
 
@@ -641,8 +665,9 @@ public class WardrobeScreen extends Screen {
 		int cols = Math.max(1, (gridW + gap) / (cardW + gap));
 		cardW = (gridW - (cols - 1) * gap) / cols;
 		int rows = (list.size() + cols - 1) / cols;
-		int contentH = rows * (cardH + gap);
-		gridScroll = Math.max(0, Math.min(gridScroll, Math.max(0, contentH - gridH)));
+		int contentH = Math.max(0, rows * (cardH + gap) - gap);
+		gridMax = Math.max(0, contentH - gridH);
+		gridScroll = Math.max(0, Math.min(gridScroll, gridMax));
 		ui.g.enableScissor(gridX, gridY, gridX + gridW, gridY + gridH);
 		if (list.isEmpty()) {
 			String msg = !search.getValue().isEmpty() ? Tr.t("btb.ui.empty.search", search.getValue()) : switch (filter) {
@@ -997,7 +1022,8 @@ public class WardrobeScreen extends Screen {
 		int top = y + 8, bottom = y + h - detailH - 8;
 		int count = items.size() + 1;
 		int rows = (count + cols - 1) / cols;
-		clothScroll = Math.max(0, Math.min(clothScroll, Math.max(0, rows * (ch + gap) - (bottom - top))));
+		clothMax = Math.max(0, rows * (ch + gap) - gap - (bottom - top));
+		clothScroll = Math.max(0, Math.min(clothScroll, clothMax));
 		ui.g.enableScissor(x + 2, top, x + w - 2, bottom);
 		for (int i = 0; i < count; i++) {
 			var it = i == 0 ? null : items.get(i - 1);
@@ -1121,12 +1147,14 @@ public class WardrobeScreen extends Screen {
 		ui.glass(x, y, w, h, 10);
 		var all = de.behindtheblocks.skinstudio.emote.Emotes.all();
 		var slots = ClientSettings.get().emoteSlots;
+		hoverEmote = null;
 		int detailH = 52;
 		int cw = 104, ch = 40, gap = 6, cols = Math.max(1, (w - 16 + gap) / (cw + gap));
 		cw = (w - 16 - (cols - 1) * gap) / cols;
 		int top = y + 8, bottom = y + h - detailH - 8;
 		int rows = (all.size() + cols - 1) / cols;
-		emoteScroll = Math.max(0, Math.min(emoteScroll, Math.max(0, rows * (ch + gap) - (bottom - top))));
+		emoteMax = Math.max(0, rows * (ch + gap) - gap - (bottom - top));
+		emoteScroll = Math.max(0, Math.min(emoteScroll, emoteMax));
 		ui.g.enableScissor(x + 2, top, x + w - 2, bottom);
 		for (int i = 0; i < all.size(); i++) {
 			var e = all.get(i);
@@ -1136,6 +1164,9 @@ public class WardrobeScreen extends Screen {
 			}
 			boolean sel = e.id().equals(selectedEmote);
 			boolean hov = ui.hover(cx, cy, cw, ch) && ui.mouseY >= top && ui.mouseY < bottom;
+			if (hov) {
+				hoverEmote = e.id();
+			}
 			ui.rounded(cx, cy, cw, ch, 8, sel ? t.surfaceSelected : hov ? t.surfaceHover : t.surface);
 			if (sel) {
 				ui.roundedOutline(cx, cy, cw, ch, 8, t.accent);
@@ -1148,13 +1179,15 @@ public class WardrobeScreen extends Screen {
 				ui.g.text(font, lines.get(k), cx + 6, ly, t.text, false);
 				ly += 10;
 			}
-			String sub = e.item() != null ? Tr.t("btb.ui.emotes.with_item") : e.loop() ? "∞" : "";
+			String len = String.format(Locale.ROOT, "%.1f s", de.behindtheblocks.skinstudio.emote.Emotes.length(e));
+			String sub = e.item() != null ? Tr.t("btb.ui.emotes.with_item") + " · " + len : len;
 			ui.text(ui.ellipsize(sub, cw - 12), cx + 6, cy + ch - 12, t.textFaint);
 			if (place >= 0) {
 				ui.rounded(cx + cw - 16, cy + 4, 12, 12, 6, t.accent);
 				ui.text(String.valueOf(place + 1), cx + cw - 13, cy + 6, t.onAccent);
 			}
-			ui.region(cx, cy, cw, ch, () -> selectedEmote = e.id());
+			// a click puts the emote straight onto the chosen wheel place
+			ui.region(cx, cy, cw, ch, () -> assignEmote(e.id()));
 		}
 		ui.g.disableScissor();
 		// detail bar: name, play, put on place
@@ -1163,20 +1196,32 @@ public class WardrobeScreen extends Screen {
 		if (selectedEmote != null) {
 			var e = de.behindtheblocks.skinstudio.emote.Emotes.get(selectedEmote);
 			ui.title(ui.ellipsize(Tr.t("btb.emote." + selectedEmote), w - 30), x + 14, dy + 6, t.text);
-			String info = (e.item() != null ? Tr.t("btb.ui.emotes.with_item") + " · " : "") + (e.loop() ? Tr.t("btb.ui.emotes.loop") : String.format(Locale.ROOT, "%.1f s", e.duration()));
+			String info = (e.item() != null ? Tr.t("btb.ui.emotes.with_item") + " · " : "")
+					+ String.format(Locale.ROOT, "%.1f s", de.behindtheblocks.skinstudio.emote.Emotes.length(e));
+			int place = slots.indexOf(selectedEmote);
+			if (place >= 0) {
+				info += " · " + Tr.t("btb.ui.emotes.on_place", place + 1);
+			}
 			ui.text(ui.ellipsize(info, w - 30), x + 14, dy + 18, t.textMuted);
-			String assign = Tr.t("btb.ui.emotes.assign", emoteSlot + 1), play = Tr.t("btb.ui.emotes.play");
-			int aw = font.width(assign) + 30, pw = font.width(play) + 30;
-			ui.button(x + 14, dy + 28, aw, 16, assign, Icon.CHECK, Ui.Style.PRIMARY, true, () -> {
-				var list = ClientSettings.get().emoteSlots;
-				list.set(emoteSlot, selectedEmote);
-				ClientSettings.get().save();
-				toast(Tr.t("btb.ui.emotes.assigned", Tr.t("btb.emote." + selectedEmote), emoteSlot + 1), false);
-			}, null);
-			ui.button(x + 18 + aw, dy + 28, pw, 16, play, null, Ui.Style.SECONDARY, minecraft.player != null, () -> {
+			String play = Tr.t("btb.ui.emotes.play");
+			int pw = Math.min(font.width(play) + 30, w - 28);
+			ui.button(x + 14, dy + 28, pw, 16, play, Icon.PLAY, Ui.Style.PRIMARY, minecraft.player != null, () -> {
 				de.behindtheblocks.skinstudio.client.emote.ClientEmotes.play(selectedEmote);
 				onClose();
 			}, null);
+		} else {
+			ui.text(ui.ellipsize(Tr.t("btb.ui.emotes.click_to_assign", emoteSlot + 1), w - 30), x + 14, dy + 18, t.textMuted);
+		}
+	}
+
+	/** Puts an emote on the chosen wheel place (the emote that was there before is replaced). */
+	private void assignEmote(String id) {
+		selectedEmote = id;
+		var list = ClientSettings.get().emoteSlots;
+		if (!id.equals(list.get(emoteSlot))) {
+			list.set(emoteSlot, id);
+			ClientSettings.get().save();
+			toast(Tr.t("btb.ui.emotes.assigned", Tr.t("btb.emote." + id), emoteSlot + 1), false);
 		}
 	}
 
@@ -1214,7 +1259,8 @@ public class WardrobeScreen extends Screen {
 		navItem(ix, cy, iw, Tr.t("btb.ui.skin.reload"), -1, false, Icon.REFRESH, () -> SkinLibrary.get().reload().thenRun(() -> toast(Tr.t("btb.ui.toast.reloaded"), false)));
 		cy += 16;
 		int contentH = cy + sideScroll - (y + 6);
-		sideScroll = Math.max(0, Math.min(sideScroll, Math.max(0, contentH - h + 12)));
+		sideMax = Math.max(0, contentH - h + 12);
+		sideScroll = Math.max(0, Math.min(sideScroll, sideMax));
 		ui.g.disableScissor();
 	}
 
@@ -1240,8 +1286,9 @@ public class WardrobeScreen extends Screen {
 		int cols = Math.max(1, (gridW + gap) / (cardW + gap));
 		cardW = (gridW - (cols - 1) * gap) / cols;
 		int rows = (list.size() + cols - 1) / cols;
-		int contentH = rows * (cardH + gap);
-		gridScroll = Math.max(0, Math.min(gridScroll, Math.max(0, contentH - gridH)));
+		int contentH = Math.max(0, rows * (cardH + gap) - gap);
+		gridMax = Math.max(0, contentH - gridH);
+		gridScroll = Math.max(0, Math.min(gridScroll, gridMax));
 		ui.g.enableScissor(gridX, gridY, gridX + gridW, gridY + gridH);
 		if (list.isEmpty()) {
 			ui.textCentered(ui.ellipsize(Tr.t(skinFavorites ? "btb.ui.empty.skin_favorites" : "btb.ui.empty.skins"), gridW - 10), gridX + gridW / 2, gridY + 30, t.textMuted);
@@ -1417,12 +1464,49 @@ public class WardrobeScreen extends Screen {
 		}, Minecraft.getInstance());
 	}
 
+	// ------------------------------------------------------------------ info / credits
+
+	private void drawInfo(int x, int y) {
+		Theme t = ui.t;
+		int w = 210;
+		String version = net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer(de.behindtheblocks.skinstudio.BtbSkinStudio.MOD_ID)
+				.map(c -> c.getMetadata().getVersion().getFriendlyString()).orElse("?");
+		List<String[]> rows = List.of(
+				new String[]{Tr.t("btb.ui.info.version"), version},
+				new String[]{Tr.t("btb.ui.info.author"), AUTHOR},
+				new String[]{Tr.t("btb.ui.info.family"), "BTB Studios"},
+				new String[]{Tr.t("btb.ui.info.license"), "LGPL-3.0-only"});
+		var thanks = font.split(Component.literal(Tr.t("btb.ui.info.thanks")), w - 20);
+		int h = 30 + rows.size() * 13 + 8 + thanks.size() * 10 + 34;
+		ui.region(x, y, w, h, () -> { });
+		ui.rounded(x, y, w, h, 9, t.dark ? 0xF41C1F27 : 0xFCFFFFFF);
+		ui.roundedOutline(x, y, w, h, 9, t.glassBorder);
+		ui.title("BTB Skin Studio", x + 10, y + 9, t.text);
+		int cy = y + 27;
+		for (String[] r : rows) {
+			ui.text(r[0], x + 10, cy, t.textMuted);
+			String v = ui.ellipsize(r[1], w - 90);
+			ui.text(v, x + w - 10 - font.width(v), cy, r[1].equals(AUTHOR) ? t.accent | 0xFF000000 : t.text);
+			cy += 13;
+		}
+		cy += 4;
+		for (var l : thanks) {
+			ui.g.text(font, l, x + 10, cy, t.textMuted, false);
+			cy += 10;
+		}
+		cy += 6;
+		ui.button(x + 10, cy, w - 20, 18, "GitHub", Icon.EXPORT, Ui.Style.SECONDARY, true,
+				() -> net.minecraft.client.gui.screens.ConfirmLinkScreen.confirmLinkNow(this, java.net.URI.create(SOURCE_URL)), SOURCE_URL);
+	}
+
 	// ------------------------------------------------------------------ settings
 
 	private void drawSettings(int x, int y) {
 		Theme t = ui.t;
 		ClientSettings s = ClientSettings.get();
 		int w = 190, h = 197 + 17 + (s.skinLayers3d ? 16 : 0);
+		// catches clicks on empty parts of the panel; registered first so the toggles on top of it win
+		ui.region(x, y, w, h, () -> { });
 		ui.rounded(x, y, w, h, 9, t.dark ? 0xF41C1F27 : 0xFCFFFFFF);
 		ui.roundedOutline(x, y, w, h, 9, t.glassBorder);
 		ui.title(Tr.t("btb.ui.settings"), x + 10, y + 9, t.text);
@@ -1468,7 +1552,6 @@ public class WardrobeScreen extends Screen {
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.share"), s.shareOwnCosmetics, () -> { s.shareOwnCosmetics = !s.shareOwnCosmetics; s.save(); });
 		cy += 17;
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.download"), s.downloadOthers, () -> { s.downloadOthers = !s.downloadOthers; s.save(); });
-		ui.region(x, y, w, h, () -> { });
 	}
 
 	// ------------------------------------------------------------------ input
@@ -1482,8 +1565,9 @@ public class WardrobeScreen extends Screen {
 		if (ui.click(event.x(), event.y(), event.button())) {
 			return true;
 		}
-		if (settingsOpen) {
+		if (settingsOpen || infoOpen) {
 			settingsOpen = false;
+			infoOpen = false;
 			return true;
 		}
 		return super.mouseClicked(event, doubleClick);
@@ -1511,19 +1595,19 @@ public class WardrobeScreen extends Screen {
 			return true;
 		}
 		if (tab == Tab.CHARACTER && x > sideX + sideW + 200) {
-			clothScroll = Math.max(0, clothScroll - (int) (sy * 24));
+			clothScroll = Math.max(0, Math.min(clothMax, clothScroll - (int) Math.round(sy * 24)));
 			return true;
 		}
 		if (tab == Tab.EMOTES && x > sideX + sideW) {
-			emoteScroll = Math.max(0, emoteScroll - (int) (sy * 24));
+			emoteScroll = Math.max(0, Math.min(emoteMax, emoteScroll - (int) Math.round(sy * 24)));
 			return true;
 		}
 		if (x >= gridX && x < gridX + gridW && y >= gridY && y < gridY + gridH) {
-			gridScroll -= (int) (sy * 24);
+			gridScroll = Math.max(0, Math.min(gridMax, gridScroll - (int) Math.round(sy * 24)));
 			return true;
 		}
 		if (x >= sideX && x < sideX + sideW && y >= sideY && y < sideY + sideH) {
-			sideScroll = Math.max(0, sideScroll - (int) (sy * 16));
+			sideScroll = Math.max(0, Math.min(sideMax, sideScroll - (int) Math.round(sy * 16)));
 			return true;
 		}
 		return super.mouseScrolled(x, y, sx, sy);
@@ -1572,6 +1656,7 @@ public class WardrobeScreen extends Screen {
 			case "subtype" -> subType = CosmeticType.byId(args[1]);
 			case "search" -> search.setValue(args.length > 1 ? args[1] : "");
 			case "settings" -> settingsOpen = !settingsOpen;
+			case "info" -> infoOpen = !infoOpen;
 			case "yaw" -> preview.yaw = Float.parseFloat(args[1]);
 			case "focus" -> preview.focus = PlayerPreview.Focus.valueOf(args[1].toUpperCase(Locale.ROOT));
 			case "tab" -> tab = Tab.valueOf(args[1].toUpperCase(Locale.ROOT));
@@ -1607,5 +1692,11 @@ public class WardrobeScreen extends Screen {
 			default -> {
 			}
 		}
+	}
+
+	@Override
+	public void removed() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.restore();
+		super.removed();
 	}
 }

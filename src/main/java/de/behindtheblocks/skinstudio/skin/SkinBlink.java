@@ -32,6 +32,8 @@ public final class SkinBlink {
 				fromHat[y][x] = useHat;
 			}
 		}
+		// rough skin tone of the whole face (most common colour) to tell eye pixels from skin
+		int faceTone = skinTone(face, 2, 3, 4, 5, 6, 7);
 		int top = -1, bottom = -1;
 		for (int y = 2; y <= 6; y++) {
 			if (hasWhite(face[y], 0, 4) && hasWhite(face[y], 4, 8)) {
@@ -44,7 +46,20 @@ public final class SkinBlink {
 			}
 		}
 		if (top < 0) {
+			// no eye whites (dark or coloured eyes): first row with something non-skin on both sides of the face
+			for (int y = 3; y <= 5 && top < 0; y++) {
+				if (eyeLike(face[y], faceTone, 0, 4) && eyeLike(face[y], faceTone, 4, 8)) {
+					top = bottom = y;
+				}
+			}
+		}
+		if (top < 0) {
 			top = bottom = 4;
+		}
+		// eyes several pixels tall: iris or pupil rows below the whites belong to the eye too (at most 3 rows)
+		while (bottom < 6 && bottom - top < 2 && eyeLike(face[bottom + 1], faceTone, 0, 4) && eyeLike(face[bottom + 1], faceTone, 4, 8)
+				&& sameColumns(face[bottom], face[bottom + 1], faceTone)) {
+			bottom++;
 		}
 		if (top < 1) {
 			return null;
@@ -93,6 +108,30 @@ public final class SkinBlink {
 			}
 		}
 		return best;
+	}
+
+	/** True if the row has a pixel in [from, to) that clearly is not skin (eye white, iris, pupil). */
+	private static boolean eyeLike(int[] row, int tone, int from, int to) {
+		for (int x = from; x < to; x++) {
+			if ((row[x] >>> 24) > 200 && dist(row[x], tone) >= 90) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** The non-skin pixels of the lower row sit under non-skin pixels of the upper row (same eye, not the mouth). */
+	private static boolean sameColumns(int[] upper, int[] lower, int tone) {
+		int below = 0, total = 0;
+		for (int x = 0; x < 8; x++) {
+			if ((lower[x] >>> 24) > 200 && dist(lower[x], tone) >= 90) {
+				total++;
+				if (dist(upper[x], tone) >= 60) {
+					below++;
+				}
+			}
+		}
+		return total > 0 && below * 2 >= total;
 	}
 
 	private static boolean hasWhite(int[] row, int from, int to) {

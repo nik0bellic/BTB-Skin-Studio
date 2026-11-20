@@ -35,7 +35,7 @@ public class SkinPackBuilderScreen extends Screen {
 	private final Ui ui = new Ui();
 	private final Set<String> chosen = new LinkedHashSet<>();
 	private EditBox nameBox;
-	private int scroll;
+	private int scroll, scrollMax;
 	private boolean busy;
 	private String status;
 	private boolean statusError;
@@ -47,6 +47,7 @@ public class SkinPackBuilderScreen extends Screen {
 
 	@Override
 	protected void init() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.fit(this);
 		String old = nameBox == null ? Tr.t("btb.ui.packbuilder.default_name") : nameBox.getValue();
 		nameBox = new EditBox(font, 0, 0, 100, 12, Component.literal(Tr.t("btb.ui.packbuilder.name")));
 		nameBox.setBordered(false);
@@ -179,7 +180,8 @@ public class SkinPackBuilderScreen extends Screen {
 		int cw = 64, ch = 86, cols = Math.max(1, (gw - 16) / (cw + 6));
 		int rows = (all.size() + cols - 1) / cols;
 		int contentH = rows * (ch + 6);
-		scroll = Math.max(0, Math.min(scroll, Math.max(0, contentH - (bottom - top - 16))));
+		scrollMax = Math.max(0, contentH - (bottom - top - 16));
+		scroll = Math.max(0, Math.min(scroll, scrollMax));
 		g.enableScissor(gx + 2, top + 2, gx + gw - 2, bottom - 2);
 		for (int i = 0; i < all.size(); i++) {
 			SkinData s = all.get(i);
@@ -224,7 +226,7 @@ public class SkinPackBuilderScreen extends Screen {
 
 	@Override
 	public boolean mouseScrolled(double x, double y, double sx, double sy) {
-		scroll = Math.max(0, scroll - (int) (sy * 24));
+		scroll = Math.max(0, Math.min(scrollMax, scroll - (int) Math.round(sy * 24)));
 		return true;
 	}
 
@@ -237,5 +239,11 @@ public class SkinPackBuilderScreen extends Screen {
 			default -> {
 			}
 		}
+	}
+
+	@Override
+	public void removed() {
+		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.restore();
+		super.removed();
 	}
 }

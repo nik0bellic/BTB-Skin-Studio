@@ -91,6 +91,7 @@ public final class PlayerPreview {
 				mc.getItemModelResolver().updateForLiving(state.rightHandItemState, held, net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, mc.player);
 			}
 		}
+		de.behindtheblocks.skinstudio.client.compat.NotEnoughAnimationsCompat.detach(state);
 		state.shadowPieces.clear();
 		state.outlineColor = 0;
 		state.nameTag = null;
@@ -99,6 +100,25 @@ public final class PlayerPreview {
 		state.isCrouching = false;
 		state.walkAnimationPos = 0;
 		state.walkAnimationSpeed = 0;
+		// the real player's movement must not leak into the still preview: cape at rest, no swimming/gliding/using
+		state.capeFlap = 0;
+		state.capeLean = 0;
+		state.capeLean2 = 0;
+		state.swimAmount = 0;
+		state.isFallFlying = false;
+		state.fallFlyingTimeInTicks = 0;
+		state.isVisuallySwimming = false;
+		state.isUsingItem = false;
+		state.ticksUsingItem = 0;
+		state.speedValue = 1;
+		state.deathTime = 0;
+		state.isUpsideDown = false;
+		state.isAutoSpinAttack = false;
+		state.hasRedOverlay = false;
+		state.swingAnimation = 0;
+		state.elytraRotX = 0.2617994f;
+		state.elytraRotY = 0;
+		state.elytraRotZ = -0.2617994f;
 		state.isInvisible = false;
 		state.bodyRot = 180 + yaw;
 		state.yRot = 0;
