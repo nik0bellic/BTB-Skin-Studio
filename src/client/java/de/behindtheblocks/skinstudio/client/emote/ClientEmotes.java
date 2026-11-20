@@ -71,6 +71,7 @@ public final class ClientEmotes {
 			}
 		}
 		PLAYING.entrySet().removeIf(e -> sample(e.getValue()) == null);
+		particles(mc);
 	}
 
 	/** Current pose of a player (see {@link Emotes#sample}) or null. */
@@ -79,19 +80,104 @@ public final class ClientEmotes {
 		return p == null ? null : sample(p);
 	}
 
-	/** Prop cosmetic shown while the player's emote plays (or null). */
-	public static de.behindtheblocks.skinstudio.client.render.ActiveCosmetic prop(UUID player) {
+	/** Game item held in the right hand while the player's emote plays (or null). */
+	public static net.minecraft.world.item.ItemStack item(UUID player) {
 		Playing p = player == null ? null : PLAYING.get(player);
-		return propOf(p == null ? null : p.id());
+		return itemOf(p == null ? null : p.id());
 	}
 
-	public static de.behindtheblocks.skinstudio.client.render.ActiveCosmetic propOf(String emote) {
+	public static net.minecraft.world.item.ItemStack itemOf(String emote) {
 		Emotes.Emote e = Emotes.get(emote);
-		if (e == null || e.prop() == null) {
+		if (e == null || e.item() == null) {
 			return null;
 		}
-		var asset = de.behindtheblocks.skinstudio.client.library.CosmeticLibrary.get().prop(e.prop());
-		return asset == null ? null : de.behindtheblocks.skinstudio.client.render.ActiveCosmetic.of(asset, 0);
+		var item = net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.parse(e.item()));
+		return item == null ? null : new net.minecraft.world.item.ItemStack(item);
+	}
+
+	/** Small particle effects for some emotes (chips while mining, crumbs, sparkles, hearts …). */
+	private static void particles(Minecraft mc) {
+		if (mc.level == null || !de.behindtheblocks.skinstudio.client.data.ClientSettings.get().particles) {
+			return;
+		}
+		long tick = mc.level.getGameTime();
+		for (var e : PLAYING.entrySet()) {
+			var player = mc.level.getPlayerByUUID(e.getKey());
+			if (player == null || (player == mc.player && mc.options.getCameraType().isFirstPerson())) {
+				continue;
+			}
+			float t = (System.nanoTime() - e.getValue().startNanos()) / 1e9f;
+			double yaw = Math.toRadians(player.yBodyRot);
+			double fx = -Math.sin(yaw), fz = Math.cos(yaw);
+			double hx = player.getX() + fx * 0.55 - fz * 0.35, hz = player.getZ() + fz * 0.55 + fx * 0.35;
+			double hy = player.getY() + 1.1;
+			var rnd = mc.level.getRandom();
+			switch (e.getValue().id()) {
+				case "mine" -> {
+					if (tick % 4 == 0) {
+						for (int i = 0; i < 4; i++) {
+							mc.level.addParticle(new net.minecraft.core.particles.BlockParticleOption(net.minecraft.core.particles.ParticleTypes.BLOCK,
+									net.minecraft.world.level.block.Blocks.STONE.defaultBlockState()), hx + fx * 0.3, hy - 0.5, hz + fz * 0.3,
+									(rnd.nextDouble() - 0.5) * 0.2, 0.1, (rnd.nextDouble() - 0.5) * 0.2);
+						}
+					}
+				}
+				case "woodpunch" -> {
+					if (tick % 5 == 0) {
+						for (int i = 0; i < 3; i++) {
+							mc.level.addParticle(new net.minecraft.core.particles.BlockParticleOption(net.minecraft.core.particles.ParticleTypes.BLOCK,
+									net.minecraft.world.level.block.Blocks.OAK_LOG.defaultBlockState()), hx + fx * 0.4, hy, hz + fz * 0.4,
+									(rnd.nextDouble() - 0.5) * 0.15, 0.08, (rnd.nextDouble() - 0.5) * 0.15);
+						}
+					}
+				}
+				case "cookie" -> {
+					if (tick % 6 == 0 && t > 0.4f) {
+						mc.level.addParticle(new net.minecraft.core.particles.ItemParticleOption(net.minecraft.core.particles.ParticleTypes.ITEM,
+								net.minecraft.world.item.Items.COOKIE), player.getX() + fx * 0.3, player.getEyeY() - 0.15, player.getZ() + fz * 0.3,
+								(rnd.nextDouble() - 0.5) * 0.08, 0.02, (rnd.nextDouble() - 0.5) * 0.08);
+					}
+				}
+				case "potion" -> {
+					if (tick % 4 == 0) {
+						mc.level.addParticle(net.minecraft.core.particles.ParticleTypes.SPLASH, player.getX() + fx * 0.3, player.getEyeY(), player.getZ() + fz * 0.3, 0, 0.05, 0);
+					}
+				}
+				case "diamonds" -> {
+					if (tick % 3 == 0) {
+						mc.level.addParticle(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER, hx + fx * 0.2 + (rnd.nextDouble() - 0.5) * 0.3, hy + 0.1 + rnd.nextDouble() * 0.3,
+								hz + fz * 0.2 + (rnd.nextDouble() - 0.5) * 0.3, 0, 0, 0);
+					}
+				}
+				case "heart" -> {
+					if (tick % 8 == 0) {
+						mc.level.addParticle(net.minecraft.core.particles.ParticleTypes.HEART, player.getX(), player.getY() + 2.3, player.getZ(), 0, 0.05, 0);
+					}
+				}
+				case "dance", "ghast_dance" -> {
+					if (tick % 10 == 0) {
+						mc.level.addParticle(net.minecraft.core.particles.ParticleTypes.NOTE, player.getX() + (rnd.nextDouble() - 0.5), player.getY() + 2.2,
+								player.getZ() + (rnd.nextDouble() - 0.5), rnd.nextInt(24) / 24.0, 0, 0);
+					}
+				}
+				case "cheer" -> {
+					if (tick % 6 == 0) {
+						mc.level.addParticle(net.minecraft.core.particles.ParticleTypes.FIREWORK, player.getX() + (rnd.nextDouble() - 0.5) * 0.6, player.getY() + 2.4,
+								player.getZ() + (rnd.nextDouble() - 0.5) * 0.6, 0, 0.08, 0);
+					}
+				}
+				case "creeper_scare" -> {
+					if (t < 0.15f && tick % 2 == 0) {
+						for (int i = 0; i < 6; i++) {
+							mc.level.addParticle(net.minecraft.core.particles.ParticleTypes.POOF, player.getX() + fx * 1.2 + (rnd.nextDouble() - 0.5), player.getY() + 0.8,
+									player.getZ() + fz * 1.2 + (rnd.nextDouble() - 0.5), 0, 0.05, 0);
+						}
+					}
+				}
+				default -> {
+				}
+			}
+		}
 	}
 
 	private static float[] sample(Playing p) {

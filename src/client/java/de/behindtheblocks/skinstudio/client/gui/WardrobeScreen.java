@@ -916,7 +916,7 @@ public class WardrobeScreen extends Screen {
 				ui.g.text(font, lines.get(k), cx + 6, ly, t.text, false);
 				ly += 10;
 			}
-			String sub = e.prop() != null ? Tr.t("btb.ui.emotes.with_item") : e.loop() ? "∞" : "";
+			String sub = e.item() != null ? Tr.t("btb.ui.emotes.with_item") : e.loop() ? "∞" : "";
 			ui.text(ui.ellipsize(sub, cw - 12), cx + 6, cy + ch - 12, t.textFaint);
 			if (place >= 0) {
 				ui.rounded(cx + cw - 16, cy + 4, 12, 12, 6, t.accent);
@@ -931,7 +931,7 @@ public class WardrobeScreen extends Screen {
 		if (selectedEmote != null) {
 			var e = de.behindtheblocks.skinstudio.emote.Emotes.get(selectedEmote);
 			ui.title(ui.ellipsize(Tr.t("btb.emote." + selectedEmote), w - 30), x + 14, dy + 6, t.text);
-			String info = (e.prop() != null ? Tr.t("btb.ui.emotes.with_item") + " · " : "") + (e.loop() ? Tr.t("btb.ui.emotes.loop") : String.format(Locale.ROOT, "%.1f s", e.duration()));
+			String info = (e.item() != null ? Tr.t("btb.ui.emotes.with_item") + " · " : "") + (e.loop() ? Tr.t("btb.ui.emotes.loop") : String.format(Locale.ROOT, "%.1f s", e.duration()));
 			ui.text(ui.ellipsize(info, w - 30), x + 14, dy + 18, t.textMuted);
 			String assign = Tr.t("btb.ui.emotes.assign", emoteSlot + 1), play = Tr.t("btb.ui.emotes.play");
 			int aw = font.width(assign) + 30, pw = font.width(play) + 30;

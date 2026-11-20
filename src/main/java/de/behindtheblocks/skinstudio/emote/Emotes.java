@@ -19,8 +19,8 @@ public final class Emotes {
 		void at(float t, float[] out);
 	}
 
-	/** duration in seconds, loop = repeats until the player moves, prop = cosmetic id shown while playing (or null). */
-	public record Emote(String id, float duration, boolean loop, Pose pose, String prop) {
+	/** duration in seconds, loop = repeats until the player moves, item = game item held in the right hand (or null). */
+	public record Emote(String id, float duration, boolean loop, Pose pose, String item) {
 	}
 
 	private static final Map<String, Emote> ALL = new LinkedHashMap<>();
@@ -62,13 +62,13 @@ public final class Emotes {
 			set(o, RIGHT_ARM, -60 - 40 * p, -10, 0);
 			set(o, HEAD, 10, 0, 0);
 		});
-		add("mine", 2.4f, true, "btb_prop:pickaxe", (t, o) -> {
+		add("mine", 2.4f, true, "minecraft:diamond_pickaxe", (t, o) -> {
 			float p = Math.abs(sin(t * 360));
 			set(o, RIGHT_ARM, -40 - 100 * p, -8, 0);
 			set(o, HEAD, 14, 0, 0);
 		});
 		// "Diamonds to you!"
-		add("diamonds", 2.6f, false, "btb_prop:diamond", (t, o) -> {
+		add("diamonds", 2.6f, false, "minecraft:diamond", (t, o) -> {
 			set(o, RIGHT_ARM, -78, -12, 0);
 			set(o, HEAD, 8, 0, sin(t * 240) * 4);
 		});
@@ -100,20 +100,20 @@ public final class Emotes {
 			set(o, LEFT_ARM, -25 * d, 0, -42 * d);
 			set(o, HEAD, N, 0, 12 * d);
 		});
-		add("potion", 3.0f, false, "btb_prop:potion", (t, o) -> {
+		add("potion", 3.0f, false, "minecraft:potion", (t, o) -> {
 			float sip = Math.max(0, sin(t * 120));
 			set(o, RIGHT_ARM, -95 - 25 * sip, -32, 0);
 			set(o, HEAD, -12 * sip, 0, 0);
 		});
-		add("cookie", 2.8f, false, "btb_prop:cookie", (t, o) -> {
+		add("cookie", 2.8f, false, "minecraft:cookie", (t, o) -> {
 			set(o, RIGHT_ARM, -100 + sin(t * 540) * 6, -34, 0);
 			set(o, HEAD, 6 + sin(t * 720) * 5, 0, 0);
 		});
-		add("banner", 3.0f, true, "btb_prop:banner", (t, o) -> {
+		add("banner", 3.0f, true, "minecraft:red_banner", (t, o) -> {
 			set(o, RIGHT_ARM, -172, 0, 8 + sin(t * 360) * 14);
 			set(o, HEAD, -10, N, N);
 		});
-		add("spyglass", 3.0f, false, "btb_prop:spyglass", (t, o) -> {
+		add("spyglass", 3.0f, false, "minecraft:spyglass", (t, o) -> {
 			set(o, RIGHT_ARM, -100, -40, 0);
 			set(o, LEFT_ARM, -96, 34, 0);
 			set(o, HEAD, -4, sin(t * 90) * 30, 0);

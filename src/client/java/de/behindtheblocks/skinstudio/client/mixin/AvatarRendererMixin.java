@@ -30,10 +30,12 @@ public abstract class AvatarRendererMixin {
 			return;
 		}
 		List<ActiveCosmetic> list = hiddenByArmor(ClientCosmeticSync.activeFor(player.getUUID()), state);
-		ActiveCosmetic prop = de.behindtheblocks.skinstudio.client.emote.ClientEmotes.prop(player.getUUID());
-		if (prop != null) {
-			list = new java.util.ArrayList<>(list);
-			list.add(prop);
+		var held = de.behindtheblocks.skinstudio.client.emote.ClientEmotes.item(player.getUUID());
+		if (held != null) {
+			// the emote's item (pickaxe, cookie …) replaces the held item while it plays
+			state.rightHandItemStack = held;
+			net.minecraft.client.Minecraft.getInstance().getItemModelResolver().updateForLiving(state.rightHandItemState, held,
+					net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, player);
 		}
 		state.setData(CosmeticRenderData.PLAYER, player.getUUID());
 		state.setData(CosmeticRenderData.EMOTE, de.behindtheblocks.skinstudio.client.emote.ClientEmotes.pose(player.getUUID()));

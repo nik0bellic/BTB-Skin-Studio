@@ -1,0 +1,246 @@
+{
+  "format": 1,
+  "items": [
+    {
+      "id": "tshirt",
+      "slot": "top",
+      "name": {
+        "de": "T-Shirt",
+        "en": "T-shirt"
+      },
+      "colors": [
+        "#3A7AC8",
+        "#E8E8E8",
+        "#C8302A",
+        "#2A2A2E",
+        "#3E9A4A",
+        "#F0C030"
+      ],
+      "order": 20
+    },
+    {
+      "id": "longsleeve",
+      "slot": "top",
+      "name": {
+        "de": "Langarmshirt",
+        "en": "Long sleeve"
+      },
+      "colors": [
+        "#2A2A2E",
+        "#E8E8E8",
+        "#7A3AA8",
+        "#C86A2A"
+      ],
+      "order": 20
+    },
+    {
+      "id": "hoodie",
+      "slot": "top",
+      "name": {
+        "de": "Hoodie",
+        "en": "Hoodie"
+      },
+      "colors": [
+        "#5A5A62",
+        "#C8302A",
+        "#2C4A8A",
+        "#3E9A4A",
+        "#F07AA8"
+      ],
+      "order": 20
+    },
+    {
+      "id": "flannel",
+      "slot": "top",
+      "name": {
+        "de": "Karohemd",
+        "en": "Flannel shirt"
+      },
+      "colors": [
+        "#B0261E",
+        "#2C6A3A",
+        "#2C4A8A",
+        "#C8902A"
+      ],
+      "order": 20
+    },
+    {
+      "id": "striped",
+      "slot": "top",
+      "name": {
+        "de": "Ringelshirt",
+        "en": "Striped shirt"
+      },
+      "colors": [
+        "#24418A",
+        "#C8302A",
+        "#2A2A2E",
+        "#3E9A4A"
+      ],
+      "order": 20
+    },
+    {
+      "id": "tanktop",
+      "slot": "top",
+      "name": {
+        "de": "Tanktop",
+        "en": "Tank top"
+      },
+      "colors": [
+        "#E8E8E8",
+        "#2A2A2E",
+        "#F0C030",
+        "#3AA8C8"
+      ],
+      "order": 20
+    },
+    {
+      "id": "jeans",
+      "slot": "bottom",
+      "name": {
+        "de": "Jeans",
+        "en": "Jeans"
+      },
+      "colors": [
+        "#3E5F8C",
+        "#2A3550",
+        "#6A8AB8",
+        "#2A2A2E"
+      ],
+      "order": 10
+    },
+    {
+      "id": "shorts",
+      "slot": "bottom",
+      "name": {
+        "de": "Shorts",
+        "en": "Shorts"
+      },
+      "colors": [
+        "#C8A870",
+        "#3E5F8C",
+        "#2A2A2E",
+        "#3E7A4A"
+      ],
+      "order": 10
+    },
+    {
+      "id": "joggers",
+      "slot": "bottom",
+      "name": {
+        "de": "Jogginghose",
+        "en": "Joggers"
+      },
+      "colors": [
+        "#3A3A42",
+        "#2C4A8A",
+        "#7A7A82",
+        "#3E6A3A"
+      ],
+      "order": 10
+    },
+    {
+      "id": "skirt",
+      "slot": "bottom",
+      "name": {
+        "de": "Rock",
+        "en": "Skirt"
+      },
+      "colors": [
+        "#C8302A",
+        "#2A2A2E",
+        "#7A3AA8",
+        "#3A7AC8"
+      ],
+      "order": 10
+    },
+    {
+      "id": "overalls",
+      "slot": "bottom",
+      "name": {
+        "de": "Latzhose",
+        "en": "Overalls"
+      },
+      "colors": [
+        "#3D6FB0",
+        "#3E7A4A",
+        "#8A5A2A",
+        "#2A2A2E"
+      ],
+      "order": 12
+    },
+    {
+      "id": "sneakers",
+      "slot": "shoes",
+      "name": {
+        "de": "Sneaker",
+        "en": "Sneakers"
+      },
+      "colors": [
+        "#E8E8E8",
+        "#C8302A",
+        "#2A2A2E",
+        "#3A7AC8"
+      ],
+      "order": 5
+    },
+    {
+      "id": "boots",
+      "slot": "shoes",
+      "name": {
+        "de": "Stiefel",
+        "en": "Boots"
+      },
+      "colors": [
+        "#5A3A22",
+        "#2A2A2E",
+        "#8A6A42"
+      ],
+      "order": 5
+    },
+    {
+      "id": "leather_jacket",
+      "slot": "jacket",
+      "name": {
+        "de": "Lederjacke",
+        "en": "Leather jacket"
+      },
+      "colors": [
+        "#2A2422",
+        "#6A3A22",
+        "#8A1E1E"
+      ],
+      "order": 30
+    },
+    {
+      "id": "vest",
+      "slot": "jacket",
+      "name": {
+        "de": "Weste",
+        "en": "Vest"
+      },
+      "colors": [
+        "#5A3A22",
+        "#2A2A2E",
+        "#3E6A3A",
+        "#8A8A92"
+      ],
+      "order": 30
+    },
+    {
+      "id": "coat",
+      "slot": "jacket",
+      "name": {
+        "de": "Mantel",
+        "en": "Coat"
+      },
+      "colors": [
+        "#8A6A42",
+        "#2A2A2E",
+        "#5A5A62",
+        "#7A2A2A"
+      ],
+      "order": 30
+    }
+  ]
+}

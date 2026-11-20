@@ -63,13 +63,6 @@ public final class PlayerPreview {
 	}
 
 	public void draw(GuiGraphicsExtractor g, int x0, int y0, int x1, int y1, List<ActiveCosmetic> cosmetics) {
-		if (emote != null) {
-			ActiveCosmetic prop = de.behindtheblocks.skinstudio.client.emote.ClientEmotes.propOf(emote);
-			if (prop != null) {
-				cosmetics = new java.util.ArrayList<>(cosmetics);
-				cosmetics.add(prop);
-			}
-		}
 		zoom += (focus.zoom - zoom) * 0.2f;
 		shift += (focus.shift - shift) * 0.2f;
 		AvatarRenderState state = createState();
@@ -85,6 +78,12 @@ public final class PlayerPreview {
 				emote = null;
 			}
 			state.setData(de.behindtheblocks.skinstudio.client.render.CosmeticRenderData.EMOTE, pose);
+			var held = de.behindtheblocks.skinstudio.client.emote.ClientEmotes.itemOf(emote);
+			var mc = net.minecraft.client.Minecraft.getInstance();
+			if (held != null && mc.player != null) {
+				state.rightHandItemStack = held;
+				mc.getItemModelResolver().updateForLiving(state.rightHandItemState, held, net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, mc.player);
+			}
 		}
 		state.shadowPieces.clear();
 		state.outlineColor = 0;
