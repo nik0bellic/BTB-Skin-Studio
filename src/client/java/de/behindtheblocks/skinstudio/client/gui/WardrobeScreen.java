@@ -303,7 +303,7 @@ public class WardrobeScreen extends Screen {
 
 		sideX = m;
 		sideY = top;
-		sideW = Math.max(100, Math.min(130, width / 6));
+		sideW = Math.max(112, Math.min(150, width / 5));
 		sideH = bottom - top;
 		int stageX = sideX + sideW + 6;
 		int stageW = Math.max(140, Math.min(230, (int) (width * 0.30)));
@@ -327,7 +327,7 @@ public class WardrobeScreen extends Screen {
 		if (toast != null && System.currentTimeMillis() < toastUntil) {
 			String msg = ui.ellipsize(toast, stageW + rightW);
 			int tw = font.width(msg) + 20;
-			int tx = Math.max(m, stageX + (stageW - tw) / 2), ty = bottom - 22;
+			int tx = Math.max(m, stageX + (stageW - tw) / 2), ty = top + 24;
 			ui.rounded(tx, ty, tw, 18, 9, toastError ? (t.danger & 0xFFFFFF) | 0xE0000000 : t.dark ? 0xEE303644 : 0xF4FFFFFF);
 			ui.text(msg, tx + 10, ty + 5, toastError ? 0xFFFFFFFF : t.text);
 		}
@@ -708,7 +708,8 @@ public class WardrobeScreen extends Screen {
 				Tr.t(fav ? "btb.ui.favorite.remove" : "btb.ui.favorite.add"));
 		py += 11;
 		LoadedPack pack = CosmeticLibrary.get().packs().stream().filter(p -> p.id().equals(a.packId)).findFirst().orElse(null);
-		String meta = categoryLabel(d.category()) + " · " + typeLabel(d.type) + " · " + attachmentLabel(d.attachment) + (pack != null ? " · " + packName(pack) : "");
+		String att = attachmentLabel(d.attachment);
+		String meta = categoryLabel(d.category()) + " · " + typeLabel(d.type) + (att.equals(categoryLabel(d.category())) ? "" : " · " + att) + (pack != null ? " · " + packName(pack) : "");
 		ui.text(ui.ellipsize(meta, w - 16), px, py, t.textMuted);
 		py += 11;
 		String desc = d.description(lang());

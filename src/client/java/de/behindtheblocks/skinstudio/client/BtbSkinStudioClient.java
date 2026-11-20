@@ -73,6 +73,9 @@ public final class BtbSkinStudioClient implements ClientModInitializer {
 				// follow language changes in the options; messages and labels switch immediately
 				lastLanguage = lang;
 				de.behindtheblocks.skinstudio.util.Tr.setLanguage(lang);
+				if (CosmeticLibrary.get().revision() > 0) {
+					de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().reload();
+				}
 			}
 		});
 	}

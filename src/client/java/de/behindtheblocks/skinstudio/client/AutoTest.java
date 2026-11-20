@@ -159,6 +159,16 @@ final class AutoTest {
 			}
 			case "import" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.ImportScreen(null,
 					java.util.Arrays.stream(a, 1, a.length).map(java.nio.file.Path::of).toList()));
+			case "set" -> {
+				var st = de.behindtheblocks.skinstudio.client.data.ClientSettings.get();
+				boolean v = Boolean.parseBoolean(a[2]);
+				switch (a[1]) {
+					case "layers3d" -> st.skinLayers3d = v;
+					case "particles" -> st.particles = v;
+					default -> LOG.warn("Unbekannte Einstellung {}", a[1]);
+				}
+			}
+			case "skin" -> de.behindtheblocks.skinstudio.client.data.Wardrobe.get().setSkin(a.length > 1 ? a[1] : "");
 			case "shot" -> {
 				Screenshot.grab(mc.gameDirectory, a[1] + ".png", mc.gameRenderer.mainRenderTarget(), 1, c -> LOG.info("Screenshot {}", a[1]));
 			}

@@ -227,19 +227,20 @@ def build():
     m.box(b, (-4, 31, -5), (1, 2, 1), solid('#ffffff'), inflate=-0.1)
     m.box(b, (3, 31, -5), (1, 2, 1), solid('#ffffff'), inflate=-0.1)
     m.box(b, (-1, 30.5, -5.6), (2, 2, 1), faces(solid('#ff5fa8'), front=bordered('#ff7cbc', '#d63f86')), emissive=solid('#ff7cbc', alpha=120))
-    ribbon = lambda f_, x, y, w, h, r: (rgb('#ffffff') + (255,)) if (x + y) % 3 else (rgb('#bfe6ff') + (255,))
-    m.box(b, (5, 30, 2), (6, 1, 1), ribbon, rotation=[0, -25, -12], pivot=[5, 30.5, 2.5], inflate=-0.15)
-    m.box(b, (-11, 30, -3), (6, 1, 1), ribbon, rotation=[0, -20, 10], pivot=[-5, 30.5, -2.5], inflate=-0.15)
-    m.box(b, (10, 28, 3), (4, 1, 1), solid('#d8f0ff', alpha=170), rotation=[0, -30, -25], pivot=[10, 28.5, 3.5], inflate=-0.2)
-    s = m.bone('sparkle', [0, 38, -2], parent='tiara')
+    icicle = solid('#d8f0ff', noise=0.05)
+    for x in (-5, 4):
+        m.box(b, (x, 29, -3), (1, 1, 1), icicle, inflate=-0.05)
+        m.box(b, (x, 29, 0), (1, 1, 1), icicle, inflate=-0.05)
+        m.box(b, (x, 28, 0), (1, 1, 1), icicle, inflate=-0.2)
+    s = m.bone('sparkle', [0, 36, -2], parent='tiara')
     glowmint = solid('#6dffc8', noise=0.04)
-    m.box(s, (-0.5, 36, -2.5), (1, 5, 1), glowmint, emissive=glowmint)
-    m.box(s, (-2.5, 38, -2.5), (5, 1, 1), glowmint, emissive=glowmint)
+    m.box(s, (-0.5, 34, -2.5), (1, 5, 1), glowmint, emissive=glowmint)
+    m.box(s, (-2.5, 36, -2.5), (5, 1, 1), glowmint, emissive=glowmint)
     cos.append(('ice_tiara', meta('ice_tiara', 'Eis-Tiara', 'Ice Tiara', 'crown',
                 desc_de='Kühle Tiara mit pinkem Edelstein und schwebendem Funkelkreuz.', desc_en='A frosty tiara with a pink gem and a floating sparkle.',
                 animations=['animation.btb.ice_tiara.sparkle'],
-                glow={'color': '#7CFFD4', 'size': 4, 'intensity': 0.35, 'offset': [0, 6.5, -2], 'flicker': False},
-                particles={'type': 'minecraft:end_rod', 'rate': 0.25, 'offset': [0, 7, -2], 'spread': 3},
+                glow={'color': '#7CFFD4', 'size': 4, 'intensity': 0.35, 'offset': [0, 4.5, -2], 'flicker': False},
+                particles={'type': 'minecraft:end_rod', 'rate': 0.25, 'offset': [0, 5, -2], 'spread': 3},
                 tags=['krone', 'eis', 'tiara']),
                 m, {'animation.btb.ice_tiara.sparkle': anim(sparkle={'rotation': [0, 'q.anim_time * 90', 0], 'position': [0, 'math.sin(q.anim_time * 120) * 0.6', 0]})}, HEAD))
 

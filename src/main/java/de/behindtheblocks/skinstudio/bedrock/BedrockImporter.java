@@ -709,7 +709,9 @@ public final class BedrockImporter {
 	public static Map<String, String> readLang(ArchiveFiles f) {
 		Map<String, String> out = new HashMap<>();
 		List<String> langs = f.find(p -> p.toLowerCase(Locale.ROOT).endsWith(".lang"));
-		langs.sort((a, b) -> Boolean.compare(b.toLowerCase(Locale.ROOT).contains("de_de"), a.toLowerCase(Locale.ROOT).contains("de_de")));
+		// prefer the language the game runs in, then English
+		String preferred = Tr.german() ? "de_de" : "en_us";
+		langs.sort((a, b) -> Boolean.compare(b.toLowerCase(Locale.ROOT).contains(preferred), a.toLowerCase(Locale.ROOT).contains(preferred)));
 		for (String p : langs) {
 			for (String line : new String(f.get(p), StandardCharsets.UTF_8).split("\\R")) {
 				int eq = line.indexOf('=');
