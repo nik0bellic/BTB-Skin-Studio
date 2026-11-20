@@ -74,6 +74,7 @@ public final class ServerCosmeticSync {
 		ServerPlayNetworking.registerGlobalReceiver(Hello.TYPE, (payload, ctx) -> onHello(ctx.player(), payload, ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(SetLoadout.TYPE, (payload, ctx) -> onSetLoadout(ctx.player(), payload, ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.SetSkin.TYPE, (payload, ctx) -> onSetSkin(ctx.player(), payload.skin(), ctx.server()));
+		ServerPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.PlayEmote.TYPE, (payload, ctx) -> onEmote(ctx.player(), payload.id(), ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(RequestCosmetic.TYPE, (payload, ctx) -> onRequest(ctx.player(), payload.hash(), ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(CosmeticChunk.TYPE, (payload, ctx) -> onUploadChunk(ctx.player(), payload, ctx.server()));
 	}
@@ -112,6 +113,7 @@ public final class ServerCosmeticSync {
 	private void onLeave(ServerPlayer player, MinecraftServer server) {
 		UUID id = player.getUUID();
 		modded.remove(id);
+		lastEmote.remove(id);
 		rate.remove(id);
 		uploads.keySet().removeIf(k -> k.startsWith(id + "/"));
 		waiting.values().forEach(s -> s.remove(id));
@@ -182,6 +184,21 @@ public final class ServerCosmeticSync {
 			skins.put(player.getUUID(), clean);
 		}
 		broadcast(server, new SkinStudioPayloads.SyncSkins(List.of(new SkinStudioPayloads.PlayerSkinInfo(player.getUUID(), clean))), null);
+	}
+
+	private final Map<UUID, Long> lastEmote = new HashMap<>();
+
+	private void onEmote(ServerPlayer player, String id, MinecraftServer server) {
+		if (!modded.contains(player.getUUID()) || (!id.isEmpty() && !de.behindtheblocks.skinstudio.emote.Emotes.exists(id))) {
+			return;
+		}
+		long now = System.currentTimeMillis();
+		Long last = lastEmote.get(player.getUUID());
+		if (last != null && now - last < 250) {
+			return;
+		}
+		lastEmote.put(player.getUUID(), now);
+		broadcast(server, new SkinStudioPayloads.EmotePlayed(player.getUUID(), id), player.getUUID());
 	}
 
 	private void broadcast(MinecraftServer server, net.minecraft.network.protocol.common.custom.CustomPacketPayload payload, UUID except) {

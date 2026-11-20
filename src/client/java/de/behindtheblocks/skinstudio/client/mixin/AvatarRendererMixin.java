@@ -31,6 +31,7 @@ public abstract class AvatarRendererMixin {
 		}
 		List<ActiveCosmetic> list = hiddenByArmor(ClientCosmeticSync.activeFor(player.getUUID()), state);
 		state.setData(CosmeticRenderData.PLAYER, player.getUUID());
+		state.setData(CosmeticRenderData.EMOTE, de.behindtheblocks.skinstudio.client.emote.ClientEmotes.pose(player.getUUID()));
 		state.setData(CosmeticRenderData.COSMETICS, list);
 		for (ActiveCosmetic c : list) {
 			for (String layer : c.asset().definition.hideLayers) {

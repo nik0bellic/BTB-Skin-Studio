@@ -20,7 +20,7 @@ import java.util.UUID;
  */
 public final class SkinStudioPayloads {
 	/** Bump when the wire format changes incompatibly. */
-	public static final int PROTOCOL = 2;
+	public static final int PROTOCOL = 3;
 	public static final int CHUNK_SIZE = 30_000;
 	public static final int MAX_TRANSFER_BYTES = 512 * 1024;
 	public static final int MAX_CHUNKS = MAX_TRANSFER_BYTES / CHUNK_SIZE + 1;
@@ -176,7 +176,34 @@ public final class SkinStudioPayloads {
 		}
 	}
 
+	// ------------------------------------------------------------------ emotes
+
+	/** Client → server: start an emote (empty id = stop). */
+	public record PlayEmote(String id) implements CustomPacketPayload {
+		public static final Type<PlayEmote> TYPE = SkinStudioPayloads.payloadType("play_emote");
+		public static final StreamCodec<ByteBuf, PlayEmote> CODEC = StreamCodec.composite(ByteBufCodecs.stringUtf8(32), PlayEmote::id, PlayEmote::new);
+
+		@Override
+		public Type<PlayEmote> type() {
+			return TYPE;
+		}
+	}
+
+	/** Server → client: a player started (or stopped, empty id) an emote. */
+	public record EmotePlayed(UUID player, String id) implements CustomPacketPayload {
+		public static final Type<EmotePlayed> TYPE = SkinStudioPayloads.payloadType("emote_played");
+		public static final StreamCodec<ByteBuf, EmotePlayed> CODEC = StreamCodec.composite(
+				UUIDUtil.STREAM_CODEC, EmotePlayed::player, ByteBufCodecs.stringUtf8(32), EmotePlayed::id, EmotePlayed::new);
+
+		@Override
+		public Type<EmotePlayed> type() {
+			return TYPE;
+		}
+	}
+
 	public static void register() {
+		PayloadTypeRegistry.serverboundPlay().register(PlayEmote.TYPE, PlayEmote.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(EmotePlayed.TYPE, EmotePlayed.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(Hello.TYPE, Hello.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(Hello.TYPE, Hello.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SetLoadout.TYPE, SetLoadout.CODEC);

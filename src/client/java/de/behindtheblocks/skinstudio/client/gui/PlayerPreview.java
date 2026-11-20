@@ -39,6 +39,14 @@ public final class PlayerPreview {
 	public float scale = 1f;
 	/** Moves the figure down inside its frame (in blocks), leaving room for tall hats and torches. */
 	public float lift = 0f;
+	/** Emote shown in this preview (or null). */
+	public String emote;
+	private long emoteStart;
+
+	public void playEmote(String id) {
+		emote = id;
+		emoteStart = System.nanoTime();
+	}
 	public Focus focus = Focus.FULL;
 	private float zoom = 1;
 	private float shift;
@@ -58,6 +66,13 @@ public final class PlayerPreview {
 		AvatarRenderState state = createState();
 		if (state == null) {
 			return;
+		}
+		if (emote != null) {
+			float[] pose = de.behindtheblocks.skinstudio.emote.Emotes.sample(emote, (System.nanoTime() - emoteStart) / 1e9f);
+			if (pose == null) {
+				emote = null;
+			}
+			state.setData(de.behindtheblocks.skinstudio.client.render.CosmeticRenderData.EMOTE, pose);
 		}
 		state.shadowPieces.clear();
 		state.outlineColor = 0;

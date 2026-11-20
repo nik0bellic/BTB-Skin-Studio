@@ -570,5 +570,18 @@
 	"btb.ui.packbuilder.empty": "Enter a name and pick at least one skin.",
 	"btb.ui.packbuilder.saved": "\"%s\" saved (skin_packs/%s).",
 	"btb.ui.packbuilder.exported": "\"%s\" exported: %s",
-	"btb.ui.packbuilder.none": "No skins yet – import skins or add skin packs."
+	"btb.ui.packbuilder.none": "No skins yet – import skins or add skin packs.",
+	"btb.ui.emotes": "Emotes",
+	"btb.ui.emotes.hint": "Click or press a number to play. Moving stops it.",
+	"key.btb_skinstudio.emotes": "Emotes",
+	"btb.emote.wave": "Wave",
+	"btb.emote.cheer": "Cheer",
+	"btb.emote.clap": "Clap",
+	"btb.emote.dance": "Dance",
+	"btb.emote.bow": "Bow",
+	"btb.emote.point": "Point",
+	"btb.emote.facepalm": "Facepalm",
+	"btb.emote.shrug": "Shrug",
+	"btb.emote.salute": "Salute",
+	"btb.emote.think": "Think"
 }

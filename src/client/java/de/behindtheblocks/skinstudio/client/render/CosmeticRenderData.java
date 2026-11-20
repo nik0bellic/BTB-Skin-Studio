@@ -9,6 +9,8 @@ import java.util.UUID;
 public final class CosmeticRenderData {
 	/** Cosmetics to draw for this avatar (set during extraction, or by a preview screen). */
 	public static final RenderStateDataKey<List<ActiveCosmetic>> COSMETICS = RenderStateDataKey.create(() -> "btb_skinstudio:cosmetics");
+	/** Pose of a playing emote (see Emotes.sample) or absent. */
+	public static final RenderStateDataKey<float[]> EMOTE = RenderStateDataKey.create(() -> "btb_skinstudio:emote");
 	public static final RenderStateDataKey<UUID> PLAYER = RenderStateDataKey.create(() -> "btb_skinstudio:player");
 	/** Set by preview screens: always draw, also when other players' cosmetics are hidden. */
 	public static final RenderStateDataKey<Boolean> PREVIEW = RenderStateDataKey.create(() -> "btb_skinstudio:preview");

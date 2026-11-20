@@ -134,6 +134,7 @@ final class AutoTest {
 					case "pause" -> mc.gui.setScreen(new net.minecraft.client.gui.screens.PauseScreen(true));
 					case "title" -> mc.gui.setScreen(new net.minecraft.client.gui.screens.TitleScreen());
 					case "packbuilder" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.SkinPackBuilderScreen(mc.gui.screen()));
+					case "emotes" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.EmoteScreen());
 					case "player" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.PlayerSkinScreen(mc.gui.screen()));
 					case "bedrock" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.BedrockScanScreen(mc.gui.screen()));
 					default -> mc.gui.setScreen(null);
@@ -170,6 +171,7 @@ final class AutoTest {
 					server.execute(() -> server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), command));
 				}
 			}
+			case "emote" -> de.behindtheblocks.skinstudio.client.emote.ClientEmotes.play(a[1]);
 			case "import" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.ImportScreen(null,
 					java.util.Arrays.stream(a, 1, a.length).map(java.nio.file.Path::of).toList()));
 			case "set" -> {

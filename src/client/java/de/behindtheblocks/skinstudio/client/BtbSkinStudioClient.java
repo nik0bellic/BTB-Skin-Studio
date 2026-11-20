@@ -26,6 +26,7 @@ import java.util.Set;
 public final class BtbSkinStudioClient implements ClientModInitializer {
 	private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(BtbSkinStudio.MOD_ID, "main"));
 	private static KeyMapping openWardrobe;
+	private static KeyMapping openEmotes;
 	private static String lastLanguage = "";
 
 	@Override
@@ -60,12 +61,19 @@ public final class BtbSkinStudioClient implements ClientModInitializer {
 				net.minecraft.resources.Identifier.fromNamespaceAndPath(de.behindtheblocks.skinstudio.BtbSkinStudio.MOD_ID, "skin_packs"),
 				(net.minecraft.server.packs.resources.ResourceManagerReloadListener) rm -> de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().reload());
 		ClientCosmeticSync.register();
+		de.behindtheblocks.skinstudio.client.emote.ClientEmotes.register();
 		SkinStudioCommands.register();
 		AutoTest.init();
 		de.behindtheblocks.skinstudio.client.gui.WardrobeScreen.registerMenuButtons();
 
 		openWardrobe = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.btb_skinstudio.wardrobe", InputConstants.KEY_J, CATEGORY));
+		openEmotes = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.btb_skinstudio.emotes", InputConstants.KEY_B, CATEGORY));
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+			while (openEmotes.consumeClick()) {
+				if (mc.gui.screen() == null && mc.player != null) {
+					mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.EmoteScreen());
+				}
+			}
 			while (openWardrobe.consumeClick()) {
 				if (mc.gui.screen() == null) {
 					SkinStudioCommands.openWardrobe(mc);
