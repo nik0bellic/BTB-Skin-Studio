@@ -845,6 +845,8 @@ public class WardrobeScreen extends Screen {
 		cy += 11;
 		navItem(ix, cy, iw, Tr.t("btb.ui.skin.import_png"), -1, false, Icon.IMPORT, this::importSkinPng);
 		cy += 16;
+		navItem(ix, cy, iw, Tr.t("btb.ui.catalog.nav"), -1, false, Icon.IMPORT, () -> minecraft.gui.setScreen(new SkinPackCatalogScreen(this)));
+		cy += 16;
 		navItem(ix, cy, iw, Tr.t("btb.ui.player.nav"), -1, false, Icon.SEARCH, () -> minecraft.gui.setScreen(new PlayerSkinScreen(this)));
 		cy += 16;
 		navItem(ix, cy, iw, Tr.t("btb.ui.packbuilder.nav"), -1, false, Icon.SAVE, () -> minecraft.gui.setScreen(new SkinPackBuilderScreen(this)));

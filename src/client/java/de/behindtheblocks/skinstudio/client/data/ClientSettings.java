@@ -35,6 +35,10 @@ public final class ClientSettings {
 	public boolean menuCharacter = true;
 	/** Leave out cosmetics that would poke through worn armour. */
 	public boolean hideUnderArmor = true;
+	/** Online skin pack catalogs (index files in the Bedrock Skin Packs format). */
+	public java.util.List<String> skinPackCatalogs = new java.util.ArrayList<>(DEFAULT_CATALOGS);
+	public static final java.util.List<String> DEFAULT_CATALOGS = java.util.List.of(
+			"https://raw.githubusercontent.com/BrandonItaly/Skin-Packs/refs/heads/main/skin_packs.json");
 	public Theme theme = Theme.DARK;
 
 	private static ClientSettings instance;
@@ -68,6 +72,9 @@ public final class ClientSettings {
 			s.bedrockBuiltinPacks = Json.bool(o, "bedrock_builtin_packs", true);
 			s.menuCharacter = Json.bool(o, "menu_character", true);
 			s.hideUnderArmor = Json.bool(o, "hide_under_armor", true);
+			if (o.has("skin_pack_catalogs")) {
+				s.skinPackCatalogs = new java.util.ArrayList<>(Json.strings(o, "skin_pack_catalogs"));
+			}
 			s.theme = "light".equals(Json.string(o, "theme", "dark")) ? Theme.LIGHT : Theme.DARK;
 		} catch (Exception e) {
 			LOG.warn("settings.json ist fehlerhaft, Standardwerte werden verwendet: {}", e.getMessage());
@@ -87,6 +94,9 @@ public final class ClientSettings {
 		o.addProperty("bedrock_builtin_packs", bedrockBuiltinPacks);
 		o.addProperty("menu_character", menuCharacter);
 		o.addProperty("hide_under_armor", hideUnderArmor);
+		com.google.gson.JsonArray cat = new com.google.gson.JsonArray();
+		skinPackCatalogs.forEach(cat::add);
+		o.add("skin_pack_catalogs", cat);
 		o.addProperty("theme", theme == Theme.LIGHT ? "light" : "dark");
 		String json = Json.PRETTY.toJson(o);
 		Path f = file();

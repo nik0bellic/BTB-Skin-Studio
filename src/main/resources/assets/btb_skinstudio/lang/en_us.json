@@ -583,5 +583,19 @@
 	"btb.emote.facepalm": "Facepalm",
 	"btb.emote.shrug": "Shrug",
 	"btb.emote.salute": "Salute",
-	"btb.emote.think": "Think"
+	"btb.emote.think": "Think",
+	"btb.ui.catalog.nav": "Get skin packs",
+	"btb.ui.catalog.title": "Skin pack catalog",
+	"btb.ui.catalog.info": "Classic Bedrock skin packs from online catalogs (format of the \"Bedrock Skin Packs\" resource pack). Only what you click is downloaded – packs go to the skin_packs folder and show up as collections. The content belongs to its respective owners.",
+	"btb.ui.catalog.loading": "Loading catalog …",
+	"btb.ui.catalog.loading_one": "Loading …",
+	"btb.ui.catalog.get": "Get",
+	"btb.ui.catalog.remove": "Remove",
+	"btb.ui.catalog.all": "Get all",
+	"btb.ui.catalog.done": "%s downloaded (%s skins).",
+	"btb.ui.catalog.failed": "%s could not be downloaded: %s",
+	"btb.ui.catalog.removed": "%s removed.",
+	"btb.ui.catalog.progress": "Downloading packs … %s of %s",
+	"btb.ui.catalog.offline": "Catalog not reachable (%s). Check your internet connection.",
+	"btb.ui.catalog.too_big": "File is too large."
 }
