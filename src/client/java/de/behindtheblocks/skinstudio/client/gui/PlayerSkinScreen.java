@@ -229,6 +229,12 @@ public class PlayerSkinScreen extends Screen {
 		switch (args[0]) {
 			case "name" -> nameBox.setValue(args.length > 1 ? args[1] : "");
 			case "search" -> search();
+			case "java", "bedrock" -> {
+				bedrock = args[0].equals("bedrock");
+				nameBox.setValue(String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length)));
+				search();
+			}
+			case "wear" -> take(true);
 			default -> {
 			}
 		}

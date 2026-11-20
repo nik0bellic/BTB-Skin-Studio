@@ -78,6 +78,10 @@ public final class BedrockSkinLookup {
 			if (r.statusCode() == 404 || r.statusCode() == 400) {
 				return null;
 			}
+			// GeyserMC answers 503 "Unable to find user in our cache" for gamertags it does not know
+			if (r.statusCode() == 503 && r.body() != null && r.body().contains("Unable to find")) {
+				return null;
+			}
 			if (r.statusCode() != 200) {
 				throw new FormatException(Tr.t("btb.err.player_download", r.statusCode()));
 			}
