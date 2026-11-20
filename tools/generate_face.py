@@ -55,14 +55,16 @@ def eyes_cartoon(cos, key, de, en, iris, lid_rest, desc_de, desc_en):
         m.box(b, (x0 + 0.5 if side == 'left' else x0 + 0.5, 26.5, Z - 0.3), (2, 2.5, 0.12), solid(iris))
         m.box(b, (x0 + 1, 27, Z - 0.4), (1, 1.5, 0.1), solid('#101010'))
         m.box(b, (x0 + 1.6, 28.3, Z - 0.45), (0.5, 0.5, 0.05), solid('#ffffff'))
+        # at rest the lid is open (a thin line) or half closed (sleepy); the animation only closes it for a blink,
+        # so with animations turned off the eyes stay open
+        h0 = 4 * lid_rest if lid_rest > 0 else 0.15
         lid = m.bone(side + '_lid', [x0 + 1.5, 30, Z - 0.5], parent=side + '_eye')
-        m.box(lid, (x0 - 0.1, 26, Z - 0.6), (3.2, 4, 0.1), solid('#e8e8e8'), tint=True)
+        m.box(lid, (x0 - 0.1, 30 - h0, Z - 0.6), (3.2, h0, 0.1), solid('#e8e8e8'), tint=True)
     bones = {}
     for side in ('left', 'right'):
-        if lid_rest > 0:
-            bones[side + '_lid'] = {'scale': [1, 'math.mod(q.anim_time, 5.5) < 0.22 ? 1 : %s' % lid_rest, 1]}
-        else:
-            bones[side + '_lid'] = {'scale': [1, BLINK, 1]}
+        h0 = 4 * lid_rest if lid_rest > 0 else 0.15
+        period = 5.5 if lid_rest > 0 else 4.2
+        bones[side + '_lid'] = {'scale': [1, '(math.mod(q.anim_time, %s) < 0.18) ? %s : 1' % (period, round(4 / h0, 3)), 1]}
     anim_name = 'animation.btb_face.%s' % key
     cos.append((key, meta(key, de, en, 'face_accessory', desc_de, desc_en, tint=SKIN_TINT, animations=[anim_name]), m,
                 {anim_name: {'loop': True, 'bones': bones}}))
@@ -117,7 +119,7 @@ def build():
     mouth_talk(cos)
     mouth_tongue(cos)
     for key, mt, model, anims in cos:
-        write_cosmetic(ROOT, key, mt, model, anims, HEAD)
+        write_cosmetic(ROOT, key, mt, model, anims, None)  # without head: eyes and mouths fill the icon
     pack = {'format': 1, 'id': 'btb_builtin_face', 'version': '1.0.0', 'name': {'de': 'BTB Gesicht', 'en': 'BTB Face'},
             'description': {'de': 'Augen und Münder für den Charakter-Editor.', 'en': 'Eyes and mouths for the character editor.'}, 'author': AUTHOR}
     with open(os.path.join(ROOT, 'pack.json'), 'w', encoding='utf-8') as f:

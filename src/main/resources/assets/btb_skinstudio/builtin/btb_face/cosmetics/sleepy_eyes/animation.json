@@ -7,14 +7,14 @@
         "left_lid": {
           "scale": [
             1,
-            "math.mod(q.anim_time, 5.5) < 0.22 ? 1 : 0.45",
+            "(math.mod(q.anim_time, 5.5) < 0.18) ? 2.222 : 1",
             1
           ]
         },
         "right_lid": {
           "scale": [
             1,
-            "math.mod(q.anim_time, 5.5) < 0.22 ? 1 : 0.45",
+            "(math.mod(q.anim_time, 5.5) < 0.18) ? 2.222 : 1",
             1
           ]
         }
