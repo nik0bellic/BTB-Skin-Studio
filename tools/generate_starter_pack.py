@@ -94,21 +94,21 @@ def build():
 
     # ---------------------------------------------------------------- 2 Stirnband mit Fackel (Fackel mittig vorne)
     m = Model('geometry.btb.headband_torch', seed=12)
-    b = m.bone('band', [0, 28, 0])
+    b = m.bone('band', [0, 29, 0])
     band = lambda f_, x, y, w, h, r: ((rgb('#5a4330') + (255,)) if y == 0 and r.random() < 0.5 else (rgb('#1c1511') + (255,)) if y == h - 1 else
                                       shade(rgb('#3a2b20'), 0.85 + r.random() * 0.25) + (255,))
-    ring(m, b, 28, 2, band, r=4.75, thick=0.25)  # dünn und eng am Kopf (Hutebene endet bei 4.5)
+    ring(m, b, 29, 2, band, r=4.75, thick=0.25)  # dünn und eng am Kopf (Hutebene endet bei 4.5)
     stick = lambda f_, x, y, w, h, r: ((rgb('#c9a06a') + (255,)) if (f_ in ('front', 'left', 'right', 'back') and x == 0) else
                                        shade(rgb('#6e4724'), 0.85 + r.random() * 0.25) + (255,))
-    m.box(b, (-1, 28.5, -6), (2, 3, 2), stick)  # kurzer Stiel: Flamme knapp über dem Kopf
-    fb = m.bone('flame', [0, 31.5, -5], parent='band')
+    m.box(b, (-1, 29.5, -6), (2, 4, 2), stick)  # Stiel 4 px hoch
+    fb = m.bone('flame', [0, 33.5, -5], parent='band')
     fl = lambda f_, x, y, w, h, r: ((rgb('#fffbe0') + (255,)) if (y == 0 and x == 0) else (rgb('#ffe14a') + (255,)) if y == 0 else (rgb('#ffc21a') + (255,)))
-    m.box(fb, (-1, 31.5, -6), (2, 2, 2), fl, emissive=fl)
+    m.box(fb, (-1, 33.5, -6), (2, 2, 2), fl, emissive=fl)
     cos.append(('headband_torch', meta('headband_torch', 'Stirnband mit Fackel', 'Headband Torch', 'head_decoration',
                 desc_de='Breites Lederstirnband mit einer Fackel vorne in der Mitte – wie eine Stirnlampe.', desc_en='A wide leather headband with a torch at the front center – like a head lamp.',
                 animations=['animation.btb.headband_torch.flicker'],
-                glow={'color': '#FFC94A', 'size': 6, 'intensity': 0.5, 'offset': [0, 0.5, -5], 'flicker': True},
-                particles={'type': 'minecraft:small_flame', 'rate': 0.8, 'offset': [0, 2, -5], 'spread': 0.4},
+                glow={'color': '#FFC94A', 'size': 6, 'intensity': 0.5, 'offset': [0, 2.5, -5], 'flicker': True},
+                particles={'type': 'minecraft:small_flame', 'rate': 0.8, 'offset': [0, 4, -5], 'spread': 0.4},
                 tags=['fackel', 'höhle', 'licht', 'stirnlampe']),
                 m, {'animation.btb.headband_torch.flicker': anim(flame={'scale': [1, '1 + math.sin(q.anim_time * 900) * 0.06', 1]})}, HEAD))
 
