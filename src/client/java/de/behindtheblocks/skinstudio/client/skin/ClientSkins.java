@@ -178,6 +178,27 @@ public final class ClientSkins {
 		return null;
 	}
 
+	private static final Map<String, Float> FACE_Y = new HashMap<>();
+
+	/** Eye height of the skin relative to Steve's, in pixels (0 if unknown). Computed once per skin. */
+	public static float faceOffset(SkinData s) {
+		if (s == null) {
+			return 0;
+		}
+		return FACE_Y.computeIfAbsent(s.id + "_" + s.hash, k -> {
+			byte[] png = iconSource(s);
+			if (png == null) {
+				return 0f;
+			}
+			try {
+				int row = de.behindtheblocks.skinstudio.skin.SkinBlink.eyeRow(Images.read(png, "skin.png"));
+				return row < 0 ? 0f : Math.max(-1f, Math.min(2f, row - 4f));
+			} catch (RuntimeException e) {
+				return 0f;
+			}
+		});
+	}
+
 	private static final Map<String, Identifier> BLINK = new HashMap<>();
 	private static final Set<String> BLINK_DONE = new HashSet<>();
 

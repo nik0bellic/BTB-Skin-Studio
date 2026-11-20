@@ -26,6 +26,14 @@ import java.util.UUID;
 public abstract class AvatarRendererMixin {
 	@Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V", at = @At("TAIL"))
 	private void btbSkinStudio$extract(Avatar entity, AvatarRenderState state, float partialTicks, CallbackInfo ci) {
+		try {
+			btbSkinStudio$extractImpl(entity, state, partialTicks, ci);
+		} catch (RuntimeException | LinkageError e) {
+			de.behindtheblocks.skinstudio.client.Guard.report("player render state", e);
+		}
+	}
+
+	private void btbSkinStudio$extractImpl(Avatar entity, AvatarRenderState state, float partialTicks, CallbackInfo ci) {
 		UUID id;
 		boolean puppet = false;
 		if (entity instanceof AbstractClientPlayer p) {
@@ -50,6 +58,8 @@ public abstract class AvatarRendererMixin {
 					net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, entity);
 		}
 		state.setData(CosmeticRenderData.PLAYER, id);
+		state.setData(CosmeticRenderData.FACE_Y, de.behindtheblocks.skinstudio.client.skin.ClientSkins.faceOffset(
+				de.behindtheblocks.skinstudio.client.skin.ClientSkins.skinOf(id)));
 		state.setData(CosmeticRenderData.EMOTE, puppet ? de.behindtheblocks.skinstudio.client.emote.ClientEmotes.puppetPose(id)
 				: de.behindtheblocks.skinstudio.client.emote.ClientEmotes.pose(id));
 		var body = ClientCosmeticSync.bodyFor(id);

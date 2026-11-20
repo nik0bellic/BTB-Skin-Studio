@@ -43,7 +43,7 @@ public final class ClientEmotes {
 			PLAYING.clear();
 			PUPPETS.clear();
 		});
-		ClientTickEvents.END_CLIENT_TICK.register(ClientEmotes::tick);
+		ClientTickEvents.END_CLIENT_TICK.register(mc -> de.behindtheblocks.skinstudio.client.Guard.run("emote tick", () -> tick(mc)));
 	}
 
 	/** Starts an emote for the own player and tells the server (if it has the mod). */

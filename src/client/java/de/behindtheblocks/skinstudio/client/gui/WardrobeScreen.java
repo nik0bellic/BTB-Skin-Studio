@@ -110,6 +110,11 @@ public class WardrobeScreen extends Screen {
 	private boolean infoOpen;
 	static final String AUTHOR = "Nik2810";
 	static final String SOURCE_URL = "https://github.com/nik0bellic/BTB-Skin-Studio";
+	/** Social links shown in the info panel: label, address. */
+	static final String[][] SOCIALS = {
+			{"YouTube", "https://www.youtube.com/@btb.minecraft"},
+			{"Instagram", "https://www.instagram.com/btb.minecraft"},
+			{"TikTok", "https://www.tiktok.com/@btb.plus"}};
 	private String toast;
 	private long toastUntil;
 	private boolean toastError;
@@ -655,7 +660,7 @@ public class WardrobeScreen extends Screen {
 			cy += 19;
 		}
 		CosmeticAsset sel = selected();
-		int detailH = sel == null ? 0 : (adjustMode ? 104 : sel.definition.tint.enabled ? 96 : 78);
+		int detailH = sel == null ? 0 : (adjustMode ? 118 : sel.definition.tint.enabled ? 96 : 78);
 		gridX = x + 8;
 		gridY = cy;
 		gridW = w - 16;
@@ -827,18 +832,23 @@ public class WardrobeScreen extends Screen {
 		Loadout.Adjust adj = e == null ? Loadout.Adjust.NONE : e.adjust();
 		ui.title(ui.ellipsize(Tr.t("btb.ui.adjust.title", a.definition.name(lang())), w - 30), x + 8, y + 7, t.text);
 		ui.iconButton(x + w - 22, y + 4, 16, Icon.BACK, false, () -> adjustMode = false, Tr.t("btb.ui.back"));
-		int col = (w - 24) / 2;
-		int sy = y + 22;
+		int col = (w - 24) * 3 / 5, sy = y + 22;
+		// left: exact values (− / + and mouse wheel)
 		ui.stepper(x + 8, sy, col, Tr.t("btb.ui.adjust.x"), adj.x(), 0.5f, -Loadout.Adjust.MAX_OFFSET, Loadout.Adjust.MAX_OFFSET, " px", v -> setAdjust(a, new Loadout.Adjust(v, adj.y(), adj.z(), adj.scale())));
-		ui.stepper(x + 16 + col, sy, col, Tr.t("btb.ui.adjust.y"), adj.y(), 0.5f, -Loadout.Adjust.MAX_OFFSET, Loadout.Adjust.MAX_OFFSET, " px", v -> setAdjust(a, new Loadout.Adjust(adj.x(), v, adj.z(), adj.scale())));
-		sy += 17;
-		ui.stepper(x + 8, sy, col, Tr.t("btb.ui.adjust.z"), adj.z(), 0.5f, -Loadout.Adjust.MAX_OFFSET, Loadout.Adjust.MAX_OFFSET, " px", v -> setAdjust(a, new Loadout.Adjust(adj.x(), adj.y(), v, adj.scale())));
-		ui.stepper(x + 16 + col, sy, col, Tr.t("btb.ui.adjust.scale"), adj.scale(), 0.05f, Loadout.Adjust.MIN_SCALE, Loadout.Adjust.MAX_SCALE, "×", v -> setAdjust(a, new Loadout.Adjust(adj.x(), adj.y(), adj.z(), v)));
-		sy += 19;
-		for (var line : font.split(Component.literal(Tr.t("btb.ui.adjust.hint")), w - 16)) {
-			ui.g.text(font, line, x + 8, sy, t.textFaint, false);
-			sy += 10;
-		}
+		ui.stepper(x + 8, sy + 16, col, Tr.t("btb.ui.adjust.y"), adj.y(), 0.5f, -Loadout.Adjust.MAX_OFFSET, Loadout.Adjust.MAX_OFFSET, " px", v -> setAdjust(a, new Loadout.Adjust(adj.x(), v, adj.z(), adj.scale())));
+		ui.stepper(x + 8, sy + 32, col, Tr.t("btb.ui.adjust.z"), adj.z(), 0.5f, -Loadout.Adjust.MAX_OFFSET, Loadout.Adjust.MAX_OFFSET, " px", v -> setAdjust(a, new Loadout.Adjust(adj.x(), adj.y(), v, adj.scale())));
+		ui.stepper(x + 8, sy + 48, col, Tr.t("btb.ui.adjust.scale"), adj.scale(), 0.05f, Loadout.Adjust.MIN_SCALE, Loadout.Adjust.MAX_SCALE, "×", v -> setAdjust(a, new Loadout.Adjust(adj.x(), adj.y(), adj.z(), v)));
+		// right: arrow pad – the simple way to nudge (half a pixel per click, as seen from the front)
+		float m = Loadout.Adjust.MAX_OFFSET, st = 0.5f;
+		int cx = x + 8 + col + (w - 16 - col) / 2, bw = 18, bh = 14;
+		ui.button(cx - bw / 2, sy, bw, bh, "↑", Ui.Style.SECONDARY, () -> setAdjust(a, new Loadout.Adjust(adj.x(), Math.min(m, adj.y() + st), adj.z(), adj.scale())));
+		ui.button(cx - bw / 2 - bw - 2, sy + 16, bw, bh, "←", Ui.Style.SECONDARY, () -> setAdjust(a, new Loadout.Adjust(Math.max(-m, adj.x() - st), adj.y(), adj.z(), adj.scale())));
+		ui.button(cx + bw / 2 + 2, sy + 16, bw, bh, "→", Ui.Style.SECONDARY, () -> setAdjust(a, new Loadout.Adjust(Math.min(m, adj.x() + st), adj.y(), adj.z(), adj.scale())));
+		ui.button(cx - bw / 2, sy + 32, bw, bh, "↓", Ui.Style.SECONDARY, () -> setAdjust(a, new Loadout.Adjust(adj.x(), Math.max(-m, adj.y() - st), adj.z(), adj.scale())));
+		String fwd = Tr.t("btb.ui.adjust.forward"), back = Tr.t("btb.ui.adjust.backward");
+		int fw = Math.max(font.width(fwd), font.width(back)) + 10;
+		ui.button(cx - fw - 1, sy + 48, fw, bh, fwd, Ui.Style.SECONDARY, () -> setAdjust(a, new Loadout.Adjust(adj.x(), adj.y(), Math.max(-m, adj.z() - st), adj.scale())));
+		ui.button(cx + 1, sy + 48, fw, bh, back, Ui.Style.SECONDARY, () -> setAdjust(a, new Loadout.Adjust(adj.x(), adj.y(), Math.min(m, adj.z() + st), adj.scale())));
 		String reset = Tr.t("btb.ui.reset");
 		int rw = font.width(reset) + 32;
 		ui.button(x + 8, y + h - 24, rw, 18, reset, Icon.REFRESH, Ui.Style.SECONDARY, !adj.isNone(), () -> setAdjust(a, Loadout.Adjust.NONE), null);
@@ -1250,11 +1260,13 @@ public class WardrobeScreen extends Screen {
 		cy += 16;
 		navItem(ix, cy, iw, Tr.t("btb.ui.player.nav"), -1, false, Icon.SEARCH, () -> minecraft.gui.setScreen(new PlayerSkinScreen(this)));
 		cy += 16;
+		navItem(ix, cy, iw, Tr.t("btb.ui.cape.nav"), -1, false, Icon.HANGER, () -> minecraft.gui.setScreen(new CapeScreen(this)));
+		cy += 16;
 		navItem(ix, cy, iw, Tr.t("btb.ui.packbuilder.nav"), -1, false, Icon.SAVE, () -> minecraft.gui.setScreen(new SkinPackBuilderScreen(this)));
 		cy += 16;
 		navItem(ix, cy, iw, Tr.t("btb.ui.skin.packs_folder"), -1, false, Icon.FOLDER, () -> com.mojang.blaze3d.Blaze3D.openPath(SkinLibrary.get().skinPacksDir));
 		cy += 16;
-		navItem(ix, cy, iw, Tr.t("btb.ui.bedrock.scan"), -1, false, Icon.SEARCH, () -> minecraft.gui.setScreen(new BedrockScanScreen(this)));
+		navItem(ix, cy, iw, Tr.t("btb.ui.bedrock.scan"), -1, false, Icon.FOLDER, () -> minecraft.gui.setScreen(new BedrockScanScreen(this)));
 		cy += 16;
 		navItem(ix, cy, iw, Tr.t("btb.ui.skin.reload"), -1, false, Icon.REFRESH, () -> SkinLibrary.get().reload().thenRun(() -> toast(Tr.t("btb.ui.toast.reloaded"), false)));
 		cy += 16;
@@ -1474,10 +1486,10 @@ public class WardrobeScreen extends Screen {
 		List<String[]> rows = List.of(
 				new String[]{Tr.t("btb.ui.info.version"), version},
 				new String[]{Tr.t("btb.ui.info.author"), AUTHOR},
-				new String[]{Tr.t("btb.ui.info.family"), "BTB Studios"},
+				new String[]{Tr.t("btb.ui.info.family"), "Bellić Development"},
 				new String[]{Tr.t("btb.ui.info.license"), "LGPL-3.0-only"});
 		var thanks = font.split(Component.literal(Tr.t("btb.ui.info.thanks")), w - 20);
-		int h = 30 + rows.size() * 13 + 8 + thanks.size() * 10 + 34;
+		int h = 30 + rows.size() * 13 + 8 + thanks.size() * 10 + 34 + 22;
 		ui.region(x, y, w, h, () -> { });
 		ui.rounded(x, y, w, h, 9, t.dark ? 0xF41C1F27 : 0xFCFFFFFF);
 		ui.roundedOutline(x, y, w, h, 9, t.glassBorder);
@@ -1495,6 +1507,14 @@ public class WardrobeScreen extends Screen {
 			cy += 10;
 		}
 		cy += 6;
+		// YouTube, Instagram, TikTok side by side, GitHub below
+		int sw = (w - 20 - 2 * 4) / 3;
+		for (int i = 0; i < SOCIALS.length; i++) {
+			String url = SOCIALS[i][1];
+			ui.button(x + 10 + i * (sw + 4), cy, sw, 18, SOCIALS[i][0], null, Ui.Style.PRIMARY, true,
+					() -> net.minecraft.client.gui.screens.ConfirmLinkScreen.confirmLinkNow(this, java.net.URI.create(url)), url);
+		}
+		cy += 22;
 		ui.button(x + 10, cy, w - 20, 18, "GitHub", Icon.EXPORT, Ui.Style.SECONDARY, true,
 				() -> net.minecraft.client.gui.screens.ConfirmLinkScreen.confirmLinkNow(this, java.net.URI.create(SOURCE_URL)), SOURCE_URL);
 	}
@@ -1575,12 +1595,16 @@ public class WardrobeScreen extends Screen {
 
 	@Override
 	public boolean mouseReleased(MouseButtonEvent event) {
+		ui.endDrag();
 		draggingPreview = false;
 		return super.mouseReleased(event);
 	}
 
 	@Override
 	public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+		if (ui.drag(event.x())) {
+			return true;
+		}
 		if (draggingPreview) {
 			rotatedOnce = true;
 			preview.drag(dx, dy);

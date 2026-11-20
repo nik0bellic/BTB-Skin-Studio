@@ -138,6 +138,9 @@ public final class PlayerPreview {
 			cosmetics = all;
 		}
 		state.setData(CosmeticRenderData.COSMETICS, cosmetics);
+		var shownSkin = skinOverride != null ? skinOverride
+				: de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().find(de.behindtheblocks.skinstudio.client.data.Wardrobe.get().skin());
+		state.setData(CosmeticRenderData.FACE_Y, de.behindtheblocks.skinstudio.client.skin.ClientSkins.faceOffset(shownSkin));
 		state.setData(CosmeticRenderData.PREVIEW, true);
 		state.showHat = state.showJacket = state.showLeftSleeve = state.showRightSleeve = state.showLeftPants = state.showRightPants = true;
 		for (ActiveCosmetic c : cosmetics) {
@@ -155,29 +158,34 @@ public final class PlayerPreview {
 		g.entity(state, size, translation, rotation, xRotation, x0, y0, x1, y1);
 	}
 
+	/**
+	 * A fresh render state for the preview – never the real player's one. That state carries whatever the
+	 * player is doing in the world (crouching, swinging, items, cape physics) and other mods hook into it
+	 * (e.g. Not Enough Animations), which made the still figure crouch or jitter.
+	 */
 	private AvatarRenderState createState() {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.player != null) {
-			EntityRenderState s = mc.getEntityRenderDispatcher().getRenderer(mc.player).createRenderState(mc.player, 1.0F);
-			if (s instanceof AvatarRenderState a) {
-				return a;
-			}
-		}
 		AvatarRenderState s = new AvatarRenderState();
 		s.entityType = net.minecraft.world.entity.EntityTypes.PLAYER;
-		if (skinLookup == null) {
-			try {
-				skinLookup = mc.getSkinManager().createLookup(mc.getGameProfile(), false);
-			} catch (RuntimeException e) {
-				skinLookup = DefaultPlayerSkin::getDefaultSkin;
+		PlayerSkin skin = null;
+		if (mc.player != null) {
+			skin = mc.player.getSkin(); // includes the BTB skin and the account cape
+		} else {
+			if (skinLookup == null) {
+				try {
+					skinLookup = mc.getSkinManager().createLookup(mc.getGameProfile(), false);
+				} catch (RuntimeException e) {
+					skinLookup = DefaultPlayerSkin::getDefaultSkin;
+				}
+			}
+			skin = skinLookup.get();
+			var chosen = de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().find(de.behindtheblocks.skinstudio.client.data.Wardrobe.get().skin());
+			if (chosen != null) {
+				skin = de.behindtheblocks.skinstudio.client.skin.ClientSkins.toPlayerSkin(chosen, skin == null ? DefaultPlayerSkin.getDefaultSkin() : skin);
 			}
 		}
-		PlayerSkin skin = skinLookup.get();
 		s.skin = skin == null ? DefaultPlayerSkin.getDefaultSkin() : skin;
-		var chosen = de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().find(de.behindtheblocks.skinstudio.client.data.Wardrobe.get().skin());
-		if (chosen != null) {
-			s.skin = de.behindtheblocks.skinstudio.client.skin.ClientSkins.toPlayerSkin(chosen, s.skin);
-		}
+		s.showCape = de.behindtheblocks.skinstudio.client.data.ClientSettings.get().showCape;
 		return s;
 	}
 }

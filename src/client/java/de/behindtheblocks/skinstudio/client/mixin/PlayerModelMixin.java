@@ -15,6 +15,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class PlayerModelMixin {
 	@Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("TAIL"))
 	private void btbSkinStudio$emote(AvatarRenderState state, CallbackInfo ci) {
+		try {
+			btbSkinStudio$emoteImpl(state, ci);
+		} catch (RuntimeException | LinkageError e) {
+			de.behindtheblocks.skinstudio.client.Guard.report("emote pose", e);
+		}
+	}
+
+	private void btbSkinStudio$emoteImpl(AvatarRenderState state, CallbackInfo ci) {
 		PlayerModel model = (PlayerModel) (Object) this;
 		float[] body = state.getData(CosmeticRenderData.BODY);
 		if (body != null) {

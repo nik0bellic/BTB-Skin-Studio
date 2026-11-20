@@ -15,6 +15,37 @@ public final class SkinBlink {
 	private SkinBlink() {
 	}
 
+	/**
+	 * Top row of the eyes on the face (0–7, Steve and Alex: 4), or -1 if the eyes cannot be told apart from
+	 * the skin. Used to move glasses and face parts to the eyes of skins whose eyes sit higher or lower.
+	 */
+	public static int eyeRow(BufferedImage skin) {
+		if (skin.getWidth() < 64 || skin.getHeight() < 32) {
+			return -1;
+		}
+		int s = skin.getWidth() / 64;
+		int[][] face = new int[8][8];
+		for (int y = 0; y < 8; y++) {
+			for (int x = 0; x < 8; x++) {
+				int base = px(skin, s, FACE_X + x, FACE_Y + y);
+				int hat = px(skin, s, HAT_X + x, FACE_Y + y);
+				face[y][x] = (hat >>> 24) > 200 ? hat : base;
+			}
+		}
+		for (int y = 2; y <= 6; y++) {
+			if (hasWhite(face[y], 0, 4) && hasWhite(face[y], 4, 8)) {
+				return y;
+			}
+		}
+		int tone = skinTone(face, 2, 3, 4, 5, 6, 7);
+		for (int y = 3; y <= 5; y++) {
+			if (eyeLike(face[y], tone, 0, 4) && eyeLike(face[y], tone, 4, 8)) {
+				return y;
+			}
+		}
+		return -1;
+	}
+
 	/** Returns the skin with closed eyes, or null if no eyes could be found. */
 	public static BufferedImage close(BufferedImage skin) {
 		if (skin.getWidth() < 64 || skin.getHeight() < 32) {

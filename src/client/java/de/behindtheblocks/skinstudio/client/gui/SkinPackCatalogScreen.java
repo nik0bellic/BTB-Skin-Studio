@@ -218,4 +218,15 @@ public class SkinPackCatalogScreen extends Screen {
 		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.restore();
 		super.removed();
 	}
+
+	@Override
+	public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+		return ui.drag(event.x()) || super.mouseDragged(event, dx, dy);
+	}
+
+	@Override
+	public boolean mouseReleased(MouseButtonEvent event) {
+		ui.endDrag();
+		return super.mouseReleased(event);
+	}
 }

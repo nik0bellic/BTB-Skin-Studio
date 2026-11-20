@@ -16,6 +16,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class AbstractClientPlayerMixin {
 	@Inject(method = "getSkin", at = @At("RETURN"), cancellable = true)
 	private void btbSkinStudio$skin(CallbackInfoReturnable<PlayerSkin> cir) {
+		try {
+			btbSkinStudio$skinImpl(cir);
+		} catch (RuntimeException | LinkageError e) {
+			de.behindtheblocks.skinstudio.client.Guard.report("skin override", e);
+		}
+	}
+
+	private void btbSkinStudio$skinImpl(CallbackInfoReturnable<PlayerSkin> cir) {
 		AbstractClientPlayer self = (AbstractClientPlayer) (Object) this;
 		PlayerSkin original = cir.getReturnValue();
 		PlayerSkin replaced = ClientSkins.override(self.getUUID(), original);

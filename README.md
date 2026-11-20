@@ -28,7 +28,9 @@
 - Große 3D-Vorschau zum Drehen mit Ansichten Ganz/Kopf/Oben/Beine; ein ausgewähltes Cosmetic wird sofort anprobiert
 - Mehrere Cosmetics gleichzeitig tragen. Konflikte werden automatisch gelöst: Ein Helm ersetzt den Hut, die Brille bleibt
 - Farben aus der Palette oder frei wählbar, Outfits speichern und mit einem Klick anlegen, helles und dunkles Design
-- **Anpassen:** Jedes getragene Cosmetic lässt sich verschieben (Seite/Höhe/Tiefe, ±16 px) und skalieren (0,25–3×); Mitspieler sehen die Anpassung
+- **Anpassen:** Jedes getragene Cosmetic lässt sich mit Pfeiltasten (↑ ↓ ← →, Vor/Zurück) oder genauen Werten verschieben (±16 px) und skalieren (0,25–3×); Mitspieler sehen die Anpassung
+- Brillen, Augen und Münder passen sich automatisch an die Augenhöhe des Skins an
+- Durchsichtige Teile (Glas, Geister) werden sortiert gezeichnet und verdecken nichts mehr
 - Oberfläche komplett auf Deutsch oder Englisch – folgt der Spielsprache
 - Passt bei jeder GUI-Größe: Ist das Fenster bei der gewählten GUI-Größe zu klein, nutzen die BTB-Menüs automatisch die nächstkleinere (die eigene Einstellung bleibt unverändert)
 - Info-Button (ⓘ) mit Version, Lizenz und Credits
@@ -46,7 +48,8 @@
 - **Eigenes Skin-Pack „BTB Skins“:** Holzfäller (Steve mit Holzfäller-Outfit, zur Laufzeit aus dem Steve-Skin des Spiels zusammengesetzt), Abenteurerin, Gärtnerin, Bergarbeiter, Matrose, Astronautin
 - **Skin-Packs aus der Bedrock-Installation:** Die mit Bedrock installierten Standard-Skin-Packs werden direkt geladen (Windows GDK/Store, Preview, mcpelauncher), ebenso Skin-Packs in Ressourcenpaketen (`assets/<ns>/skin_packs/`)
 - **Skin-Pack-Katalog:** lädt auf Klick die klassischen Bedrock-Skin-Packs aus einem Online-Katalog (Format des Ressourcenpakets „Bedrock Skin Packs“, 50+ Packs); weitere Katalog-URLs einstellbar
-- **Java-Spieler suchen:** Spielername eingeben, Skin (mit Armmodell) übernehmen – lädt nur von `textures.minecraft.net`
+- **Spieler suchen:** Java-Spielername oder Bedrock-Gamertag eingeben und den Skin übernehmen (Java über die Minecraft-Dienste, Bedrock über die GeyserMC-Datenbank)
+- **Cape wählen:** die Capes des eigenen Java-Accounts anzeigen, eines aktivieren oder „Kein Cape“ (offizielle Mojang-Profil-API, wie der Launcher)
 - **Skin-Pack erstellen:** eigene Skins auswählen, benennen und als Bedrock-`.mcpack` exportieren (auch in Bedrock nutzbar)
 
 ![Skins](docs/modrinth/16_skins_de.jpg)

@@ -13,6 +13,8 @@ public final class CosmeticRenderData {
 	/** Body proportions {height, head, arms, legs} or absent. */
 	public static final RenderStateDataKey<float[]> BODY = RenderStateDataKey.create(() -> "btb_skinstudio:body");
 	public static final RenderStateDataKey<float[]> EMOTE = RenderStateDataKey.create(() -> "btb_skinstudio:emote");
+	/** How many pixels the skin's eyes sit below Steve's (row 4); glasses and face parts follow. */
+	public static final RenderStateDataKey<Float> FACE_Y = RenderStateDataKey.create(() -> "btb_skinstudio:face_y");
 	public static final RenderStateDataKey<UUID> PLAYER = RenderStateDataKey.create(() -> "btb_skinstudio:player");
 	/** Set by preview screens: always draw, also when other players' cosmetics are hidden. */
 	public static final RenderStateDataKey<Boolean> PREVIEW = RenderStateDataKey.create(() -> "btb_skinstudio:preview");

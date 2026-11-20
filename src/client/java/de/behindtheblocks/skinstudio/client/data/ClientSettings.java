@@ -33,6 +33,8 @@ public final class ClientSettings {
 	public int layers3dParts = 15;
 	/** Skins blink now and then (only skins whose image the mod knows). */
 	public boolean blinking = true;
+	/** Show the account cape in the previews. */
+	public boolean showCape = true;
 	/** Load the skin packs that come with an installed Bedrock edition (read-only, never copied). */
 	public boolean bedrockBuiltinPacks = true;
 	/** Show the own character next to the main menu and the pause menu. */

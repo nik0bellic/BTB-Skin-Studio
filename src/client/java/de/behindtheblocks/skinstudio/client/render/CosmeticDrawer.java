@@ -45,6 +45,9 @@ public final class CosmeticDrawer {
 		Identifier emissive = def.emissiveTexture == null ? null : CosmeticTextures.get(active.asset(), 0, CosmeticTextures.Layer.EMISSIVE);
 		RenderType type = RenderTypes.entityTranslucent(tex);
 		RenderType glowType = emissive == null ? null : RenderTypes.eyes(emissive);
+		// glass-like cosmetics: opaque faces first (cutout), then the see-through faces sorted back to front
+		Translucency.Mask mask = Translucency.of(active.asset(), baked);
+		RenderType opaqueType = mask == null ? type : RenderTypes.entityCutout(tex);
 
 		for (BakedModel.Bone root : baked.roots) {
 			AttachmentPoint.Part part = AttachmentPoint.Part.fromBoneName(root.name);
@@ -52,21 +55,59 @@ public final class CosmeticDrawer {
 				part = def.attachment.part;
 			}
 			poseStack.pushPose();
-			partOf(model, part).translateAndRotate(poseStack);
-			applyAttachment(poseStack, def, part);
-			applyAdjust(poseStack, active.adjust(), def, part);
-			float bx = (root.pivotX - part.pivotX) / 16f;
-			float by = (root.pivotY - (24f - part.pivotY)) / 16f;
-			float bz = (root.pivotZ - part.pivotZ) / 16f;
-			collector.submitCustomGeometry(poseStack, type, (pose, buffer) -> drawBone(pose.copy(), buffer, root, bx, by, bz, poses, light, overlay));
-			if (glowType != null) {
-				collector.submitCustomGeometry(poseStack, glowType, (pose, buffer) -> drawBone(pose.copy(), buffer, root, bx, by, bz, poses, FULL_BRIGHT, overlay));
+			try {
+				partOf(model, part).translateAndRotate(poseStack);
+				applyAttachment(poseStack, def, part);
+				applyAdjust(poseStack, active.adjust(), def, part);
+				float faceY = faceOffset(def, state);
+				if (faceY != 0) {
+					poseStack.translate(0, faceY / 16f, 0); // Java space: +y is down
+				}
+				float bx = (root.pivotX - part.pivotX) / 16f;
+				float by = (root.pivotY - (24f - part.pivotY)) / 16f;
+				float bz = (root.pivotZ - part.pivotZ) / 16f;
+				collector.submitCustomGeometry(poseStack, opaqueType, (pose, buffer) -> de.behindtheblocks.skinstudio.client.Guard.run("cosmetic draw", () -> drawBone(pose.copy(), buffer, root, bx, by, bz, poses, light, overlay, mask, false, null)));
+				if (mask != null) {
+					collector.submitCustomGeometry(poseStack, type, (pose, buffer) -> {
+						List<float[]> glass = new java.util.ArrayList<>();
+						drawBone(pose.copy(), buffer, root, bx, by, bz, poses, light, overlay, mask, true, glass);
+						// far faces first, so every glass face shows what lies behind it
+						glass.sort((a, b) -> Float.compare(b[0], a[0]));
+						for (float[] g : glass) {
+							for (int v = 0; v < 4; v++) {
+								int k = 4 + v * 5;
+								buffer.addVertex(g[k], g[k + 1], g[k + 2]).setColor(-1).setUv(g[k + 3], g[k + 4]).setOverlay(overlay).setLight(light)
+										.setNormal(g[1], g[2], g[3]);
+							}
+						}
+					});
+				}
+				if (glowType != null) {
+					collector.submitCustomGeometry(poseStack, glowType, (pose, buffer) -> de.behindtheblocks.skinstudio.client.Guard.run("cosmetic glow", () -> drawBone(pose.copy(), buffer, root, bx, by, bz, poses, FULL_BRIGHT, overlay, null, false, null)));
+				}
+			} finally {
+				poseStack.popPose(); // always balanced, even if something above fails
 			}
-			poseStack.popPose();
 		}
 
 		if (def.glow != null && ClientSettings.get().glowEffects) {
 			submitGlow(poseStack, collector, model, def, active.adjust(), state.ageInTicks);
+		}
+	}
+
+	/** Glasses, eyes and mouths follow the eye height of the skin (see {@link CosmeticRenderData#FACE_Y}). */
+	private static float faceOffset(CosmeticDefinition def, AvatarRenderState state) {
+		if (def.attachment.part != AttachmentPoint.Part.HEAD || def.type == null) {
+			return 0;
+		}
+		switch (def.type) {
+			case GLASSES, FACE_ACCESSORY, MUSTACHE -> {
+				Float f = state.getData(CosmeticRenderData.FACE_Y);
+				return f == null ? 0 : f;
+			}
+			default -> {
+				return 0;
+			}
 		}
 	}
 
@@ -179,8 +220,13 @@ public final class CosmeticDrawer {
 
 	private static final ThreadLocal<Vector3f> TMP = ThreadLocal.withInitial(Vector3f::new);
 
+	/**
+	 * mask == null: all quads. Otherwise only opaque quads (translucent = false) or only translucent ones, which
+	 * are then not emitted but collected (already transformed) into {@code glass} for sorting:
+	 * {distance², nx, ny, nz, then 4 × (x, y, z, u, v)}.
+	 */
 	private static void drawBone(PoseStack.Pose pose, VertexConsumer buffer, BakedModel.Bone bone, float tx, float ty, float tz,
-								 float[] poses, int light, int overlay) {
+								 float[] poses, int light, int overlay, Translucency.Mask mask, boolean translucent, List<float[]> glass) {
 		int o = bone.index * 9;
 		// Animation position is in Bedrock space (Y up) → Java (Y down)
 		pose.translate(tx + poses[o + 3] / 16f, ty - poses[o + 4] / 16f, tz + poses[o + 5] / 16f);
@@ -195,8 +241,37 @@ public final class CosmeticDrawer {
 		}
 		float[] q = bone.quads;
 		Vector3f n = TMP.get();
-		for (int i = 0; i < q.length; i += BakedModel.QUAD_STRIDE) {
+		boolean[] tq = mask == null || bone.index >= mask.perBone().length ? null : mask.perBone()[bone.index];
+		Vector3f p = new Vector3f();
+		for (int i = 0, qi = 0; i < q.length; i += BakedModel.QUAD_STRIDE, qi++) {
+			boolean isGlass = tq != null && qi < tq.length && tq[qi];
+			if (mask != null && isGlass != translucent) {
+				continue;
+			}
 			pose.transformNormal(q[i + 20], q[i + 21], q[i + 22], n);
+			if (glass != null) {
+				float[] g = new float[24];
+				g[1] = n.x;
+				g[2] = n.y;
+				g[3] = n.z;
+				float cx = 0, cy = 0, cz = 0;
+				for (int v = 0; v < 4; v++) {
+					int k = i + v * BakedModel.VERTEX_STRIDE;
+					pose.pose().transformPosition(q[k], q[k + 1], q[k + 2], p);
+					int go = 4 + v * 5;
+					g[go] = p.x;
+					g[go + 1] = p.y;
+					g[go + 2] = p.z;
+					g[go + 3] = q[k + 3];
+					g[go + 4] = q[k + 4];
+					cx += p.x;
+					cy += p.y;
+					cz += p.z;
+				}
+				g[0] = (cx * cx + cy * cy + cz * cz) / 16f;
+				glass.add(g);
+				continue;
+			}
 			for (int v = 0; v < 4; v++) {
 				int k = i + v * BakedModel.VERTEX_STRIDE;
 				buffer.addVertex(pose, q[k], q[k + 1], q[k + 2]).setColor(-1).setUv(q[k + 3], q[k + 4]).setOverlay(overlay).setLight(light).setNormal(n.x, n.y, n.z);
@@ -204,7 +279,7 @@ public final class CosmeticDrawer {
 		}
 		for (BakedModel.Bone child : bone.children) {
 			drawBone(pose.copy(), buffer, child, (child.pivotX - bone.pivotX) / 16f, (child.pivotY - bone.pivotY) / 16f, (child.pivotZ - bone.pivotZ) / 16f,
-					poses, light, overlay);
+					poses, light, overlay, mask, translucent, glass);
 		}
 	}
 

@@ -260,6 +260,23 @@ public final class Ui {
 		return font.width(label) + (removable ? 22 : 12);
 	}
 
+	/** Slider being dragged: follows the mouse until the button is released (see {@link #drag}). */
+	private java.util.function.DoubleConsumer dragTarget;
+
+	/** Call from {@code mouseDragged}; true while a slider is being dragged. */
+	public boolean drag(double mx) {
+		if (dragTarget == null) {
+			return false;
+		}
+		dragTarget.accept(mx);
+		return true;
+	}
+
+	/** Call from {@code mouseReleased}. */
+	public void endDrag() {
+		dragTarget = null;
+	}
+
 	/** Hovered stepper this frame: mouse wheel changes it (see {@link #scroll}). */
 	private java.util.function.DoubleConsumer wheelTarget;
 
@@ -291,7 +308,11 @@ public final class Ui {
 		rounded(lx, y + 3, Math.max(5, (int) (lw * value01)), 5, 2, fillColor);
 		int kx = lx + (int) (lw * value01) - 3;
 		rounded(kx, y, 7, 11, 3, t.text);
-		region(lx - 3, y - 2, lw + 6, 14, () -> set.accept(clamp((mouseX - lx) / (float) lw, 0, 1)));
+		java.util.function.DoubleConsumer follow = mx -> set.accept(clamp((float) (mx - lx) / lw, 0, 1));
+		region(lx - 3, y - 2, lw + 6, 14, () -> {
+			follow.accept(mouseX);
+			dragTarget = follow; // keep following the mouse while the button is held
+		});
 		if (hover(lx - 3, y - 2, lw + 6, 14)) {
 			wheelTarget = d -> set.accept(clamp(value01 + (float) Math.signum(d) * 0.02f, 0, 1));
 		}

@@ -137,6 +137,7 @@ final class AutoTest {
 					case "emotes" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.EmoteScreen());
 					case "catalog" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.SkinPackCatalogScreen(mc.gui.screen()));
 					case "player" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.PlayerSkinScreen(mc.gui.screen()));
+					case "cape" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.CapeScreen(mc.gui.screen()));
 					case "bedrock" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.BedrockScanScreen(mc.gui.screen()));
 					default -> mc.gui.setScreen(null);
 				}

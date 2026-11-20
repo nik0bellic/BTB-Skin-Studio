@@ -31,6 +31,8 @@ public class PlayerSkinScreen extends Screen {
 	private String status;
 	private boolean statusError;
 	private boolean dragging;
+	/** false = Java Edition (name), true = Bedrock (gamertag). */
+	private static boolean bedrock;
 
 	public PlayerSkinScreen(Screen parent) {
 		super(Component.literal(Tr.t("btb.ui.player.title")));
@@ -43,8 +45,8 @@ public class PlayerSkinScreen extends Screen {
 		String old = nameBox == null ? "" : nameBox.getValue();
 		nameBox = new EditBox(font, 0, 0, 100, 12, Component.literal(Tr.t("btb.ui.player.name")));
 		nameBox.setBordered(false);
-		nameBox.setMaxLength(16);
-		nameBox.setHint(Component.literal(Tr.t("btb.ui.player.hint")));
+		nameBox.setMaxLength(21);
+		nameBox.setHint(Component.literal(Tr.t(bedrock ? "btb.ui.player.hint_bedrock" : "btb.ui.player.hint")));
 		nameBox.setValue(old);
 		addRenderableWidget(nameBox);
 		setInitialFocus(nameBox);
@@ -52,8 +54,9 @@ public class PlayerSkinScreen extends Screen {
 
 	private void search() {
 		String name = nameBox.getValue().trim();
-		if (busy || !JavaSkinLookup.validName(name)) {
-			status = Tr.t("btb.err.player_name", name);
+		boolean valid = bedrock ? de.behindtheblocks.skinstudio.client.skin.BedrockSkinLookup.validGamertag(name) : JavaSkinLookup.validName(name);
+		if (busy || !valid) {
+			status = Tr.t(bedrock ? "btb.err.gamertag" : "btb.err.player_name", name);
 			statusError = true;
 			return;
 		}
@@ -61,7 +64,7 @@ public class PlayerSkinScreen extends Screen {
 		found = null;
 		status = Tr.t("btb.ui.player.searching", name);
 		statusError = false;
-		JavaSkinLookup.fetch(name).whenCompleteAsync((s, err) -> {
+		(bedrock ? de.behindtheblocks.skinstudio.client.skin.BedrockSkinLookup.fetch(name) : JavaSkinLookup.fetch(name)).whenCompleteAsync((s, err) -> {
 			busy = false;
 			if (err != null) {
 				Throwable c = err.getCause() != null ? err.getCause() : err;
@@ -123,7 +126,26 @@ public class PlayerSkinScreen extends Screen {
 		int panelW = Math.min(260, width / 2);
 		ui.glass(m, top, panelW, bottom - top, 10);
 		int x = m + 10, w = panelW - 20, y = top + 10;
-		for (var line : font.split(Component.literal(Tr.t("btb.ui.player.info")), w)) {
+		// Java or Bedrock
+		String[] modes = {"Java Edition", "Bedrock Edition"};
+		int mw = (w - 4) / 2;
+		for (int i = 0; i < 2; i++) {
+			boolean on = (i == 1) == bedrock;
+			int bx = x + i * (mw + 4);
+			ui.rounded(bx, y, mw, 18, 9, on ? t.accent : ui.hover(bx, y, mw, 18) ? t.surfaceHover : t.surface);
+			ui.textCentered(modes[i], bx + mw / 2, y + 5, on ? t.onAccent : t.text);
+			boolean target = i == 1;
+			ui.region(bx, y, mw, 18, () -> {
+				if (bedrock != target) {
+					bedrock = target;
+					found = null;
+					status = null;
+					nameBox.setHint(Component.literal(Tr.t(bedrock ? "btb.ui.player.hint_bedrock" : "btb.ui.player.hint")));
+				}
+			});
+		}
+		y += 24;
+		for (var line : font.split(Component.literal(Tr.t(bedrock ? "btb.ui.player.info_bedrock" : "btb.ui.player.info")), w)) {
 			g.text(font, line, x, y, t.textMuted, false);
 			y += 10;
 		}
@@ -186,6 +208,9 @@ public class PlayerSkinScreen extends Screen {
 
 	@Override
 	public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+		if (ui.drag(event.x())) {
+			return true;
+		}
 		if (dragging) {
 			preview.drag(dx, dy);
 			return true;
@@ -195,6 +220,7 @@ public class PlayerSkinScreen extends Screen {
 
 	@Override
 	public boolean mouseReleased(MouseButtonEvent event) {
+		ui.endDrag();
 		dragging = false;
 		return super.mouseReleased(event);
 	}

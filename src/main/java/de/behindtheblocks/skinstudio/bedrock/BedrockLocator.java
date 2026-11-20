@@ -70,8 +70,13 @@ public final class BedrockLocator {
 				if (r.startsWith("A:") || r.startsWith("B:")) {
 					continue;
 				}
-				for (String edition : new String[]{"Minecraft for Windows", "Minecraft Preview for Windows"}) {
-					addIfDir(out, root.toPath().resolve("XboxGames").resolve(edition).resolve("Content").resolve("data").resolve("skin_packs"));
+				// any XboxGames folder with "Minecraft" in its name (release, preview, renamed installs)
+				for (Path game : list(root.toPath().resolve("XboxGames"))) {
+					String n = game.getFileName().toString().toLowerCase(Locale.ROOT);
+					if (n.contains("minecraft")) {
+						addIfDir(out, game.resolve("Content").resolve("data").resolve("skin_packs"));
+						addIfDir(out, game.resolve("data").resolve("skin_packs"));
+					}
 				}
 			}
 			// older UWP build – WindowsApps is usually not listable, then this simply finds nothing
@@ -94,6 +99,20 @@ public final class BedrockLocator {
 					addIfDir(out, v.resolve("assets").resolve("skin_packs"));
 					addIfDir(out, v.resolve("assets").resolve("assets").resolve("skin_packs"));
 				}
+			}
+		}
+		return new ArrayList<>(out);
+	}
+
+	/**
+	 * Game data folders of the installed editions ({@code .../data}), holding the included skin packs and the
+	 * default Character Creator pieces. Scanned by the Bedrock search next to the user folders.
+	 */
+	public static List<Path> gameDataDirs() {
+		Set<Path> out = new LinkedHashSet<>();
+		for (Path p : builtInSkinPackDirs()) {
+			if (p.getParent() != null) {
+				out.add(p.getParent());
 			}
 		}
 		return new ArrayList<>(out);

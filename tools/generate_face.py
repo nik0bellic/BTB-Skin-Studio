@@ -15,7 +15,7 @@ from cosmetic_kit import *  # noqa
 
 ROOT = 'src/main/resources/assets/btb_skinstudio/builtin/btb_face'
 AUTHOR = 'BTB Studios'
-Z = -4.62  # front of the parts
+Z = -4.52  # front of the parts (just over the hat layer at -4.5)
 
 
 def meta(name, de, en, typ, desc_de, desc_en, tint=None, animations=None):

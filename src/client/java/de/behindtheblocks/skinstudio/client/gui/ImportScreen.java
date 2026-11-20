@@ -239,12 +239,16 @@ public class ImportScreen extends Screen {
 
 	@Override
 	public boolean mouseReleased(MouseButtonEvent event) {
+		ui.endDrag();
 		dragging = false;
 		return super.mouseReleased(event);
 	}
 
 	@Override
 	public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+		if (ui.drag(event.x())) {
+			return true;
+		}
 		if (dragging) {
 			preview.drag(dx, dy);
 			return true;

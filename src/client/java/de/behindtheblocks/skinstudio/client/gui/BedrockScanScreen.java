@@ -45,7 +45,13 @@ public class BedrockScanScreen extends Screen {
 	private void scan(Path custom) {
 		scanning = true;
 		CompletableFuture.supplyAsync(() -> {
-			List<Path> r = custom != null ? List.of(custom) : BedrockLocator.installations();
+			List<Path> r = new ArrayList<>();
+			if (custom != null) {
+				r.add(custom);
+			} else {
+				r.addAll(BedrockLocator.installations());
+				r.addAll(BedrockLocator.gameDataDirs()); // included skin packs and Character Creator pieces of the game
+			}
 			List<BedrockLocator.Found> f = new ArrayList<>();
 			for (Path p : r) {
 				f.addAll(BedrockLocator.scan(p));
@@ -109,7 +115,10 @@ public class BedrockScanScreen extends Screen {
 			}
 			y += 4;
 			if (found.isEmpty()) {
-				ui.text(Tr.t("btb.ui.bedrock.nothing"), x, y, t.textMuted);
+				for (var line : font.split(Component.literal(Tr.t("btb.ui.bedrock.nothing")), w)) {
+					g.text(font, line, x, y, t.textMuted, false);
+					y += 10;
+				}
 			}
 			g.enableScissor(m + 2, y, width - m - 2, bottom - 30);
 			int ry = y - scroll;
@@ -199,5 +208,16 @@ public class BedrockScanScreen extends Screen {
 	public void removed() {
 		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.restore();
 		super.removed();
+	}
+
+	@Override
+	public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+		return ui.drag(event.x()) || super.mouseDragged(event, dx, dy);
+	}
+
+	@Override
+	public boolean mouseReleased(MouseButtonEvent event) {
+		ui.endDrag();
+		return super.mouseReleased(event);
 	}
 }
