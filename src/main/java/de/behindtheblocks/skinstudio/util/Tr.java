@@ -70,13 +70,15 @@ public final class Tr {
 		Map<String, String> out = new HashMap<>();
 		try (InputStream in = Tr.class.getResourceAsStream("/assets/btb_skinstudio/lang/" + lang + ".json")) {
 			if (in != null) {
-				JsonObject o = Json.parseObject(in.readAllBytes());
+				// Parsed directly with Gson: Json.parse reports errors through Tr, which would recurse here.
+				JsonObject o = com.google.gson.JsonParser.parseString(new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
 				for (Map.Entry<String, JsonElement> e : o.entrySet()) {
 					out.put(e.getKey(), e.getValue().getAsString());
 				}
 			}
-		} catch (Exception ignored) {
-			// missing translations fall back to the key
+		} catch (Exception e) {
+			// a broken language file must never take the game down: texts fall back to their keys
+			System.err.println("[BTB Skin Studio] language file " + lang + " could not be read: " + e);
 		}
 		return out;
 	}

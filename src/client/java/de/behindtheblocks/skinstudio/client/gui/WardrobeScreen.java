@@ -90,6 +90,8 @@ public class WardrobeScreen extends Screen {
 	private int gridScroll;
 	private int sideScroll;
 	private boolean draggingPreview;
+	/** The drag hint disappears for the rest of the session once the player has turned the preview. */
+	private static boolean rotatedOnce;
 	private boolean settingsOpen;
 	private String toast;
 	private long toastUntil;
@@ -507,7 +509,12 @@ public class WardrobeScreen extends Screen {
 		ui.rounded(previewX0, previewY0, previewX1 - previewX0, previewY1 - previewY0, 8, t.stage);
 		preview.skinOverride = tab == Tab.SKINS ? SkinLibrary.get().find(selectedSkin) : null;
 		preview.draw(ui.g, previewX0, previewY0, previewX1, previewY1, previewCosmetics());
-		ui.text(Tr.t("btb.ui.drag_to_rotate"), previewX0 + 6, previewY1 - 12, t.textFaint);
+		if (!rotatedOnce) {
+			String hint = Tr.t("btb.ui.drag_to_rotate");
+			int hw = font.width(hint) + 12, hx = (previewX0 + previewX1 - hw) / 2;
+			ui.rounded(hx, previewY1 - 18, hw, 13, 6, t.glass);
+			ui.text(hint, hx + 6, previewY1 - 15, t.textMuted);
+		}
 		int vx = previewX1 - 4;
 		PlayerPreview.Focus[] order = {PlayerPreview.Focus.LEGS, PlayerPreview.Focus.UPPER, PlayerPreview.Focus.HEAD, PlayerPreview.Focus.FULL};
 		for (PlayerPreview.Focus f : order) {
@@ -785,7 +792,10 @@ public class WardrobeScreen extends Screen {
 		ui.stepper(x + 8, sy, col, Tr.t("btb.ui.adjust.z"), adj.z(), 0.5f, -Loadout.Adjust.MAX_OFFSET, Loadout.Adjust.MAX_OFFSET, " px", v -> setAdjust(a, new Loadout.Adjust(adj.x(), adj.y(), v, adj.scale())));
 		ui.stepper(x + 16 + col, sy, col, Tr.t("btb.ui.adjust.scale"), adj.scale(), 0.05f, Loadout.Adjust.MIN_SCALE, Loadout.Adjust.MAX_SCALE, "×", v -> setAdjust(a, new Loadout.Adjust(adj.x(), adj.y(), adj.z(), v)));
 		sy += 19;
-		ui.text(ui.ellipsize(Tr.t("btb.ui.adjust.hint"), w - 16), x + 8, sy, t.textFaint);
+		for (var line : font.split(Component.literal(Tr.t("btb.ui.adjust.hint")), w - 16)) {
+			ui.g.text(font, line, x + 8, sy, t.textFaint, false);
+			sy += 10;
+		}
 		String reset = Tr.t("btb.ui.reset");
 		int rw = font.width(reset) + 32;
 		ui.button(x + 8, y + h - 24, rw, 18, reset, Icon.REFRESH, Ui.Style.SECONDARY, !adj.isNone(), () -> setAdjust(a, Loadout.Adjust.NONE), null);
@@ -1108,6 +1118,7 @@ public class WardrobeScreen extends Screen {
 	@Override
 	public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
 		if (draggingPreview) {
+			rotatedOnce = true;
 			preview.drag(dx, dy);
 			return true;
 		}

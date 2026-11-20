@@ -121,3 +121,39 @@ erklärt, das restliche Pack bleibt nutzbar. Geprüft werden u. a.: gültiges JS
 Pflichtfelder, ID-Format, doppelte IDs im Pack und gegenüber installierten Packs, Dateinamen (keine Pfade
 nach außen), PNG-Signatur und -Größe, Seitenverhältnis Textur/Modell, Animationen, Archivgrenzen
 (max. 4096 Dateien, 16 MB pro Datei, 64 MB gesamt).
+
+## Skins: `.btbskin`
+
+Ein Skin ist ein ZIP-Archiv mit der Endung `.btbskin`:
+
+```
+skin.json
+skin.png                 64×64 (64×32 wird beim Import umgewandelt), auch 128×128 usw.
+accessories.geo.json     optional: Bedrock-Geometrie mit Zusatzteilen (Hörner, Kapuze …)
+```
+
+```json
+{
+  "format": 1,
+  "id": "custom:mein_skin",
+  "name": { "de": "Mein Skin", "en": "My Skin" },
+  "model": "slim",
+  "texture": "skin.png",
+  "accessories": "accessories.geo.json"
+}
+```
+
+| Feld | Bedeutung |
+|---|---|
+| `id` | `namespace:pfad`, Kleinbuchstaben, Ziffern, `_ . -` (Pfad auch `/`) |
+| `name` | Text oder Objekt mit Sprachcodes |
+| `model` | `wide` (Steve, 4 px Arme) oder `slim` (Alex, 3 px Arme) |
+| `accessories` | optional; Bones heißen wie Körperteile und bewegen sich mit ihnen |
+
+Ablageorte im Spielverzeichnis:
+- `btb_skinstudio/skins/` – eigene Skins (`.btbskin`, beim Import aus PNG automatisch erzeugt)
+- `btb_skinstudio/skin_packs/` und `skin_packs/` – Bedrock-Skin-Packs als Ordner, `.zip` oder `.mcpack`
+  (mit `skins.json`, `geometry.json`, Texturen und `texts/*.lang`), wie in der Mod Bedrock Skins
+- `btb_skinstudio/cache/` – Skins von Mitspielern, nach Inhalts-Hash abgelegt
+
+Beim Import einer PNG wird das Armmodell automatisch erkannt (transparente Spalte neben den Armen = `slim`).
