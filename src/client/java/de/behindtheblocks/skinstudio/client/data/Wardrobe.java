@@ -37,6 +37,12 @@ public final class Wardrobe {
 	private final Map<String, Loadout> outfits = new LinkedHashMap<>();
 	/** Selected skin id; empty = the normal account skin. */
 	private String skin = "";
+	/** Character tab: worn clothing per slot (id + colour) and the skin the clothes are put on. */
+	public record Cloth(String id, int color) {
+	}
+
+	private final Map<String, Cloth> clothes = new LinkedHashMap<>();
+	private String characterBase = "vanilla:steve_wide";
 	private final Set<String> favoriteSkins = new LinkedHashSet<>();
 	private final List<Runnable> listeners = new ArrayList<>();
 
@@ -66,6 +72,14 @@ public final class Wardrobe {
 			w.recent.addAll(Json.strings(o, "recent"));
 			w.skin = Json.string(o, "skin", "");
 			w.favoriteSkins.addAll(Json.strings(o, "favorite_skins"));
+			w.characterBase = Json.string(o, "character_base", w.characterBase);
+			JsonElement cl = o.get("clothes");
+			if (cl != null && cl.isJsonObject()) {
+				for (var e : cl.getAsJsonObject().entrySet()) {
+					JsonObject c = e.getValue().getAsJsonObject();
+					w.clothes.put(e.getKey(), new Cloth(Json.string(c, "id", ""), de.behindtheblocks.skinstudio.util.Colors.parse(Json.string(c, "color", "#FFFFFF"))));
+				}
+			}
 			JsonElement outfits = o.get("outfits");
 			if (outfits != null && outfits.isJsonObject()) {
 				outfits.getAsJsonObject().entrySet().forEach(e -> w.outfits.put(e.getKey(), Loadout.fromJson(e.getValue())));
@@ -99,6 +113,15 @@ public final class Wardrobe {
 		JsonArray fs = new JsonArray();
 		favoriteSkins.forEach(fs::add);
 		o.add("favorite_skins", fs);
+		o.addProperty("character_base", characterBase);
+		JsonObject cl = new JsonObject();
+		clothes.forEach((slot, c) -> {
+			JsonObject e = new JsonObject();
+			e.addProperty("id", c.id());
+			e.addProperty("color", de.behindtheblocks.skinstudio.util.Colors.format(c.color()));
+			cl.add(slot, e);
+		});
+		o.add("clothes", cl);
 		String json = Json.PRETTY.toJson(o);
 		Path f = file();
 		CosmeticLibrary.IO.execute(() -> {
@@ -170,6 +193,28 @@ public final class Wardrobe {
 
 	public void setSkin(String id) {
 		skin = id == null ? "" : id;
+		changed();
+	}
+
+	public Map<String, Cloth> clothes() {
+		return clothes;
+	}
+
+	public void setCloth(String slot, Cloth c) {
+		if (c == null) {
+			clothes.remove(slot);
+		} else {
+			clothes.put(slot, c);
+		}
+		changed();
+	}
+
+	public String characterBase() {
+		return characterBase;
+	}
+
+	public void setCharacterBase(String id) {
+		characterBase = id;
 		changed();
 	}
 

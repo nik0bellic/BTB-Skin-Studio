@@ -625,5 +625,16 @@
 	"key.btb_skinstudio.emote_slot_2": "Emote place 2",
 	"key.btb_skinstudio.emote_slot_3": "Emote place 3",
 	"key.btb_skinstudio.emote_slot_4": "Emote place 4",
-	"key.btb_skinstudio.emote_slot_5": "Emote place 5"
+	"key.btb_skinstudio.emote_slot_5": "Emote place 5",
+	"btb.ui.tab.character": "Character",
+	"btb.ui.character.base": "Base skin",
+	"btb.ui.character.take_skin": "Use worn skin",
+	"btb.ui.character.take_skin.tooltip": "Put the clothes on the skin you are wearing.",
+	"btb.ui.character.clothes": "Clothes",
+	"btb.ui.character.none": "None",
+	"btb.ui.character.slot.top": "Top",
+	"btb.ui.character.slot.bottom": "Bottoms",
+	"btb.ui.character.slot.shoes": "Shoes",
+	"btb.ui.character.slot.jacket": "Jacket",
+	"btb.ui.character.wear": "Wear"
 }

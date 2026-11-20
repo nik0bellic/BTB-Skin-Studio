@@ -62,8 +62,14 @@ import java.util.concurrent.CompletableFuture;
  */
 public class WardrobeScreen extends Screen {
 	private enum Tab {
-		COSMETICS, SKINS, EMOTES
+		COSMETICS, SKINS, CHARACTER, EMOTES
 	}
+
+	private de.behindtheblocks.skinstudio.skin.Clothing.Slot clothSlot = de.behindtheblocks.skinstudio.skin.Clothing.Slot.TOP;
+	private String characterKey;
+	private SkinData characterPreview;
+	private final Map<String, SkinData> clothIcons = new java.util.HashMap<>();
+	private int clothScroll;
 
 	private int emoteSlot;
 	private String selectedEmote;
@@ -324,12 +330,14 @@ public class WardrobeScreen extends Screen {
 			case COSMETICS -> drawSidebar(sideX, sideY, sideW, sideH);
 			case SKINS -> drawSkinSidebar(sideX, sideY, sideW, sideH);
 			case EMOTES -> drawEmoteSidebar(sideX, sideY, sideW, sideH);
+			case CHARACTER -> drawCharacterSidebar(sideX, sideY, sideW, sideH);
 		}
 		drawStage(stageX, top, stageW, bottom - top);
 		switch (tab) {
 			case COSMETICS -> drawBrowser(rightX, top, rightW, bottom - top);
 			case SKINS -> drawSkinBrowser(rightX, top, rightW, bottom - top);
 			case EMOTES -> drawEmoteBrowser(rightX, top, rightW, bottom - top);
+			case CHARACTER -> drawCharacterBrowser(rightX, top, rightW, bottom - top);
 		}
 		if (settingsOpen) {
 			drawSettings(width - m - 190, 30);
@@ -358,6 +366,7 @@ public class WardrobeScreen extends Screen {
 				case COSMETICS -> "btb.ui.tab.cosmetics";
 				case SKINS -> "btb.ui.tab.skins";
 				case EMOTES -> "btb.ui.tab.emotes";
+				case CHARACTER -> "btb.ui.tab.character";
 			});
 			int w = font.width(label) + 20;
 			boolean act = tb == tab;
@@ -519,7 +528,7 @@ public class WardrobeScreen extends Screen {
 		previewX1 = x + w - 4;
 		previewY1 = y + h - 8 - chipsH - buttonsH - 16;
 		ui.rounded(previewX0, previewY0, previewX1 - previewX0, previewY1 - previewY0, 8, t.stage);
-		preview.skinOverride = tab == Tab.SKINS ? SkinLibrary.get().find(selectedSkin) : null;
+		preview.skinOverride = tab == Tab.SKINS ? SkinLibrary.get().find(selectedSkin) : tab == Tab.CHARACTER ? character() : null;
 		preview.draw(ui.g, previewX0, previewY0, previewX1, previewY1, previewCosmetics());
 		if (!rotatedOnce) {
 			ui.hint(Tr.t("btb.ui.drag_to_rotate"), previewX0, previewX1, previewY1 - 18);
@@ -841,6 +850,159 @@ public class WardrobeScreen extends Screen {
 			out.add(s);
 		}
 		return out;
+	}
+
+	// ------------------------------------------------------------------ character (clothes)
+
+	/** Base skin + worn clothes, recomposed only when something changed. */
+	private SkinData character() {
+		Wardrobe w = Wardrobe.get();
+		SkinData base = de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.base(w.characterBase());
+		String key = (base == null ? "" : base.id + base.hash) + w.clothes();
+		if (!key.equals(characterKey)) {
+			characterKey = key;
+			try {
+				characterPreview = de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.compose(base, w.clothes());
+			} catch (RuntimeException e) {
+				characterPreview = base;
+			}
+		}
+		return characterPreview;
+	}
+
+	private void drawCharacterSidebar(int x, int y, int w, int h) {
+		Theme t = ui.t;
+		search.visible = false;
+		ui.glass(x, y, w, h, 8);
+		Wardrobe wd = Wardrobe.get();
+		int ix = x + 4, iw = w - 8, cy = y + 8;
+		sectionLabel("btb.ui.character.base", ix + 4, cy);
+		cy += 12;
+		SkinData base = de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.base(wd.characterBase());
+		ui.text(ui.ellipsize(base == null ? "–" : base.name(lang()), iw - 8), ix + 4, cy, t.text);
+		cy += 12;
+		String take = Tr.t("btb.ui.character.take_skin");
+		ui.button(ix, cy, iw, 16, ui.ellipsize(take, iw - 12), null, Ui.Style.SECONDARY, !wd.skin().isEmpty() && !wd.skin().equals(de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.CHARACTER_ID),
+				() -> wd.setCharacterBase(wd.skin()), Tr.t("btb.ui.character.take_skin.tooltip"));
+		cy += 24;
+		sectionLabel("btb.ui.character.clothes", ix + 4, cy);
+		cy += 12;
+		for (var slot : de.behindtheblocks.skinstudio.skin.Clothing.Slot.values()) {
+			var worn = wd.clothes().get(slot.name());
+			var item = worn == null ? null : de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.items().get(worn.id());
+			boolean act = slot == clothSlot;
+			boolean hov = ui.hover(ix, cy, iw, 26);
+			ui.rounded(ix, cy, iw, 26, 7, act ? (t.accent & 0xFFFFFF) | 0x38000000 : hov ? t.surfaceHover : t.surface);
+			ui.text(Tr.t("btb.ui.character.slot." + slot.name().toLowerCase(Locale.ROOT)), ix + 6, cy + 4, t.textMuted);
+			ui.text(ui.ellipsize(item == null ? Tr.t("btb.ui.character.none") : item.name(lang()), iw - 26), ix + 6, cy + 15, t.text);
+			if (worn != null) {
+				ui.rounded(ix + iw - 16, cy + 8, 10, 10, 5, worn.color() | 0xFF000000);
+			}
+			ui.region(ix, cy, iw, 26, () -> {
+				clothSlot = slot;
+				clothScroll = 0;
+			});
+			cy += 29;
+		}
+	}
+
+	private SkinData clothIcon(SkinData base, String itemId, int color) {
+		String key = base.id + base.hash + itemId + color;
+		return clothIcons.computeIfAbsent(key, k -> {
+			Map<String, Wardrobe.Cloth> only = new java.util.LinkedHashMap<>(Wardrobe.get().clothes());
+			only.put(clothSlot.name(), new Wardrobe.Cloth(itemId, color));
+			return de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.compose(base, only);
+		});
+	}
+
+	private void drawCharacterBrowser(int x, int y, int w, int h) {
+		Theme t = ui.t;
+		ui.glass(x, y, w, h, 10);
+		Wardrobe wd = Wardrobe.get();
+		SkinData base = de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.base(wd.characterBase());
+		var items = de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.forSlot(clothSlot);
+		var worn = wd.clothes().get(clothSlot.name());
+		int detailH = 56;
+		int cw = 70, ch = 92, gap = 6, cols = Math.max(1, (w - 16 + gap) / (cw + gap));
+		int top = y + 8, bottom = y + h - detailH - 8;
+		int count = items.size() + 1;
+		int rows = (count + cols - 1) / cols;
+		clothScroll = Math.max(0, Math.min(clothScroll, Math.max(0, rows * (ch + gap) - (bottom - top))));
+		ui.g.enableScissor(x + 2, top, x + w - 2, bottom);
+		for (int i = 0; i < count; i++) {
+			var it = i == 0 ? null : items.get(i - 1);
+			int cx = x + 8 + (i % cols) * (cw + gap), cy = top + (i / cols) * (ch + gap) - clothScroll;
+			if (cy + ch < top || cy > bottom) {
+				continue;
+			}
+			boolean sel = it == null ? worn == null : worn != null && worn.id().equals(it.id());
+			boolean hov = ui.hover(cx, cy, cw, ch) && ui.mouseY >= top && ui.mouseY < bottom;
+			ui.rounded(cx, cy, cw, ch, 8, sel ? t.surfaceSelected : hov ? t.surfaceHover : t.surface);
+			if (sel) {
+				ui.roundedOutline(cx, cy, cw, ch, 8, t.accent);
+			}
+			if (base != null) {
+				int col = it == null ? 0 : (sel && worn != null ? worn.color() : it.colors()[0]);
+				SkinData icon = it == null ? base : clothIcon(base, it.id(), col);
+				var tex = icon == null ? null : ClientSkins.icon(icon);
+				if (tex != null) {
+					ui.g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, tex, cx + 15, cy + 4, 0, 0, 40, 60, 40, 60);
+				}
+			}
+			var lines = font.split(Component.literal(it == null ? Tr.t("btb.ui.character.none") : it.name(lang())), cw - 6);
+			int ly = cy + 68;
+			for (int k = 0; k < Math.min(2, lines.size()); k++) {
+				ui.g.text(font, lines.get(k), cx + 3, ly, t.text, false);
+				ly += 10;
+			}
+			ui.region(cx, cy, cw, ch, () -> wd.setCloth(clothSlot.name(), it == null ? null
+					: new Wardrobe.Cloth(it.id(), worn != null && worn.id().equals(it.id()) ? worn.color() : it.colors()[0])));
+		}
+		ui.g.disableScissor();
+		// colours of the worn piece + apply
+		int dy = y + h - detailH;
+		ui.rounded(x + 6, dy, w - 12, detailH - 6, 8, t.surface);
+		if (worn != null) {
+			var it = de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.items().get(worn.id());
+			ui.text(Tr.t("btb.ui.color"), x + 14, dy + 6, t.textMuted);
+			int sx = x + 14;
+			if (it != null) {
+				for (int c : it.colors()) {
+					boolean on = c == worn.color();
+					ui.rounded(sx, dy + 17, 14, 14, 7, c | 0xFF000000);
+					if (on) {
+						ui.roundedOutline(sx - 2, dy + 15, 18, 18, 9, t.accent);
+					}
+					ui.region(sx, dy + 17, 14, 14, () -> wd.setCloth(clothSlot.name(), new Wardrobe.Cloth(worn.id(), c)));
+					sx += 20;
+				}
+			}
+		}
+		String wear = Tr.t("btb.ui.character.wear");
+		int bw = font.width(wear) + 30;
+		ui.button(x + w - 14 - bw, dy + 16, bw, 18, wear, Icon.HANGER, Ui.Style.PRIMARY, character() != null, this::wearCharacter, null);
+	}
+
+	/** Saves the composed character as own skin and wears it (synced like any own skin). */
+	private void wearCharacter() {
+		SkinData s = character();
+		if (s == null) {
+			return;
+		}
+		CompletableFuture.runAsync(() -> {
+			try {
+				SkinLibrary.get().saveCustom(s);
+			} catch (Exception e) {
+				throw new RuntimeException(e.getMessage(), e);
+			}
+		}, CosmeticLibrary.IO).thenCompose(v -> SkinLibrary.get().reload()).whenCompleteAsync((v, err) -> {
+			if (err != null) {
+				toast(Tr.t("btb.ui.error", err.getMessage()), true);
+				return;
+			}
+			Wardrobe.get().setSkin(s.id);
+			toast(Tr.t("btb.ui.toast.skin_worn", s.name(lang())), false);
+		}, minecraft);
 	}
 
 	// ------------------------------------------------------------------ emotes
@@ -1260,6 +1422,10 @@ public class WardrobeScreen extends Screen {
 		if (ui.scroll(x, y, sy)) {
 			return true;
 		}
+		if (tab == Tab.CHARACTER && x > sideX + sideW + 200) {
+			clothScroll = Math.max(0, clothScroll - (int) (sy * 24));
+			return true;
+		}
 		if (tab == Tab.EMOTES && x > sideX + sideW) {
 			emoteScroll = Math.max(0, emoteScroll - (int) (sy * 24));
 			return true;
@@ -1322,6 +1488,11 @@ public class WardrobeScreen extends Screen {
 			case "focus" -> preview.focus = PlayerPreview.Focus.valueOf(args[1].toUpperCase(Locale.ROOT));
 			case "tab" -> tab = Tab.valueOf(args[1].toUpperCase(Locale.ROOT));
 			case "emoteslot" -> emoteSlot = Integer.parseInt(args[1]);
+			case "clothslot" -> clothSlot = de.behindtheblocks.skinstudio.skin.Clothing.Slot.valueOf(args[1].toUpperCase(Locale.ROOT));
+			case "cloth" -> Wardrobe.get().setCloth(args[1].toUpperCase(Locale.ROOT), args.length > 2
+					? new Wardrobe.Cloth(args[2], de.behindtheblocks.skinstudio.util.Colors.parse(args[3])) : null);
+			case "charbase" -> Wardrobe.get().setCharacterBase(args[1]);
+			case "wearchar" -> wearCharacter();
 			case "emote" -> selectedEmote = args[1];
 			case "adjust" -> adjustMode = true;
 			case "adjustset" -> {
