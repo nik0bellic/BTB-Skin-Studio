@@ -97,7 +97,7 @@ def build():
     b = m.bone('band', [0, 28, 0])
     band = lambda f_, x, y, w, h, r: ((rgb('#5a4330') + (255,)) if y == 0 and r.random() < 0.5 else (rgb('#1c1511') + (255,)) if y == h - 1 else
                                       shade(rgb('#3a2b20'), 0.85 + r.random() * 0.25) + (255,))
-    ring(m, b, 28, 2, band, r=5)
+    ring(m, b, 28, 2, band, r=4.75, thick=0.25)  # dünn und eng am Kopf (Hutebene endet bei 4.5)
     stick = lambda f_, x, y, w, h, r: ((rgb('#c9a06a') + (255,)) if (f_ in ('front', 'left', 'right', 'back') and x == 0) else
                                        shade(rgb('#6e4724'), 0.85 + r.random() * 0.25) + (255,))
     m.box(b, (-1, 28.5, -6), (2, 5, 2), stick)
