@@ -30,6 +30,11 @@ public abstract class AvatarRendererMixin {
 			return;
 		}
 		List<ActiveCosmetic> list = hiddenByArmor(ClientCosmeticSync.activeFor(player.getUUID()), state);
+		ActiveCosmetic prop = de.behindtheblocks.skinstudio.client.emote.ClientEmotes.prop(player.getUUID());
+		if (prop != null) {
+			list = new java.util.ArrayList<>(list);
+			list.add(prop);
+		}
 		state.setData(CosmeticRenderData.PLAYER, player.getUUID());
 		state.setData(CosmeticRenderData.EMOTE, de.behindtheblocks.skinstudio.client.emote.ClientEmotes.pose(player.getUUID()));
 		state.setData(CosmeticRenderData.COSMETICS, list);

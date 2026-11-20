@@ -1,0 +1,83 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.btb_prop.banner",
+        "texture_width": 32,
+        "texture_height": 32
+      },
+      "bones": [
+        {
+          "name": "rightArm",
+          "pivot": [
+            -5,
+            22,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -6.5,
+                -8,
+                -0.5
+              ],
+              "size": [
+                1,
+                21,
+                1
+              ],
+              "uv": [
+                0,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -9.5,
+                -8.6,
+                -0.5
+              ],
+              "size": [
+                7,
+                0.8,
+                1
+              ],
+              "uv": [
+                0,
+                22
+              ]
+            }
+          ]
+        },
+        {
+          "name": "cloth",
+          "pivot": [
+            -6,
+            -8,
+            0
+          ],
+          "parent": "rightArm",
+          "cubes": [
+            {
+              "origin": [
+                -9,
+                -7.8,
+                -0.25
+              ],
+              "size": [
+                6,
+                9,
+                0.5
+              ],
+              "uv": [
+                4,
+                0
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

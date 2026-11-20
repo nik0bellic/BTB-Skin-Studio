@@ -79,6 +79,21 @@ public final class ClientEmotes {
 		return p == null ? null : sample(p);
 	}
 
+	/** Prop cosmetic shown while the player's emote plays (or null). */
+	public static de.behindtheblocks.skinstudio.client.render.ActiveCosmetic prop(UUID player) {
+		Playing p = player == null ? null : PLAYING.get(player);
+		return propOf(p == null ? null : p.id());
+	}
+
+	public static de.behindtheblocks.skinstudio.client.render.ActiveCosmetic propOf(String emote) {
+		Emotes.Emote e = Emotes.get(emote);
+		if (e == null || e.prop() == null) {
+			return null;
+		}
+		var asset = de.behindtheblocks.skinstudio.client.library.CosmeticLibrary.get().prop(e.prop());
+		return asset == null ? null : de.behindtheblocks.skinstudio.client.render.ActiveCosmetic.of(asset, 0);
+	}
+
 	private static float[] sample(Playing p) {
 		return Emotes.sample(p.id(), (System.nanoTime() - p.startNanos()) / 1e9f);
 	}

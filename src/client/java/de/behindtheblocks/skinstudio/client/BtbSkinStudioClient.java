@@ -27,6 +27,11 @@ public final class BtbSkinStudioClient implements ClientModInitializer {
 	private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(BtbSkinStudio.MOD_ID, "main"));
 	private static KeyMapping openWardrobe;
 	private static KeyMapping openEmotes;
+
+	/** Name of the key that opens the emote wheel (for the wardrobe). */
+	public static String emoteWheelKey() {
+		return openEmotes == null ? "B" : openEmotes.getTranslatedKeyMessage().getString();
+	}
 	private static String lastLanguage = "";
 
 	@Override
@@ -68,6 +73,7 @@ public final class BtbSkinStudioClient implements ClientModInitializer {
 
 		openWardrobe = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.btb_skinstudio.wardrobe", InputConstants.KEY_J, CATEGORY));
 		openEmotes = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.btb_skinstudio.emotes", InputConstants.KEY_B, CATEGORY));
+		de.behindtheblocks.skinstudio.client.emote.EmoteKeys.register(CATEGORY);
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> {
 			while (openEmotes.consumeClick()) {
 				if (mc.gui.screen() == null && mc.player != null) {

@@ -35,6 +35,8 @@ public final class ClientSettings {
 	public boolean menuCharacter = true;
 	/** Leave out cosmetics that would poke through worn armour. */
 	public boolean hideUnderArmor = true;
+	/** Emotes on the five wheel places. */
+	public java.util.List<String> emoteSlots = new java.util.ArrayList<>(de.behindtheblocks.skinstudio.emote.Emotes.DEFAULT_WHEEL);
 	/** Online skin pack catalogs (index files in the Bedrock Skin Packs format). */
 	public java.util.List<String> skinPackCatalogs = new java.util.ArrayList<>(DEFAULT_CATALOGS);
 	public static final java.util.List<String> DEFAULT_CATALOGS = java.util.List.of(
@@ -72,6 +74,13 @@ public final class ClientSettings {
 			s.bedrockBuiltinPacks = Json.bool(o, "bedrock_builtin_packs", true);
 			s.menuCharacter = Json.bool(o, "menu_character", true);
 			s.hideUnderArmor = Json.bool(o, "hide_under_armor", true);
+			if (o.has("emote_slots")) {
+				java.util.List<String> slots = new java.util.ArrayList<>(Json.strings(o, "emote_slots"));
+				while (slots.size() < 5) {
+					slots.add(de.behindtheblocks.skinstudio.emote.Emotes.DEFAULT_WHEEL.get(slots.size()));
+				}
+				s.emoteSlots = new java.util.ArrayList<>(slots.subList(0, 5));
+			}
 			if (o.has("skin_pack_catalogs")) {
 				s.skinPackCatalogs = new java.util.ArrayList<>(Json.strings(o, "skin_pack_catalogs"));
 			}
@@ -97,6 +106,9 @@ public final class ClientSettings {
 		com.google.gson.JsonArray cat = new com.google.gson.JsonArray();
 		skinPackCatalogs.forEach(cat::add);
 		o.add("skin_pack_catalogs", cat);
+		com.google.gson.JsonArray slots = new com.google.gson.JsonArray();
+		emoteSlots.forEach(slots::add);
+		o.add("emote_slots", slots);
 		o.addProperty("theme", theme == Theme.LIGHT ? "light" : "dark");
 		String json = Json.PRETTY.toJson(o);
 		Path f = file();

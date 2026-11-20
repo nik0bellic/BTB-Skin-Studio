@@ -19,8 +19,8 @@ public final class Emotes {
 		void at(float t, float[] out);
 	}
 
-	/** duration in seconds, loop = repeats until the player moves. */
-	public record Emote(String id, float duration, boolean loop, Pose pose) {
+	/** duration in seconds, loop = repeats until the player moves, prop = cosmetic id shown while playing (or null). */
+	public record Emote(String id, float duration, boolean loop, Pose pose, String prop) {
 	}
 
 	private static final Map<String, Emote> ALL = new LinkedHashMap<>();
@@ -41,6 +41,83 @@ public final class Emotes {
 			set(o, RIGHT_ARM, -70, -c, 0);
 			set(o, LEFT_ARM, -70, c, 0);
 		});
+		// "Over there!"
+		add("point", 2.2f, false, (t, o) -> {
+			set(o, RIGHT_ARM, -92, -6, 0);
+			set(o, LEFT_ARM, -10, 0, -8);
+			set(o, HEAD, 0, -6, 0);
+		});
+		add("facepalm", 2.6f, false, (t, o) -> {
+			set(o, RIGHT_ARM, -128, -38, 0);
+			set(o, HEAD, 22 + sin(t * 360) * 3, sin(t * 240) * 8, 0);
+		});
+		add("think", 3.0f, false, (t, o) -> {
+			set(o, RIGHT_ARM, -96, -42, 0);
+			set(o, LEFT_ARM, -38, 52, 0);
+			set(o, HEAD, 12, sin(t * 120) * 10, 0);
+		});
+		// punching a tree like on day one
+		add("woodpunch", 2.4f, true, (t, o) -> {
+			float p = Math.abs(sin(t * 540));
+			set(o, RIGHT_ARM, -60 - 40 * p, -10, 0);
+			set(o, HEAD, 10, 0, 0);
+		});
+		add("mine", 2.4f, true, "btb_prop:pickaxe", (t, o) -> {
+			float p = Math.abs(sin(t * 360));
+			set(o, RIGHT_ARM, -40 - 100 * p, -8, 0);
+			set(o, HEAD, 14, 0, 0);
+		});
+		// "Diamonds to you!"
+		add("diamonds", 2.6f, false, "btb_prop:diamond", (t, o) -> {
+			set(o, RIGHT_ARM, -78, -12, 0);
+			set(o, HEAD, 8, 0, sin(t * 240) * 4);
+		});
+		// floating and flailing like a ghast
+		add("ghast_dance", 3.2f, true, (t, o) -> {
+			float s = sin(t * 300);
+			set(o, RIGHT_ARM, -30 + s * 40, 0, 30 + sin(t * 600) * 20);
+			set(o, LEFT_ARM, -30 - s * 40, 0, -30 - sin(t * 600) * 20);
+			set(o, RIGHT_LEG, 20 + s * 18, 0, 6);
+			set(o, LEFT_LEG, 20 - s * 18, 0, -6);
+			set(o, HEAD, -6 + s * 6, s * 10, 0);
+		});
+		// startled by a creeper: arms up, shaking
+		add("creeper_scare", 2.0f, false, (t, o) -> {
+			float shake = sin(t * 2400) * 4;
+			set(o, RIGHT_ARM, -150 + shake, 0, 30);
+			set(o, LEFT_ARM, -150 - shake, 0, -30);
+			set(o, HEAD, -18, shake * 2, 0);
+		});
+		add("bow", 2.2f, false, (t, o) -> {
+			float d = bump(t, 2.2f);
+			set(o, HEAD, 45 * d, 0, 0);
+			set(o, RIGHT_ARM, -18 * d, 0, 4);
+			set(o, LEFT_ARM, -18 * d, 0, -4);
+		});
+		add("shrug", 1.8f, false, (t, o) -> {
+			float d = bump(t, 1.8f);
+			set(o, RIGHT_ARM, -25 * d, 0, 42 * d);
+			set(o, LEFT_ARM, -25 * d, 0, -42 * d);
+			set(o, HEAD, N, 0, 12 * d);
+		});
+		add("potion", 3.0f, false, "btb_prop:potion", (t, o) -> {
+			float sip = Math.max(0, sin(t * 120));
+			set(o, RIGHT_ARM, -95 - 25 * sip, -32, 0);
+			set(o, HEAD, -12 * sip, 0, 0);
+		});
+		add("cookie", 2.8f, false, "btb_prop:cookie", (t, o) -> {
+			set(o, RIGHT_ARM, -100 + sin(t * 540) * 6, -34, 0);
+			set(o, HEAD, 6 + sin(t * 720) * 5, 0, 0);
+		});
+		add("banner", 3.0f, true, "btb_prop:banner", (t, o) -> {
+			set(o, RIGHT_ARM, -172, 0, 8 + sin(t * 360) * 14);
+			set(o, HEAD, -10, N, N);
+		});
+		add("spyglass", 3.0f, false, "btb_prop:spyglass", (t, o) -> {
+			set(o, RIGHT_ARM, -100, -40, 0);
+			set(o, LEFT_ARM, -96, 34, 0);
+			set(o, HEAD, -4, sin(t * 90) * 30, 0);
+		});
 		add("dance", 4.0f, true, (t, o) -> {
 			float s = sin(t * 360);
 			set(o, RIGHT_ARM, -90 - s * 70, 0, 20 + Math.abs(s) * 20);
@@ -50,34 +127,15 @@ public final class Emotes {
 			set(o, HEAD, sin(t * 720) * 8, s * 18, 0);
 			set(o, BODY, 0, s * 12, 0);
 		});
-		add("bow", 2.2f, false, (t, o) -> {
-			float d = bump(t, 2.2f);
-			set(o, HEAD, 45 * d, 0, 0);
-			set(o, RIGHT_ARM, -18 * d, 0, 4);
-			set(o, LEFT_ARM, -18 * d, 0, -4);
+		add("laugh", 2.4f, false, (t, o) -> {
+			set(o, HEAD, -8 + sin(t * 1440) * 7, sin(t * 360) * 6, 0);
+			set(o, RIGHT_ARM, -28, -22, 0);
+			set(o, LEFT_ARM, -28, 22, 0);
 		});
-		add("point", 2.2f, false, (t, o) -> {
-			set(o, RIGHT_ARM, -92, -6, 0);
-			set(o, HEAD, 0, -6, 0);
-		});
-		add("facepalm", 2.6f, false, (t, o) -> {
-			set(o, RIGHT_ARM, -128, -38, 0);
-			set(o, HEAD, 22 + sin(t * 360) * 3, sin(t * 240) * 8, 0);
-		});
-		add("shrug", 1.8f, false, (t, o) -> {
-			float d = bump(t, 1.8f);
-			set(o, RIGHT_ARM, -25 * d, 0, 42 * d);
-			set(o, LEFT_ARM, -25 * d, 0, -42 * d);
-			set(o, HEAD, N, 0, 12 * d);
-		});
-		add("salute", 2.4f, false, (t, o) -> {
-			set(o, RIGHT_ARM, -128, -62, 0);
-			set(o, HEAD, 0, 0, 0);
-		});
-		add("think", 3.0f, false, (t, o) -> {
-			set(o, RIGHT_ARM, -96, -42, 0);
-			set(o, LEFT_ARM, -38, 52, 0);
-			set(o, HEAD, 12, sin(t * 120) * 10, 0);
+		add("heart", 2.6f, false, (t, o) -> {
+			set(o, RIGHT_ARM, -150, -22, 0);
+			set(o, LEFT_ARM, -150, 22, 0);
+			set(o, HEAD, -6, 0, sin(t * 360) * 6);
 		});
 	}
 
@@ -85,8 +143,15 @@ public final class Emotes {
 	}
 
 	private static void add(String id, float duration, boolean loop, Pose pose) {
-		ALL.put(id, new Emote(id, duration, loop, pose));
+		add(id, duration, loop, null, pose);
 	}
+
+	private static void add(String id, float duration, boolean loop, String prop, Pose pose) {
+		ALL.put(id, new Emote(id, duration, loop, pose, prop));
+	}
+
+	/** Default wheel: five emotes. */
+	public static final List<String> DEFAULT_WHEEL = List.of("wave", "cheer", "point", "diamonds", "dance");
 
 	public static List<Emote> all() {
 		return List.copyOf(ALL.values());

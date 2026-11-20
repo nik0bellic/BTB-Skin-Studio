@@ -138,7 +138,20 @@ public final class CosmeticLibrary {
 	private record Snapshot(List<LoadedPack> packs, Map<String, CosmeticAsset> byId) {
 	}
 
+	private volatile Map<String, CosmeticAsset> props = Map.of();
+
+	/** Hidden emote props (cup, guitar …) by id. */
+	public CosmeticAsset prop(String id) {
+		return id == null ? null : props.get(id);
+	}
+
 	private Snapshot loadAll() {
+		LoadedPack propPack = loadBuiltin("btb_props");
+		if (propPack != null) {
+			Map<String, CosmeticAsset> pm = new HashMap<>();
+			propPack.cosmetics.forEach(a -> pm.put(a.id(), a));
+			props = Map.copyOf(pm);
+		}
 		try {
 			store.ensureDirectories();
 		} catch (IOException e) {

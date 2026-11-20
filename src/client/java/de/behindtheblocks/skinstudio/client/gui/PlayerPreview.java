@@ -41,6 +41,8 @@ public final class PlayerPreview {
 	public float lift = 0f;
 	/** Emote shown in this preview (or null). */
 	public String emote;
+	/** Restart the emote when it ends (wardrobe preview). */
+	public boolean loopEmote;
 	private long emoteStart;
 
 	public void playEmote(String id) {
@@ -61,6 +63,13 @@ public final class PlayerPreview {
 	}
 
 	public void draw(GuiGraphicsExtractor g, int x0, int y0, int x1, int y1, List<ActiveCosmetic> cosmetics) {
+		if (emote != null) {
+			ActiveCosmetic prop = de.behindtheblocks.skinstudio.client.emote.ClientEmotes.propOf(emote);
+			if (prop != null) {
+				cosmetics = new java.util.ArrayList<>(cosmetics);
+				cosmetics.add(prop);
+			}
+		}
 		zoom += (focus.zoom - zoom) * 0.2f;
 		shift += (focus.shift - shift) * 0.2f;
 		AvatarRenderState state = createState();
@@ -69,7 +78,10 @@ public final class PlayerPreview {
 		}
 		if (emote != null) {
 			float[] pose = de.behindtheblocks.skinstudio.emote.Emotes.sample(emote, (System.nanoTime() - emoteStart) / 1e9f);
-			if (pose == null) {
+			if (pose == null && loopEmote) {
+				emoteStart = System.nanoTime();
+				pose = de.behindtheblocks.skinstudio.emote.Emotes.sample(emote, 0);
+			} else if (pose == null) {
 				emote = null;
 			}
 			state.setData(de.behindtheblocks.skinstudio.client.render.CosmeticRenderData.EMOTE, pose);

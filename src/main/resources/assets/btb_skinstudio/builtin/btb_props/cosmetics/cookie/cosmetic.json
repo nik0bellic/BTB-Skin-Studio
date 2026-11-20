@@ -1,0 +1,17 @@
+{
+  "format": 1,
+  "id": "btb_prop:cookie",
+  "version": "1.0.0",
+  "name": {
+    "de": "Keks",
+    "en": "Cookie"
+  },
+  "author": "BTB Studios",
+  "type": "animated",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "tags": [
+    "emote_prop"
+  ]
+}
