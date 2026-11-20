@@ -7,8 +7,8 @@
     "en": "Sunglasses"
   },
   "description": {
-    "de": "Breite, dunkle Sonnenbrille mit Spiegelreflex.",
-    "en": "Wide dark sunglasses with a mirror glint."
+    "de": "Dunkle Gläser, cooler Auftritt.",
+    "en": "Dark lenses, cool entrance."
   },
   "author": "BTB Studios",
   "type": "glasses",
@@ -17,7 +17,6 @@
   "preview": "preview.png",
   "tags": [
     "brille",
-    "sommer",
-    "cool"
+    "sommer"
   ]
 }

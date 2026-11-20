@@ -3,16 +3,15 @@
   "id": "btb:terrarium",
   "version": "1.0.0",
   "name": {
-    "de": "Terrarium-Rucksack",
-    "en": "Terrarium Backpack"
+    "de": "Glas-Terrarium",
+    "en": "Glass Terrarium"
   },
   "description": {
-    "de": "Ein Glas-Terrarium mit weißem Rahmen, Blumen und goldenem Deckel als Rucksack.",
-    "en": "A white-framed glass terrarium with flowers and a golden lid, worn as a backpack."
+    "de": "Ein Glas mit weißem Rahmen, Blume und goldenem Deckel – als Rucksack auf dem Rücken.",
+    "en": "A white-framed glass jar with a flower and a golden lid, worn as a backpack."
   },
   "author": "BTB Studios",
   "type": "backpack",
-  "attachment": "back",
   "model": "model.geo.json",
   "texture": "texture.png",
   "preview": "preview.png",

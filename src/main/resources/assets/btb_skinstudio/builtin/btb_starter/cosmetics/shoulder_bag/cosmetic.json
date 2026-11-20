@@ -7,8 +7,8 @@
     "en": "Shoulder Bag"
   },
   "description": {
-    "de": "Umhängetasche aus Leder: Gurt quer über die Brust, Tasche vorne an der Hüfte.",
-    "en": "A leather messenger bag: strap across the chest, bag at the front of the hip."
+    "de": "Umhängetasche aus Leder mit Messingschnalle.",
+    "en": "A leather messenger bag with a brass buckle."
   },
   "author": "BTB Studios",
   "type": "shoulder_accessory",
@@ -29,7 +29,6 @@
   },
   "tags": [
     "tasche",
-    "leder",
-    "bag"
+    "leder"
   ]
 }

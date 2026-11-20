@@ -14,6 +14,7 @@
   "type": "glasses",
   "model": "model.geo.json",
   "texture": "texture.png",
+  "emissive_texture": "emissive.png",
   "preview": "preview.png",
   "tags": [
     "brille",

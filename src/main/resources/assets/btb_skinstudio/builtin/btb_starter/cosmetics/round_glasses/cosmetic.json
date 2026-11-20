@@ -7,8 +7,8 @@
     "en": "Round Glasses"
   },
   "description": {
-    "de": "Klassische runde Brille mit dünnem Goldrahmen.",
-    "en": "Classic round glasses with a thin golden frame."
+    "de": "Klassische Brille mit dünnem Holzrahmen.",
+    "en": "Classic glasses with a thin wooden frame."
   },
   "author": "BTB Studios",
   "type": "glasses",
@@ -16,7 +16,6 @@
   "texture": "texture.png",
   "preview": "preview.png",
   "tags": [
-    "brille",
-    "glasses"
+    "brille"
   ]
 }
