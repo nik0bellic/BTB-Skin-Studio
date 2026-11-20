@@ -29,6 +29,10 @@ public final class ClientSettings {
 	public boolean downloadOthers = true;
 	/** Render the outer skin layer as real 3D pixels. */
 	public boolean skinLayers3d = false;
+	/** Which body parts get 3D layers (bits: 1 head, 2 body, 4 arms, 8 legs). */
+	public int layers3dParts = 15;
+	/** Skins blink now and then (only skins whose image the mod knows). */
+	public boolean blinking = true;
 	/** Load the skin packs that come with an installed Bedrock edition (read-only, never copied). */
 	public boolean bedrockBuiltinPacks = true;
 	/** Show the own character next to the main menu and the pause menu. */
@@ -71,6 +75,8 @@ public final class ClientSettings {
 			s.shareOwnCosmetics = Json.bool(o, "share_own_cosmetics", true);
 			s.downloadOthers = Json.bool(o, "download_others", true);
 			s.skinLayers3d = Json.bool(o, "skin_layers_3d", false);
+			s.layers3dParts = (int) Json.number(o, "skin_layers_3d_parts", 15) & 15;
+			s.blinking = Json.bool(o, "blinking", true);
 			s.bedrockBuiltinPacks = Json.bool(o, "bedrock_builtin_packs", true);
 			s.menuCharacter = Json.bool(o, "menu_character", true);
 			s.hideUnderArmor = Json.bool(o, "hide_under_armor", true);
@@ -100,6 +106,8 @@ public final class ClientSettings {
 		o.addProperty("share_own_cosmetics", shareOwnCosmetics);
 		o.addProperty("download_others", downloadOthers);
 		o.addProperty("skin_layers_3d", skinLayers3d);
+		o.addProperty("skin_layers_3d_parts", layers3dParts);
+		o.addProperty("blinking", blinking);
 		o.addProperty("bedrock_builtin_packs", bedrockBuiltinPacks);
 		o.addProperty("menu_character", menuCharacter);
 		o.addProperty("hide_under_armor", hideUnderArmor);

@@ -572,7 +572,7 @@
 	"btb.ui.packbuilder.exported": "\"%s\" exported: %s",
 	"btb.ui.packbuilder.none": "No skins yet – import skins or add skin packs.",
 	"btb.ui.emotes": "Emotes",
-	"btb.ui.emotes.hint": "Click or press 1–5 to play, moving stops it.",
+	"btb.ui.emotes.hint": "Move the mouse towards an emote and click – or hold the key, point, release. Scroll wheel, arrow keys and 1–5 work too.",
 	"key.btb_skinstudio.emotes": "Emotes",
 	"btb.ui.catalog.nav": "Get skin packs",
 	"btb.ui.catalog.title": "Skin pack catalog",
@@ -645,5 +645,10 @@
 	"btb.ui.character.legs": "Legs",
 	"btb.ui.character.face": "Face",
 	"btb.ui.character.eyes": "Eyes",
-	"btb.ui.character.mouth": "Mouth"
+	"btb.ui.character.mouth": "Mouth",
+	"btb.ui.setting.layers3d.head": "Head",
+	"btb.ui.setting.layers3d.body": "Body",
+	"btb.ui.setting.layers3d.arms": "Arms",
+	"btb.ui.setting.layers3d.legs": "Legs",
+	"btb.ui.setting.blinking": "Skins blink"
 }

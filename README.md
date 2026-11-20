@@ -39,7 +39,8 @@
 - **Skin-Packs wie in Bedrock:** Bedrock-Skin-Packs (Ordner, `.zip`, `.mcpack` mit `skins.json`) in `skin_packs/` legen – alle Skins erscheinen als Sammlung, inklusive 3D-Zusatzteilen und übersetzten Namen
 - **Bedrock suchen:** findet Bedrock-Installationen auf dem PC (Windows Store/GDK, Preview, mcpelauncher unter Linux) und listet Skin-Packs, Character-Creator-Teile und Skins, die sich übernehmen lassen
 - Jederzeit zurück zum Account-Skin; Mitspieler mit der Mod sehen den gewählten Skin
-- **3D-Hautebenen** (Einstellung): Hut-, Jacken-, Ärmel- und Hosenebene werden als echte Voxel dargestellt, wie in Bedrock – mit geschlossenen Kanten
+- **3D-Hautebenen** (Einstellung): Hut-, Jacken-, Ärmel- und Hosenebene als echte Voxel wie in Bedrock – dezent (Kopf ¾ Pixel, Körper ½ Pixel tief), mit geschlossenen Kanten, pro Körperteil (Kopf/Körper/Arme/Beine) oder ganz abschaltbar
+- **Blinzeln:** Skins blinzeln ab und zu; die Augen werden im Skin automatisch gefunden (abschaltbar)
 - **Eigenes Skin-Pack „BTB Skins“:** Holzfäller (Steve mit Holzfäller-Outfit, zur Laufzeit aus dem Steve-Skin des Spiels zusammengesetzt), Abenteurerin, Gärtnerin, Bergarbeiter, Matrose, Astronautin
 - **Skin-Packs aus der Bedrock-Installation:** Die mit Bedrock installierten Standard-Skin-Packs werden direkt geladen (Windows GDK/Store, Preview, mcpelauncher), ebenso Skin-Packs in Ressourcenpaketen (`assets/<ns>/skin_packs/`)
 - **Skin-Pack-Katalog:** lädt auf Klick die klassischen Bedrock-Skin-Packs aus einem Online-Katalog (Format des Ressourcenpakets „Bedrock Skin Packs“, 50+ Packs); weitere Katalog-URLs einstellbar
@@ -51,7 +52,7 @@
 **Charakter-Editor (Reiter „Charakter“) – wie der Bedrock Character Creator**
 - Grund-Skin wählen, darüber Kleidung einzeln: Oberteil, Hose, Schuhe, Jacke – 16 Teile (T-Shirt, Langarm, Hoodie, Holzfällerhemd, Ringelshirt, Tanktop, Jeans, Shorts, Jogginghose, Rock, Latzhose, Sneaker, Stiefel, Lederjacke, Weste, Mantel), jedes frei einfärbbar
 - Körper: Größe, Kopf-, Arm- und Beindicke (0,8–1,25×) – Mitspieler sehen die Proportionen
-- Gesicht: Glubschaugen, Kulleraugen, verschlafene Augen und Blinzel-Augen mit beweglichen Lidern in Hautfarbe; Lächeln, Sprech-Mund und „Zunge raus“ mit tropfender Spucke
+- Gesicht im Pixel-Stil: Glubschaugen, Kulleraugen, verschlafene Augen und Blinzel-Augen mit beweglichen Lidern in Hautfarbe; Lächeln, Sprech-Mund und „Zunge raus“ mit tropfender Spucke
 - Character-Creator-Teile aus der Bedrock-Installation erscheinen als eigene Sammlung (sofern unverschlüsselt)
 
 ![Charakter](docs/modrinth/13_character_de.jpg)
@@ -59,7 +60,8 @@
 **Emotes (Taste B für das Emote-Rad)**
 - 20 Emotes nach echtem Minecraft: Winken, Jubeln, Klatschen, Zeigen, Facepalm, Nachdenken, Holz schlagen, Abbauen (mit Diamantspitzhacke und Block-Partikeln), Diamanten zeigen, Ghast-Tanz, Creeper-Schreck, Verbeugen, Achselzucken, Trank trinken, Keks essen, Banner schwenken, Fernrohr, Tanzen, Lachen, Herz
 - Echte Gegenstände in der Hand und passende Partikel; Laufen bricht das Emote ab
-- Rad mit 5 frei belegbaren Plätzen, Figur daneben zeigt das Emote; Tasten 1–5 im Rad, für jeden Platz eine eigene Direkttaste
+- Rad mit 5 frei belegbaren Plätzen, Figur daneben zeigt das Emote
+- Bedienung mit der Maus wie ein Radialmenü: Maus in eine Richtung bewegen und klicken – oder `B` halten, zeigen, loslassen; dazu Mausrad, Pfeiltasten und 1–5, für jeden Platz eine eigene Direkttaste
 - Tasten werden als Tastaturkappen gezeigt, mit [Controlify](https://modrinth.com/mod/controlify) als Controller-Tasten
 - Reiter „Emotes“ in der Garderobe: alle Emotes mit Vorschau, welcher Platz und welche Taste belegt ist
 - Mitspieler mit der Mod sehen die Emotes
@@ -117,7 +119,7 @@ Fackel auf dem Kopf (Flammenanimation, Lichtschein, Funken), Stirnband mit Facke
 | | |
 |---|---|
 | `J` | Garderobe öffnen (in den Steuerungs-Einstellungen änderbar) |
-| `B` | Emote-Rad; Tasten `1`–`5` spielen ein Emote, Laufen bricht ab |
+| `B` | Emote-Rad: Maus in eine Richtung + Klick, oder halten, zeigen, loslassen; `1`–`5` spielen direkt, Laufen bricht ab |
 | Emote-Platz 1–5 | eigene Direkttasten, ab Werk nicht belegt |
 | Klick auf eine Karte | anprobieren; zweiter Klick oder `Enter` legt an/ab |
 | Rechtsklick auf eine Karte | Favorit |

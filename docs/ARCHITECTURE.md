@@ -50,7 +50,10 @@ Spiel testen (`src/test`), und der dedizierte Server nutzt dieselbe Prüfung wie
    Reload lädt nur geänderte Texturen neu.
 6. 3D-Hautebenen (`SkinLayers3D`): Jeder deckende Pixel der äußeren Hautebene wird zu einem Voxel,
    verdeckte Seiten werden weggelassen, Randvoxel bis zur Kante verlängert (keine Lücken an den Ecken).
-   Das Ergebnis wird pro Skin einmal berechnet und gecacht.
+   Voxel sind am Kopf ¾, sonst ½ Pixel tief; Flächen, die immer verdeckt sind (Hals, Hüfte, Beinoberseite),
+   bekommen keine Voxel. Welche Körperteile 3D sind, ist einstellbar. Das Ergebnis wird pro Skin gecacht.
+   Blinzeln (`SkinBlink`): eine Kopie des Skins mit geschlossenen Augen wird einmal erzeugt; `getSkin()` liefert
+   sie alle paar Sekunden für 0,14 s (pro Spieler versetzt).
 7. Rüstung (`ArmorFit`): Mit Helm bleiben nur Brillen (etwas größer, über dem Helm) und der Heiligenschein.
    Brustpanzer schieben Rücken-Teile nach hinten, Elytren blenden Flügel/Umhang/Rucksack aus. Alles andere
    wird gegen die Rüstungs-Hüllen geprüft: erst etwas vergrößern/verschieben, sonst ausblenden.
@@ -101,6 +104,8 @@ normale Cosmetics aus dem Pack `btb_face` mit Hautfarben-Tint.
   wenn das Cosmetic Animationen hat.
 - Partikel sind auf 20/s begrenzt, eigene Partikel in der Ego-Perspektive werden nicht erzeugt.
 - Fremde Cosmetics lassen sich ausblenden, Partikel und Lichtschein abschalten.
+- Vorschaubilder (Python-Generator und `PreviewRenderer`) nutzen einen Tiefenpuffer pro Pixel; die
+  Schaufensterpuppe liegt minimal dahinter, damit flach aufliegende Teile immer sichtbar sind.
 - Vorschaubilder werden einmal erzeugt (PNG im Pack oder `PreviewRenderer`) und gecacht.
 - Kleidung wird nur beim Ändern neu zusammengesetzt, Rüstungsprüfung nur für Spieler mit Rüstung und Cosmetics.
 - Skin-Packs aus Installation und Katalog werden im Hintergrund geladen; Netzwerkzugriffe (Katalog,

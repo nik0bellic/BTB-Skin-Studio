@@ -5,9 +5,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -21,7 +19,8 @@ public final class PreviewRenderer {
 	private PreviewRenderer() {
 	}
 
-	private record Face(float depth, float[] xs, float[] ys, int argb) {
+	/** Projected polygon; zs = per-vertex depth (smaller = nearer), bias pushes the mannequin back. */
+	private record Face(float depth, float[] xs, float[] ys, float[] zs, int argb, float bias) {
 	}
 
 	public static BufferedImage render(GeoModel model, BufferedImage texture, BufferedImage emissive, AttachmentPoint attachment, int size) {
@@ -36,6 +35,7 @@ public final class PreviewRenderer {
 		for (float[] box : mannequin(attachment)) {
 			addBox(faces, box, 0xFFCFD3DA, yaw, pitch, light);
 		}
+		int mannequinFaces = faces.size();
 
 		Matrix4f root = new Matrix4f();
 		for (BakedModel.Bone b : baked.roots) {
@@ -60,20 +60,24 @@ public final class PreviewRenderer {
 		float scale = canvas * 0.86f / Math.max(maxX - minX, maxY - minY);
 		float ox = canvas / 2f - (minX + maxX) / 2 * scale;
 		float oy = canvas / 2f - (minY + maxY) / 2 * scale;
-		faces.sort((a, c) -> Float.compare(c.depth, a.depth));
+		// z-buffer instead of sorting whole faces: small parts lying on the mannequin are never covered by it
 		BufferedImage img = new BufferedImage(canvas, canvas, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = img.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-		for (Face f : faces) {
-			Polygon p = new Polygon();
-			for (int i = 0; i < f.xs.length; i++) {
-				p.addPoint(Math.round(f.xs[i] * scale + ox), Math.round(f.ys[i] * scale + oy));
+		float[] zbuf = new float[canvas * canvas];
+		java.util.Arrays.fill(zbuf, Float.MAX_VALUE);
+		List<Face> translucent = new ArrayList<>();
+		for (int i = 0; i < faces.size(); i++) {
+			Face f = faces.get(i);
+			float bias = i < mannequinFaces ? 0.004f : 0f;
+			if ((f.argb >>> 24) < 250) {
+				translucent.add(new Face(f.depth, f.xs, f.ys, f.zs, f.argb, bias));
+				continue;
 			}
-			g.setColor(new Color(f.argb, true));
-			g.fillPolygon(p);
-			g.drawPolygon(p);
+			raster(img, zbuf, f, bias, scale, ox, oy, false);
 		}
-		g.dispose();
+		translucent.sort((x, y) -> Float.compare(y.depth, x.depth));
+		for (Face f : translucent) {
+			raster(img, zbuf, f, f.bias, scale, ox, oy, true);
+		}
 		BufferedImage out = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = out.createGraphics();
 		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -164,6 +168,7 @@ public final class PreviewRenderer {
 	private static void project(List<Face> out, float[][] pts, int argb, float yaw, float pitch) {
 		float[] xs = new float[pts.length], ys = new float[pts.length];
 		float depth = 0;
+		float[] zs = new float[pts.length];
 		float cy = (float) Math.cos(yaw), sy = (float) Math.sin(yaw), cp = (float) Math.cos(pitch), sp = (float) Math.sin(pitch);
 		for (int i = 0; i < pts.length; i++) {
 			// Java model space: y down, front −z. Rotate around the vertical axis, then tilt the camera down.
@@ -172,9 +177,71 @@ public final class PreviewRenderer {
 			float ry = y * cp + rz * sp, rd = rz * cp - y * sp;
 			xs[i] = rx;
 			ys[i] = -ry;
+			zs[i] = rd;
 			depth += rd;
 		}
-		out.add(new Face(depth / pts.length, xs, ys, argb));
+		out.add(new Face(depth / pts.length, xs, ys, zs, argb, 0));
+	}
+
+	/** Fills a convex quad (two triangles) with depth test; translucent faces blend and do not write depth. */
+	private static void raster(BufferedImage img, float[] zbuf, Face f, float bias, float scale, float ox, float oy, boolean blend) {
+		int n = img.getWidth();
+		int count = f.xs.length;
+		float[] x = new float[count], y = new float[count], z = new float[count];
+		for (int i = 0; i < count; i++) {
+			x[i] = f.xs[i] * scale + ox;
+			y[i] = f.ys[i] * scale + oy;
+			z[i] = f.zs[i] + bias;
+		}
+		for (int t = 1; t + 1 < count; t++) {
+			tri(img, zbuf, n, x[0], y[0], z[0], x[t], y[t], z[t], x[t + 1], y[t + 1], z[t + 1], f.argb, blend);
+		}
+	}
+
+	private static void tri(BufferedImage img, float[] zbuf, int n, float x0, float y0, float z0, float x1, float y1, float z1,
+							float x2, float y2, float z2, int argb, boolean blend) {
+		float area = (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0);
+		if (Math.abs(area) < 1e-9f) {
+			return;
+		}
+		int bx0 = Math.max(0, (int) Math.floor(Math.min(x0, Math.min(x1, x2))));
+		int bx1 = Math.min(n - 1, (int) Math.ceil(Math.max(x0, Math.max(x1, x2))));
+		int by0 = Math.max(0, (int) Math.floor(Math.min(y0, Math.min(y1, y2))));
+		int by1 = Math.min(n - 1, (int) Math.ceil(Math.max(y0, Math.max(y1, y2))));
+		float eps = -1e-4f;
+		for (int py = by0; py <= by1; py++) {
+			float cyp = py + 0.5f;
+			for (int px = bx0; px <= bx1; px++) {
+				float cxp = px + 0.5f;
+				float w0 = ((x1 - cxp) * (y2 - cyp) - (x2 - cxp) * (y1 - cyp)) / area;
+				float w1 = ((x2 - cxp) * (y0 - cyp) - (x0 - cxp) * (y2 - cyp)) / area;
+				float w2 = 1 - w0 - w1;
+				if (w0 < eps || w1 < eps || w2 < eps) {
+					continue;
+				}
+				float zz = w0 * z0 + w1 * z1 + w2 * z2;
+				int idx = py * n + px;
+				if (zz >= zbuf[idx]) {
+					continue;
+				}
+				if (blend) {
+					img.setRGB(px, py, over(img.getRGB(px, py), argb));
+				} else {
+					zbuf[idx] = zz;
+					img.setRGB(px, py, argb);
+				}
+			}
+		}
+	}
+
+	private static int over(int dst, int src) {
+		float a = (src >>> 24) / 255f;
+		int r = (int) (((src >> 16) & 0xFF) * a + ((dst >> 16) & 0xFF) * (1 - a));
+		int g = (int) (((src >> 8) & 0xFF) * a + ((dst >> 8) & 0xFF) * (1 - a));
+		int b = (int) ((src & 0xFF) * a + (dst & 0xFF) * (1 - a));
+		int da = dst >>> 24;
+		int oa = Math.min(255, (int) ((src >>> 24) + da * (1 - a)));
+		return oa << 24 | r << 16 | g << 8 | b;
 	}
 
 	/** Context boxes (Java model space in blocks, head pivot at y=0). */

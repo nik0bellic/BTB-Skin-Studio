@@ -1,11 +1,11 @@
 # Status
 
-Stand: November 2026, Version 0.1.0, Minecraft 26.3, Fabric Loader 0.20.1, Fabric API 0.166.2+26.3.
+Stand: November 2026, Version 0.2.0, Minecraft 26.3, Fabric Loader 0.20.1, Fabric API 0.166.2+26.3.
 
 ## Build und Tests
 
 - `./gradlew build` läuft fehlerfrei durch (JDK 25).
-- 32 Unit-Tests in `src/test`, 31 bestanden, 1 übersprungen (`RealDataImportTest` braucht echte
+- 34 Unit-Tests in `src/test`, 33 bestanden, 1 übersprungen (`RealDataImportTest` braucht echte
   Bedrock-Dateien, Aufruf mit `-Pbtb.realdata=<ordner>`). Abgedeckt:
   - Geometrie (alt und neu, Box-/Per-Face-UV), Molang, Animationen
   - Pack lesen, schreiben und prüfen: doppelte IDs, Pfad-Ausbruch, defekte PNGs, Archivgrenzen
@@ -37,6 +37,10 @@ Stand: November 2026, Version 0.1.0, Minecraft 26.3, Fabric Loader 0.20.1, Fabri
 | Skin-Pack-Builder | `.mcpack` erstellt und wieder geladen |
 | Rüstung | Helm: nur Brille sichtbar; Brustpanzer: Rucksack sitzt dahinter; Elytren |
 | Themen-Packs | Winterzauber, Halloween, Piraten in der Welt |
+| Blinzeln | Steve, Alex, Kai, Noor und alle BTB-Skins: Augen werden gefunden und geschlossen, Haare/Augenbrauen bleiben |
+| 3D-Hautebenen | dezentere Tiefe, pro Körperteil an/aus in den Einstellungen |
+| Emote-Rad mit Maus | Richtung wählt das Segment (auch außerhalb des Rings), Klick spielt |
+| Vorschaubilder | Tiefenpuffer statt Flächen-Sortierung: keine Löcher mehr an Gürtel, Bart, Handschuhen, Augen usw. |
 | Sprachen | Oberfläche komplett auf Deutsch und Englisch geprüft |
 
 ## Bekannte Einschränkungen
@@ -52,7 +56,7 @@ Stand: November 2026, Version 0.1.0, Minecraft 26.3, Fabric Loader 0.20.1, Fabri
   Installationsorten, wurden aber nur unter Linux (mcpelauncher-Struktur) getestet, nicht auf einem echten Windows-PC.
 - **Character-Creator-Teile (Persona):** Der Import ist mit nachgebauten Testdaten geprüft. Echte
   Persona-Dateien sind meist Teil verschlüsselter Inhalte und standen nicht zur Verfügung.
-- **3D-Hautebenen** funktionieren nur für Skins, deren Bild die Mod selbst kennt: Standard-Skins,
+- **3D-Hautebenen und Blinzeln** funktionieren nur für Skins, deren Bild die Mod selbst kennt: Standard-Skins,
   importierte Skins, Skin-Packs und Skins von Mitspielern mit Mod. Der Account-Skin wird vom Spiel direkt auf
   die Grafikkarte geladen; seine Pixel sind für die Mod nicht lesbar.
 - **Skin-Sync im Multiplayer** ist per Unit-Test und Protokolltest abgesichert. Im Mehrspieler-Spieltest wurde

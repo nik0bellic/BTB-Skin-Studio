@@ -48,7 +48,7 @@ public final class ClientCosmeticSync {
 	private static int revision;
 	private static int wardrobeRevision;
 
-	private record Cached(int libRev, int rev, int wardRev, boolean showOthers, int skinRev, boolean layers3d, List<ActiveCosmetic> list) {
+	private record Cached(int libRev, int rev, int wardRev, boolean showOthers, int skinRev, int layers3d, List<ActiveCosmetic> list) {
 	}
 
 	private static final Map<UUID, Cached> RESOLVED = new HashMap<>();
@@ -171,7 +171,7 @@ public final class ClientCosmeticSync {
 		Cached c = RESOLVED.get(player);
 		int skinRev = de.behindtheblocks.skinstudio.client.skin.ClientSkins.revision();
 		if (c != null && c.libRev == libRev && c.rev == revision && c.wardRev == wardrobeRevision && c.showOthers == s.showOtherPlayers
-				&& c.skinRev == skinRev && c.layers3d == s.skinLayers3d) {
+				&& c.skinRev == skinRev && c.layers3d == (s.skinLayers3d ? s.layers3dParts + 1 : 0)) {
 			return c.list;
 		}
 		List<Loadout.Entry> entries;
@@ -185,7 +185,7 @@ public final class ClientCosmeticSync {
 		List<ActiveCosmetic> list = new ArrayList<>(de.behindtheblocks.skinstudio.client.skin.ClientSkins.extras(player));
 		list.addAll(resolve(entries, !self));
 		list = List.copyOf(list);
-		RESOLVED.put(player, new Cached(libRev, revision, wardrobeRevision, s.showOtherPlayers, skinRev, s.skinLayers3d, list));
+		RESOLVED.put(player, new Cached(libRev, revision, wardrobeRevision, s.showOtherPlayers, skinRev, s.skinLayers3d ? s.layers3dParts + 1 : 0, list));
 		return list;
 	}
 

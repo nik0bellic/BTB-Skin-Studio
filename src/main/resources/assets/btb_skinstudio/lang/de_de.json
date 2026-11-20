@@ -572,7 +572,7 @@
 	"btb.ui.packbuilder.exported": "„%s“ exportiert: %s",
 	"btb.ui.packbuilder.none": "Noch keine Skins vorhanden – importiere Skins oder lade Skin-Packs.",
 	"btb.ui.emotes": "Emotes",
-	"btb.ui.emotes.hint": "Klick oder Taste 1–5 spielt ein Emote, Bewegen beendet es.",
+	"btb.ui.emotes.hint": "Maus in eine Richtung bewegen und klicken – oder Taste halten, zeigen, loslassen. Mausrad, Pfeiltasten und 1–5 gehen auch.",
 	"key.btb_skinstudio.emotes": "Emotes",
 	"btb.ui.catalog.nav": "Skin-Packs laden",
 	"btb.ui.catalog.title": "Skin-Pack-Katalog",
@@ -645,5 +645,10 @@
 	"btb.ui.character.legs": "Beine",
 	"btb.ui.character.face": "Gesicht",
 	"btb.ui.character.eyes": "Augen",
-	"btb.ui.character.mouth": "Mund"
+	"btb.ui.character.mouth": "Mund",
+	"btb.ui.setting.layers3d.head": "Kopf",
+	"btb.ui.setting.layers3d.body": "Körper",
+	"btb.ui.setting.layers3d.arms": "Arme",
+	"btb.ui.setting.layers3d.legs": "Beine",
+	"btb.ui.setting.blinking": "Skins blinzeln"
 }

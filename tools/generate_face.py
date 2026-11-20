@@ -36,9 +36,9 @@ def eyes_googly(cos):
     m = Model('geometry.btb_face.googly', seed=201)
     for side, x0 in (('left_eye', 0.6), ('right_eye', -3.6)):
         b = m.bone(side, [x0 + 1.5, 28, Z], parent=None)
-        m.box(b, (x0, 26.4, Z - 0.9), (3, 3, 0.9), faces(solid('#fafafa', noise=0.02), front=bordered('#ffffff', '#d8d8d8')))
+        m.box(b, (x0, 26, Z - 0.9), (3, 3, 0.9), faces(solid('#fafafa', noise=0.02), front=bordered('#ffffff', '#d8d8d8')))
         p = m.bone(side + '_pupil', [x0 + 1.5, 27.9, Z - 0.95], parent=side)
-        m.box(p, (x0 + 0.9, 27.3, Z - 1.0), (1.2, 1.2, 0.1), solid('#151515'))
+        m.box(p, (x0 + 1, 27.0, Z - 0.98), (1, 1, 0.05), solid('#151515', noise=0))
     anim_ = {'loop': True, 'bones': {
         'left_eye_pupil': {'position': ['math.sin(q.anim_time * 470) * 0.55', 'math.cos(q.anim_time * 380) * 0.5', 0]},
         'right_eye_pupil': {'position': ['math.sin(q.anim_time * 430 + 60) * 0.55', 'math.cos(q.anim_time * 410 + 40) * 0.5', 0]}}}
@@ -47,24 +47,39 @@ def eyes_googly(cos):
                                animations=['animation.btb_face.googly']), m, {'animation.btb_face.googly': anim_}))
 
 
-def eyes_cartoon(cos, key, de, en, iris, lid_rest, desc_de, desc_en):
+def pixel_plane(rows, colors):
+    """Paint function for a flat box whose front face shows the given pixel rows (1 texel per skin pixel)."""
+    cs = {k: rgb(v) for k, v in colors.items()}
+
+    def p(face, x, y, w, h, rnd):
+        if face != 'front':
+            return cs['W'] + (255,) if face in ('left', 'right', 'top', 'bottom') else (0, 0, 0, 0)
+        ch = rows[min(y, len(rows) - 1)][min(x, len(rows[0]) - 1)]
+        return cs[ch] + (255,)
+    return p
+
+
+def eyes_cartoon(cos, key, de, en, iris, rows, y_top, lid_rest_rows, desc_de, desc_en):
+    """Minecraft-style pixel eyes: one flat plane per eye (no stacked layers), lids in skin colour in front.
+
+    rows describe the eye on the viewer's left; the other eye is mirrored so both pupils look inward.
+    At rest the lid covers lid_rest_rows (0 = open, only a thin line); a blink stretches it over the eye.
+    """
     m = Model('geometry.btb_face.' + key, seed=202)
-    for side, x0 in (('left', 0.5), ('right', -3.5)):
-        b = m.bone(side + '_eye', [x0 + 1.5, 28, Z])
-        m.box(b, (x0, 26, Z - 0.2), (3, 4, 0.2), solid('#fafafa'))
-        m.box(b, (x0 + 0.5 if side == 'left' else x0 + 0.5, 26.5, Z - 0.3), (2, 2.5, 0.12), solid(iris))
-        m.box(b, (x0 + 1, 27, Z - 0.4), (1, 1.5, 0.1), solid('#101010'))
-        m.box(b, (x0 + 1.6, 28.3, Z - 0.45), (0.5, 0.5, 0.05), solid('#ffffff'))
-        # at rest the lid is open (a thin line) or half closed (sleepy); the animation only closes it for a blink,
-        # so with animations turned off the eyes stay open
-        h0 = 4 * lid_rest if lid_rest > 0 else 0.15
-        lid = m.bone(side + '_lid', [x0 + 1.5, 30, Z - 0.5], parent=side + '_eye')
-        m.box(lid, (x0 - 0.1, 30 - h0, Z - 0.6), (3.2, h0, 0.1), solid('#e8e8e8'), tint=True)
+    w, h = len(rows[0]), len(rows)
+    colors = {'W': '#f2f2f2', 'I': iris, 'P': '#141414'}
+    for side, x0, mirrored in (('left', 0.5, True), ('right', -0.5 - w, False)):
+        r = [row[::-1] for row in rows] if mirrored else rows
+        b = m.bone(side + '_eye', [x0 + w / 2, y_top, Z])
+        m.box(b, (x0, y_top - h, Z - 0.1), (w, h, 0.1), pixel_plane(r, colors))
+        h0 = lid_rest_rows if lid_rest_rows > 0 else 0.2
+        lid = m.bone(side + '_lid', [x0 + w / 2, y_top, Z - 0.2], parent=side + '_eye')
+        m.box(lid, (x0 - 0.05, y_top - h0, Z - 0.25), (w + 0.1, h0, 0.1), solid('#e8e8e8', noise=0), tint=True)
     bones = {}
+    h0 = lid_rest_rows if lid_rest_rows > 0 else 0.2
+    period = 5.5 if lid_rest_rows > 0 else 4.2
     for side in ('left', 'right'):
-        h0 = 4 * lid_rest if lid_rest > 0 else 0.15
-        period = 5.5 if lid_rest > 0 else 4.2
-        bones[side + '_lid'] = {'scale': [1, '(math.mod(q.anim_time, %s) < 0.18) ? %s : 1' % (period, round(4 / h0, 3)), 1]}
+        bones[side + '_lid'] = {'scale': [1, '(math.mod(q.anim_time, %s) < 0.16) ? %s : 1' % (period, round(h / h0, 3)), 1]}
     anim_name = 'animation.btb_face.%s' % key
     cos.append((key, meta(key, de, en, 'face_accessory', desc_de, desc_en, tint=SKIN_TINT, animations=[anim_name]), m,
                 {anim_name: {'loop': True, 'bones': bones}}))
@@ -110,11 +125,12 @@ def build():
     os.makedirs(ROOT)
     cos = []
     eyes_googly(cos)
-    eyes_cartoon(cos, 'big_eyes', 'Kulleraugen', 'Big Eyes', '#3a7ac8', 0, 'Große Augen, die blinzeln.', 'Big eyes that blink.')
-    eyes_cartoon(cos, 'sleepy_eyes', 'Verschlafene Augen', 'Sleepy Eyes', '#5a8a3a', 0.45, 'Halb geschlossene Augen mit langsamem Blinzeln.',
-                 'Half-closed eyes with a slow blink.')
-    eyes_cartoon(cos, 'blink_eyes', 'Blinzel-Augen', 'Blinking Eyes', '#6a4a2a', 0, 'Augen in Skin-Größe mit Lidern, die blinzeln.',
-                 'Skin-sized eyes with lids that blink.')
+    eyes_cartoon(cos, 'big_eyes', 'Kulleraugen', 'Big Eyes', '#3a7ac8', ['WWW', 'WPI', 'WII'], 29, 0,
+                 'Große Augen im Pixel-Stil, die blinzeln.', 'Big pixel eyes that blink.')
+    eyes_cartoon(cos, 'sleepy_eyes', 'Verschlafene Augen', 'Sleepy Eyes', '#5a8a3a', ['WWW', 'WPI', 'WII'], 29, 1,
+                 'Halb geschlossene Augen mit langsamem Blinzeln.', 'Half-closed eyes with a slow blink.')
+    eyes_cartoon(cos, 'blink_eyes', 'Blinzel-Augen', 'Blinking Eyes', '#6a4a2a', ['WI'], 28, 0,
+                 'Augen in Skin-Größe mit Lidern, die blinzeln.', 'Skin-sized eyes with lids that blink.')
     mouth_smile(cos)
     mouth_talk(cos)
     mouth_tongue(cos)

@@ -5,6 +5,7 @@ All coordinates are Bedrock player space: pixels, Y up, feet at y=0, head from y
 front of the player at -Z, the player's left side at +X.
 """
 import json, math, os, random
+import numpy as np
 from PIL import Image, ImageDraw
 
 # ------------------------------------------------------------------ colors
@@ -333,15 +334,14 @@ def preview(model, base_img, emis_img, out_path, mannequin=None, size=128, yaw=-
             g = clamp(205 * light[face])
             mq.append((corners, (g, g, g, 255)))
 
-    all_quads = mq + quads
+    # depth: smaller = nearer. The mannequin is pushed back a little so parts lying flat on it always win.
     projected = []
-    for pts, col in all_quads:
-        pp = [project(p) for p in pts]
-        depth = sum(p[2] for p in pp) / 4
-        projected.append((depth, pp, col))
-    # bounds for framing
-    xs = [p[0] for _, pp, _ in projected for p in pp]
-    ys = [p[1] for _, pp, _ in projected for p in pp]
+    for pts, col in mq:
+        projected.append(([project(p) for p in pts], col, 0.05))
+    for pts, col in quads:
+        projected.append(([project(p) for p in pts], col, 0.0))
+    xs = [p[0] for pp, _, _ in projected for p in pp]
+    ys = [p[1] for pp, _, _ in projected for p in pp]
     if not xs:
         return
     minx, maxx, miny, maxy = min(xs), max(xs), min(ys), max(ys)
@@ -349,11 +349,52 @@ def preview(model, base_img, emis_img, out_path, mannequin=None, size=128, yaw=-
     ox = size / 2 - (minx + maxx) / 2 * scale
     oy = size / 2 - (miny + maxy) / 2 * scale
     ss = 3
-    img = Image.new('RGBA', (size * ss, size * ss), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img, 'RGBA')
-    for depth, pp, col in sorted(projected, key=lambda q: -q[0]):
-        poly = [((p[0] * scale + ox) * ss, (p[1] * scale + oy) * ss) for p in pp]
-        draw.polygon(poly, fill=col)
+    n = size * ss
+    zbuf = np.full((n, n), np.inf)
+    cbuf = np.zeros((n, n, 4), dtype=np.float64)
+
+    def raster(pp, col, bias, blend):
+        v = [((p[0] * scale + ox) * ss, (p[1] * scale + oy) * ss, p[2] + bias) for p in pp]
+        for tri in ((v[0], v[1], v[2]), (v[0], v[2], v[3])):
+            (x0, y0, z0), (x1, y1, z1), (x2, y2, z2) = tri
+            area = (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)
+            if abs(area) < 1e-9:
+                continue
+            bx0, bx1 = max(0, int(math.floor(min(x0, x1, x2)))), min(n - 1, int(math.ceil(max(x0, x1, x2))))
+            by0, by1 = max(0, int(math.floor(min(y0, y1, y2)))), min(n - 1, int(math.ceil(max(y0, y1, y2))))
+            if bx1 < bx0 or by1 < by0:
+                continue
+            gx, gy = np.meshgrid(np.arange(bx0, bx1 + 1) + 0.5, np.arange(by0, by1 + 1) + 0.5)
+            w0 = ((x1 - gx) * (y2 - gy) - (x2 - gx) * (y1 - gy)) / area
+            w1 = ((x2 - gx) * (y0 - gy) - (x0 - gx) * (y2 - gy)) / area
+            w2 = 1 - w0 - w1
+            eps = -1e-6
+            inside = (w0 >= eps) & (w1 >= eps) & (w2 >= eps)
+            if not inside.any():
+                continue
+            z = w0 * z0 + w1 * z1 + w2 * z2
+            zb = zbuf[by0:by1 + 1, bx0:bx1 + 1]
+            mask = inside & (z < zb)
+            if not mask.any():
+                continue
+            cb = cbuf[by0:by1 + 1, bx0:bx1 + 1]
+            if blend:
+                a = col[3] / 255.0
+                for k in range(3):
+                    cb[..., k][mask] = cb[..., k][mask] * (1 - a) + col[k] * a
+                cb[..., 3][mask] = np.minimum(255, cb[..., 3][mask] + col[3] * (1 - cb[..., 3][mask] / 255.0))
+            else:
+                cb[mask] = col
+                zb[mask] = z[mask]
+
+    for pp, col, bias in projected:
+        if col[3] >= 255:
+            raster(pp, col, bias, False)
+    translucent = [q for q in projected if q[1][3] < 255]
+    translucent.sort(key=lambda q: -sum(p[2] for p in q[0]))
+    for pp, col, bias in translucent:
+        raster(pp, col, bias, True)
+    img = Image.fromarray(np.clip(cbuf, 0, 255).astype(np.uint8), 'RGBA')
     img = img.resize((size, size), Image.LANCZOS)
     img.save(out_path)
 

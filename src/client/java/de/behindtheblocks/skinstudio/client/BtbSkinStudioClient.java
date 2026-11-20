@@ -32,6 +32,11 @@ public final class BtbSkinStudioClient implements ClientModInitializer {
 	public static String emoteWheelKey() {
 		return openEmotes == null ? "B" : openEmotes.getTranslatedKeyMessage().getString();
 	}
+	/** The key mapping of the emote wheel (hold, point, release plays). */
+	public static KeyMapping emoteKeyMapping() {
+		return openEmotes;
+	}
+
 	private static String lastLanguage = "";
 
 	@Override

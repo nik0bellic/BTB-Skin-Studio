@@ -1422,7 +1422,7 @@ public class WardrobeScreen extends Screen {
 	private void drawSettings(int x, int y) {
 		Theme t = ui.t;
 		ClientSettings s = ClientSettings.get();
-		int w = 190, h = 197;
+		int w = 190, h = 197 + 17 + (s.skinLayers3d ? 16 : 0);
 		ui.rounded(x, y, w, h, 9, t.dark ? 0xF41C1F27 : 0xFCFFFFFF);
 		ui.roundedOutline(x, y, w, h, 9, t.glassBorder);
 		ui.title(Tr.t("btb.ui.settings"), x + 10, y + 9, t.text);
@@ -1430,6 +1430,24 @@ public class WardrobeScreen extends Screen {
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.show_others"), s.showOtherPlayers, () -> { s.showOtherPlayers = !s.showOtherPlayers; s.save(); });
 		cy += 17;
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.layers3d"), s.skinLayers3d, () -> { s.skinLayers3d = !s.skinLayers3d; s.save(); });
+		cy += 17;
+		if (s.skinLayers3d) {
+			// which body parts get 3D layers
+			String[] keys = {"btb.ui.setting.layers3d.head", "btb.ui.setting.layers3d.body", "btb.ui.setting.layers3d.arms", "btb.ui.setting.layers3d.legs"};
+			int cw = (w - 20 - 3 * 3) / 4;
+			for (int i = 0; i < 4; i++) {
+				int bit = 1 << i;
+				boolean on = (s.layers3dParts & bit) != 0;
+				int bx = x + 10 + i * (cw + 3);
+				boolean hov = ui.hover(bx, cy, cw, 13);
+				ui.rounded(bx, cy, cw, 13, 6, on ? t.accent | 0xFF000000 : hov ? t.surfaceHover : t.surface);
+				String label = ui.ellipsize(Tr.t(keys[i]), cw - 4);
+				ui.g.text(font, label, bx + (cw - font.width(label)) / 2, cy + 3, on ? t.onAccent : t.textMuted, false);
+				ui.region(bx, cy, cw, 13, () -> { s.layers3dParts ^= bit; s.save(); });
+			}
+			cy += 16;
+		}
+		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.blinking"), s.blinking, () -> { s.blinking = !s.blinking; s.save(); });
 		cy += 17;
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.bedrock_packs"), s.bedrockBuiltinPacks, () -> {
 			s.bedrockBuiltinPacks = !s.bedrockBuiltinPacks;

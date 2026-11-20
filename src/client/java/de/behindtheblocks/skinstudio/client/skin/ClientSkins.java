@@ -106,13 +106,35 @@ public final class ClientSkins {
 		if (s == null) {
 			return original;
 		}
-		return toPlayerSkin(s, original);
+		return toPlayerSkin(s, original, player.hashCode());
 	}
 
 	public static PlayerSkin toPlayerSkin(SkinData s, PlayerSkin original) {
+		return toPlayerSkin(s, original, 0);
+	}
+
+	/** True for a short moment every few seconds; the seed spreads players so they do not blink together. */
+	public static boolean forceBlink;
+
+	public static boolean blinking(int seed) {
+		if (forceBlink) {
+			return true;
+		}
+		if (!ClientSettings.get().blinking) {
+			return false;
+		}
+		long period = 4200 + Math.floorMod(seed, 1700);
+		long t = Math.floorMod(net.minecraft.util.Util.getMillis() + (long) seed * 7919L, period);
+		return t < 140;
+	}
+
+	public static PlayerSkin toPlayerSkin(SkinData s, PlayerSkin original, int seed) {
 		PlayerModelType model = s.slim ? PlayerModelType.SLIM : PlayerModelType.WIDE;
 		ClientAsset.Texture body;
-		if (s.isVanilla()) {
+		Identifier closed = blinking(seed) ? blinkTexture(s) : null;
+		if (closed != null) {
+			body = new ClientAsset.ResourceTexture(closed, closed);
+		} else if (s.isVanilla()) {
 			body = new ClientAsset.ResourceTexture(Identifier.withDefaultNamespace(vanillaPath(s)));
 		} else {
 			Identifier tex = texture(s);
@@ -156,6 +178,44 @@ public final class ClientSkins {
 		return null;
 	}
 
+	private static final Map<String, Identifier> BLINK = new HashMap<>();
+	private static final Set<String> BLINK_DONE = new HashSet<>();
+
+	/** Texture of the skin with closed eyes ({@link SkinBlink}), made in the background on first use; null if none. */
+	public static Identifier blinkTexture(SkinData s) {
+		String key = s.id + "_" + s.hash;
+		Identifier id = BLINK.get(key);
+		if (id != null || !BLINK_DONE.add(key)) {
+			return id;
+		}
+		byte[] png = iconSource(s);
+		if (png == null) {
+			BLINK_DONE.remove(key);
+			return null;
+		}
+		CompletableFuture.supplyAsync(() -> {
+			BufferedImage closed = de.behindtheblocks.skinstudio.skin.SkinBlink.close(Images.read(png, "skin.png"));
+			if (closed == null) {
+				return null;
+			}
+			try {
+				java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+				javax.imageio.ImageIO.write(closed, "png", out);
+				return NativeImage.read(out.toByteArray());
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}, CosmeticLibrary.IO).whenCompleteAsync((img, err) -> {
+			if (err != null || img == null) {
+				return;
+			}
+			Identifier tex = Identifier.fromNamespaceAndPath(BtbSkinStudio.MOD_ID, "skin_blink/" + Integer.toHexString(key.hashCode()));
+			Minecraft.getInstance().getTextureManager().register(tex, new DynamicTexture(() -> "skin blink " + s.id, img));
+			BLINK.put(key, tex);
+		}, Minecraft.getInstance());
+		return null;
+	}
+
 	/** Accessory geometry of the skin and, if enabled, the 3D outer layers – drawn like cosmetics. */
 	public static List<ActiveCosmetic> extras(UUID player) {
 		return extrasFor(skinOf(player));
@@ -164,7 +224,7 @@ public final class ClientSkins {
 	public static List<ActiveCosmetic> extrasFor(SkinData s) {
 		List<ActiveCosmetic> out = new ArrayList<>(2);
 		if (s != null && s.accessories != null && s.texture != null) {
-			CosmeticAsset a = extraAsset(s, "acc", s.accessories, s.texture, false);
+			CosmeticAsset a = extraAsset(s, "acc", s.accessories, s.texture, List.of());
 			if (a != null) {
 				out.add(ActiveCosmetic.of(a, 0));
 			}
@@ -172,11 +232,13 @@ public final class ClientSkins {
 		if (ClientSettings.get().skinLayers3d && s != null) {
 			byte[] png = s.texture != null ? s.texture : vanillaBytes(s);
 			if (png != null) {
-				CosmeticAsset a = EXTRA_ASSETS.get("layers3d_" + s.id + "_" + s.hash);
-				if (a == null) {
+				int parts = ClientSettings.get().layers3dParts;
+				String kind = "layers3d" + parts;
+				CosmeticAsset a = EXTRA_ASSETS.get(kind + "_" + s.id + "_" + s.hash);
+				if (a == null && parts != 0) {
 					try {
 						BufferedImage img = Images.read(png, "skin.png");
-						a = extraAsset(s, "layers3d", SkinLayers3D.build(img, s.slim), png, true);
+						a = extraAsset(s, kind, SkinLayers3D.build(img, s.slim, parts), png, SkinLayers3D.hiddenLayers(parts));
 					} catch (RuntimeException e) {
 						LOG.warn("3D-Ebenen für {} nicht möglich: {}", s.id, e.getMessage());
 					}
@@ -189,7 +251,7 @@ public final class ClientSkins {
 		return out;
 	}
 
-	private static CosmeticAsset extraAsset(SkinData s, String kind, GeoModel model, byte[] png, boolean hideLayers) {
+	private static CosmeticAsset extraAsset(SkinData s, String kind, GeoModel model, byte[] png, List<String> hideLayers) {
 		String key = kind + "_" + s.id + "_" + s.hash;
 		CosmeticAsset cached = EXTRA_ASSETS.get(key);
 		if (cached != null || EXTRA_ASSETS.containsKey(key)) {
@@ -201,9 +263,7 @@ public final class ClientSkins {
 			d.names.put("en", s.name("en"));
 			d.type = CosmeticType.ARMOR_DECORATION;
 			d.attachment = AttachmentPoint.BODY;
-			if (hideLayers) {
-				d.hideLayers.addAll(List.of("hat", "jacket", "sleeves", "pants"));
-			}
+			d.hideLayers.addAll(hideLayers);
 			ArchiveFiles extra = ArchiveFiles.empty();
 			extra.put("texture.png", png);
 			ArchiveFiles files = PackWriter.cosmeticFiles(d, model, null, extra);

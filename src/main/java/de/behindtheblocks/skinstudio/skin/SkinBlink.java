@@ -1,0 +1,133 @@
+package de.behindtheblocks.skinstudio.skin;
+
+import java.awt.image.BufferedImage;
+
+/**
+ * Makes a "closed eyes" copy of a skin for blinking. The eyes are found on the face (front of the head,
+ * texture 8..15 / 8..15, hat layer 40..47 / 8..15): the rows 2–6 that hold bright, unsaturated pixels (eye
+ * whites) on both halves of the face. If a skin has no such whites, row 4 is used, where the eyes of the
+ * standard skins sit. Every pixel of those rows that clearly differs from the skin above it becomes lid:
+ * the colour from above, the lowest eye row a little darker as lash line.
+ */
+public final class SkinBlink {
+	private static final int FACE_X = 8, FACE_Y = 8, HAT_X = 40;
+
+	private SkinBlink() {
+	}
+
+	/** Returns the skin with closed eyes, or null if no eyes could be found. */
+	public static BufferedImage close(BufferedImage skin) {
+		if (skin.getWidth() < 64 || skin.getHeight() < 32) {
+			return null;
+		}
+		int s = skin.getWidth() / 64;
+		int[][] face = new int[8][8];
+		boolean[][] fromHat = new boolean[8][8];
+		for (int y = 0; y < 8; y++) {
+			for (int x = 0; x < 8; x++) {
+				int base = px(skin, s, FACE_X + x, FACE_Y + y);
+				int hat = px(skin, s, HAT_X + x, FACE_Y + y);
+				boolean useHat = (hat >>> 24) > 200;
+				face[y][x] = useHat ? hat : base;
+				fromHat[y][x] = useHat;
+			}
+		}
+		int top = -1, bottom = -1;
+		for (int y = 2; y <= 6; y++) {
+			if (hasWhite(face[y], 0, 4) && hasWhite(face[y], 4, 8)) {
+				if (top < 0) {
+					top = y;
+				}
+				bottom = y;
+			} else if (top >= 0) {
+				break;
+			}
+		}
+		if (top < 0) {
+			top = bottom = 4;
+		}
+		if (top < 1) {
+			return null;
+		}
+		BufferedImage out = new BufferedImage(skin.getWidth(), skin.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		out.getGraphics().drawImage(skin, 0, 0, null);
+		// skin tone: the most common colour of the cheeks right below the eyes (above them is often hair)
+		int tone = skinTone(face, Math.min(7, bottom + 1), Math.min(7, bottom + 2));
+		boolean changed = false;
+		for (int x = 0; x < 8; x++) {
+			int above = face[top - 1][x];
+			boolean aboveIsSkin = (above >>> 24) >= 200 && dist(above, tone) < 40;
+			// the pixel above keeps the shading when it is skin; under hair or eyebrows the plain skin tone is used
+			int lid = aboveIsSkin ? above : tone;
+			for (int y = top; y <= bottom; y++) {
+				int px = face[y][x];
+				if (dist(px, tone) < 60) {
+					continue; // skin between and beside the eyes
+				}
+				if (!aboveIsSkin && dist(px, above) < 40 && !isWhite(px)) {
+					continue; // hair or fringe hanging down beside the eyes
+				}
+				int c = y == bottom && bottom > top ? shade(lid, 0.8f) : shade(lid, 0.93f);
+				set(out, s, (fromHat[y][x] ? HAT_X : FACE_X) + x, FACE_Y + y, c);
+				changed = true;
+			}
+		}
+		return changed ? out : null;
+	}
+
+	private static int skinTone(int[][] face, int... rows) {
+		java.util.Map<Integer, Integer> count = new java.util.HashMap<>();
+		for (int r : rows) {
+			for (int x = 0; x < 8; x++) {
+				int c = face[r][x];
+				if ((c >>> 24) >= 200) {
+					count.merge(c | 0xFF000000, 1, Integer::sum);
+				}
+			}
+		}
+		int best = 0xFFC69C7A, n = 0;
+		for (var e : count.entrySet()) {
+			if (e.getValue() > n) {
+				n = e.getValue();
+				best = e.getKey();
+			}
+		}
+		return best;
+	}
+
+	private static boolean hasWhite(int[] row, int from, int to) {
+		for (int x = from; x < to; x++) {
+			if (isWhite(row[x])) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean isWhite(int c) {
+		int r = (c >> 16) & 0xFF, g = (c >> 8) & 0xFF, b = c & 0xFF;
+		int max = Math.max(r, Math.max(g, b)), min = Math.min(r, Math.min(g, b));
+		return (c >>> 24) > 200 && min >= 170 && max - min <= 45;
+	}
+
+	private static int dist(int a, int b) {
+		return Math.abs(((a >> 16) & 0xFF) - ((b >> 16) & 0xFF)) + Math.abs(((a >> 8) & 0xFF) - ((b >> 8) & 0xFF)) + Math.abs((a & 0xFF) - (b & 0xFF));
+	}
+
+	private static int shade(int c, float f) {
+		int r = (int) (((c >> 16) & 0xFF) * f), g = (int) (((c >> 8) & 0xFF) * f), b = (int) ((c & 0xFF) * f);
+		return (c & 0xFF000000) | (r << 16) | (g << 8) | b;
+	}
+
+	private static int px(BufferedImage img, int s, int x, int y) {
+		return img.getRGB(x * s, y * s);
+	}
+
+	private static void set(BufferedImage img, int s, int x, int y, int c) {
+		for (int i = 0; i < s; i++) {
+			for (int j = 0; j < s; j++) {
+				img.setRGB(x * s + i, y * s + j, c);
+			}
+		}
+	}
+}

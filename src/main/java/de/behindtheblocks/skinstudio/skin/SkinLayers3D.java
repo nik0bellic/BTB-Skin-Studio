@@ -19,7 +19,34 @@ public final class SkinLayers3D {
 	private record Region(String bone, float px, float py, float pz, int u, int v, float x, float y, float z, int w, int h, int d) {
 	}
 
+	/** Body part bits for {@link #build(BufferedImage, boolean, int)}. */
+	public static final int HEAD = 1, BODY = 2, ARMS = 4, LEGS = 8, ALL = 15;
+	/** Voxel depth in skin pixels: a little less than a full pixel so the figure does not look bloated. */
+	static final float HEAD_DEPTH = 0.75f, LIMB_DEPTH = 0.5f;
+
 	public static GeoModel build(BufferedImage skin, boolean slim) {
+		return build(skin, slim, ALL);
+	}
+
+	/** Which vanilla overlay layers to hide for the given parts (the 3D voxels replace them). */
+	public static java.util.List<String> hiddenLayers(int parts) {
+		java.util.List<String> out = new java.util.ArrayList<>();
+		if ((parts & HEAD) != 0) {
+			out.add("hat");
+		}
+		if ((parts & BODY) != 0) {
+			out.add("jacket");
+		}
+		if ((parts & ARMS) != 0) {
+			out.add("sleeves");
+		}
+		if ((parts & LEGS) != 0) {
+			out.add("pants");
+		}
+		return out;
+	}
+
+	public static GeoModel build(BufferedImage skin, boolean slim, int parts) {
 		int s = Math.max(1, skin.getWidth() / 64);
 		int aw = slim ? 3 : 4;
 		Region[] regions = {
@@ -32,9 +59,18 @@ public final class SkinLayers3D {
 		};
 		GeoModel model = new GeoModel("geometry.btb.skin_layers_3d", 64, 64);
 		for (Region r : regions) {
+			int bit = r.bone.equals("head") ? HEAD : r.bone.equals("body") ? BODY : r.bone.endsWith("Arm") ? ARMS : LEGS;
+			if ((parts & bit) == 0) {
+				continue;
+			}
 			GeoBone bone = new GeoBone(r.bone);
 			bone.pivot = new float[]{r.px, r.py, r.pz};
 			for (int face = 0; face < 6; face++) {
+				// faces that are always covered by another body part get no voxels: top and bottom of the body
+				// (neck, hips) and the tops of the legs
+				if ((bit == BODY && (face == 0 || face == 1)) || (bit == LEGS && face == 0)) {
+					continue;
+				}
 				addFace(bone, skin, s, r, face);
 			}
 			if (!bone.cubes.isEmpty()) {
@@ -65,7 +101,7 @@ public final class SkinLayers3D {
 				solid[i][j] = x < img.getWidth() && y < img.getHeight() && (img.getRGB(x, y) >>> 24) > 16;
 			}
 		}
-		float t = p; // thickness: one texture pixel
+		float t = r.bone.equals("head") ? HEAD_DEPTH : LIMB_DEPTH;
 		for (int i = 0; i < gc; i++) {
 			for (int j = 0; j < gr; j++) {
 				if (!solid[i][j]) {

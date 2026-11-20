@@ -173,6 +173,13 @@ final class AutoTest {
 				}
 			}
 			case "emote" -> de.behindtheblocks.skinstudio.client.emote.ClientEmotes.play(a[1]);
+			case "blink" -> de.behindtheblocks.skinstudio.client.skin.ClientSkins.forceBlink = Boolean.parseBoolean(a[1]);
+			case "mouse" -> {
+				// simulated cursor position (GUI coordinates) for the emote wheel
+				if (mc.gui.screen() instanceof de.behindtheblocks.skinstudio.client.gui.EmoteScreen e) {
+					e.autotest(new String[]{"mouse", a[1], a[2]});
+				}
+			}
 			case "import" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.ImportScreen(null,
 					java.util.Arrays.stream(a, 1, a.length).map(java.nio.file.Path::of).toList()));
 			case "set" -> {
@@ -181,6 +188,8 @@ final class AutoTest {
 				switch (a[1]) {
 					case "layers3d" -> st.skinLayers3d = v;
 					case "particles" -> st.particles = v;
+					case "blinking" -> st.blinking = v;
+					case "layers3dparts" -> st.layers3dParts = Integer.parseInt(a[2]);
 					case "theme" -> st.theme = a[2].equals("light") ? de.behindtheblocks.skinstudio.client.data.ClientSettings.Theme.LIGHT
 							: de.behindtheblocks.skinstudio.client.data.ClientSettings.Theme.DARK;
 					default -> LOG.warn("Unbekannte Einstellung {}", a[1]);

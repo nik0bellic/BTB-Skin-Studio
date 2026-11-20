@@ -133,4 +133,50 @@ class SkinSystemTest {
 		assertTrue(back.get(1).slim);
 		assertEquals("Meine Skins", back.get(0).group);
 	}
+
+	@Test
+	void blinkClosesTheEyeRowOnly() {
+		BufferedImage img = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+		int skinTone = 0xFFC69C7A;
+		for (int y = 8; y < 16; y++) {
+			for (int x = 8; x < 16; x++) {
+				img.setRGB(x, y, skinTone);
+			}
+		}
+		// Steve-like eyes on row 4 of the face: white outside, blue inside
+		img.setRGB(9, 12, 0xFFFFFFFF);
+		img.setRGB(10, 12, 0xFF3050C0);
+		img.setRGB(13, 12, 0xFF3050C0);
+		img.setRGB(14, 12, 0xFFFFFFFF);
+		img.setRGB(12, 14, 0xFF6A3030); // mouth stays
+		BufferedImage closed = de.behindtheblocks.skinstudio.skin.SkinBlink.close(img);
+		assertNotNull(closed);
+		for (int x = 8; x < 16; x++) {
+			int c = closed.getRGB(x, 12);
+			assertTrue(Math.abs(((c >> 16) & 0xFF) - 0xC6) < 50, "eye pixel " + x + " is lid now");
+		}
+		assertEquals(0xFF6A3030, closed.getRGB(12, 14));
+		assertEquals(0xFFFFFFFF, img.getRGB(9, 12), "original untouched");
+	}
+
+	@Test
+	void layers3dRespectsBodyParts() {
+		BufferedImage img = skin(64, 64, false);
+		for (int y = 0; y < 64; y++) {
+			for (int x = 0; x < 64; x++) {
+				img.setRGB(x, y, 0xFF808080);
+			}
+		}
+		GeoModel all = SkinLayers3D.build(img, false, SkinLayers3D.ALL);
+		GeoModel head = SkinLayers3D.build(img, false, SkinLayers3D.HEAD);
+		assertEquals(6, all.bones.size());
+		assertEquals(1, head.bones.size());
+		assertEquals("head", head.bones.getFirst().name);
+		assertEquals(List.of("hat", "sleeves"), SkinLayers3D.hiddenLayers(SkinLayers3D.HEAD | SkinLayers3D.ARMS));
+		// voxels are thinner than a full pixel
+		for (var c : head.bones.getFirst().cubes) {
+			float min = Math.min(c.size[0], Math.min(c.size[1], c.size[2]));
+			assertTrue(min <= 0.75f + 1e-4, "voxel depth " + min);
+		}
+	}
 }
