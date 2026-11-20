@@ -103,8 +103,11 @@ public class BedrockScanScreen extends Screen {
 		} else {
 			ui.text(ui.ellipsize(Tr.t("btb.ui.bedrock.found_in", roots.size()) + "  " + roots.getFirst(), w), x, y, t.textMuted);
 			y += 14;
-			ui.text(Tr.t("btb.ui.bedrock.legal"), x, y, t.textFaint);
-			y += 14;
+			for (var line : font.split(Component.literal(Tr.t("btb.ui.bedrock.legal")), w)) {
+				g.text(font, line, x, y, t.textFaint, false);
+				y += 10;
+			}
+			y += 4;
 			if (found.isEmpty()) {
 				ui.text(Tr.t("btb.ui.bedrock.nothing"), x, y, t.textMuted);
 			}

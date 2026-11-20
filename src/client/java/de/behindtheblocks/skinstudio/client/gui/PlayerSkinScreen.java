@@ -148,7 +148,13 @@ public class PlayerSkinScreen extends Screen {
 			ui.button(x, y, bw1, 18, wear, Icon.HANGER, Ui.Style.PRIMARY, !busy, () -> take(true), null);
 			ui.button(x + bw1 + 4, y, bw2, 18, save, Icon.SAVE, Ui.Style.SECONDARY, !busy, () -> take(false), null);
 		}
-		ui.text(ui.ellipsize(Tr.t("btb.ui.player.note"), w), x, bottom - 18, t.textFaint);
+		// legal note: always shown in full, wrapped onto as many lines as needed
+		var note = font.split(Component.literal(Tr.t("btb.ui.player.note")), w);
+		int ny = bottom - 8 - note.size() * 10;
+		for (var line : note) {
+			g.text(font, line, x, ny, t.textFaint, false);
+			ny += 10;
+		}
 
 		int sx = m + panelW + 6, sw = width - m - sx;
 		ui.glass(sx, top, sw, bottom - top, 10);

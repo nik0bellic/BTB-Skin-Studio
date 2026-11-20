@@ -161,6 +161,14 @@ final class AutoTest {
 					}
 				}
 			}
+			case "scmd" -> {
+				// runs a command on the integrated server with full permissions (test worlds without cheats)
+				var server = mc.getSingleplayerServer();
+				String command = String.join(" ", java.util.Arrays.copyOfRange(a, 1, a.length));
+				if (server != null) {
+					server.execute(() -> server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), command));
+				}
+			}
 			case "import" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.ImportScreen(null,
 					java.util.Arrays.stream(a, 1, a.length).map(java.nio.file.Path::of).toList()));
 			case "set" -> {
