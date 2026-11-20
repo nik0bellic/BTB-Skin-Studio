@@ -3,7 +3,8 @@
 	"package": "de.behindtheblocks.skinstudio.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"AvatarRendererMixin"
+		"AvatarRendererMixin",
+		"AbstractClientPlayerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

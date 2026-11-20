@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.anim;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import de.behindtheblocks.skinstudio.molang.Molang;
 
 import java.util.Locale;
@@ -10,13 +12,13 @@ import java.util.Locale;
  */
 public final class AnimationPresets {
 	public enum Preset {
-		BOB("Schweben", "Sanftes Auf und Ab"),
-		SPIN("Drehen", "Dreht sich langsam um die eigene Achse"),
-		SWAY("Wiegen", "Pendelt leicht hin und her"),
-		FLAP("Flattern", "Schlägt wie Flügel (für zwei Bones)"),
-		PULSE("Pulsieren", "Wird rhythmisch größer und kleiner"),
-		FLICKER("Flackern", "Unruhiges Flackern wie eine Flamme"),
-		WAG("Wedeln", "Schnelles seitliches Wackeln");
+		BOB(Tr.t("btb.t.schweben"), Tr.t("btb.t.sanftes_auf_und_ab")),
+		SPIN(Tr.t("btb.t.drehen_2"), Tr.t("btb.t.dreht_sich_langsam_um_die_eigene_achse")),
+		SWAY(Tr.t("btb.t.wiegen"), Tr.t("btb.t.pendelt_leicht_hin_und_her")),
+		FLAP(Tr.t("btb.t.flattern"), Tr.t("btb.t.schlaegt_wie_fluegel_fuer_zwei_bones")),
+		PULSE(Tr.t("btb.t.pulsieren"), Tr.t("btb.t.wird_rhythmisch_groesser_und_kleiner")),
+		FLICKER(Tr.t("btb.t.flackern"), Tr.t("btb.t.unruhiges_flackern_wie_eine_flamme")),
+		WAG(Tr.t("btb.t.wedeln"), Tr.t("btb.t.schnelles_seitliches_wackeln"));
 
 		public final String label;
 		public final String description;

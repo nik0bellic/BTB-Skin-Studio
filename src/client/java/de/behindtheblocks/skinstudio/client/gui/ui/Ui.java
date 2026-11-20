@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.client.gui.ui;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
@@ -233,7 +235,7 @@ public final class Ui {
 		if (remove != null) {
 			int rx = x + w - 13;
 			Icon.CLOSE.draw(g, rx, y + 3, hover(rx - 2, y, 12, 14) ? t.danger : t.textMuted);
-			region(rx - 2, y, 12, 14, remove, null, "Ablegen");
+			region(rx - 2, y, 12, 14, remove, null, Tr.t("btb.t.ablegen"));
 		}
 	}
 
@@ -287,7 +289,7 @@ public final class Ui {
 		text("‹", bx + 4, y + 3, t.textFaint);
 		text("›", bx + bw - 8, y + 3, t.textFaint);
 		textCentered(ellipsize(value, bw - 20), bx + bw / 2, y + 3, t.text);
-		region(bx, y, bw, 14, next, prev, "Klick: weiter · Rechtsklick: zurück");
+		region(bx, y, bw, 14, next, prev, Tr.t("btb.t.klick_weiter_rechtsklick_zurueck"));
 	}
 
 	public boolean scroll(double mx, double my, double amount) {

@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.pack;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import de.behindtheblocks.skinstudio.anim.AnimationIO;
 import de.behindtheblocks.skinstudio.anim.CosmeticAnimation;
 import de.behindtheblocks.skinstudio.cosmetic.CosmeticDefinition;
@@ -54,7 +56,7 @@ public final class PackReader {
 		if (json == null) {
 			LoadedPack broken = new LoadedPack(null);
 			broken.usable = false;
-			broken.problems.add(PackProblem.error(PACK_JSON, "fehlt – das ist kein BTB-Cosmetic-Pack"));
+			broken.problems.add(PackProblem.error(PACK_JSON, Tr.t("btb.t.fehlt_das_ist_kein_btb_cosmetic_pack")));
 			return broken;
 		}
 		PackManifest manifest;
@@ -85,7 +87,7 @@ public final class PackReader {
 			}
 		}
 		if (folders.isEmpty()) {
-			pack.problems.add(PackProblem.warning("", "Pack enthält keine Cosmetics"));
+			pack.problems.add(PackProblem.warning("", Tr.t("btb.t.pack_enthaelt_keine_cosmetics")));
 		}
 		Set<String> ids = new HashSet<>();
 		for (String folder : folders) {
@@ -93,7 +95,7 @@ public final class PackReader {
 			try {
 				CosmeticAsset asset = readCosmetic(sub, manifest.id, folder, pack.problems);
 				if (!ids.add(asset.id())) {
-					pack.problems.add(PackProblem.error(folder, "doppelte ID '" + asset.id() + "' im selben Pack – übersprungen"));
+					pack.problems.add(PackProblem.error(folder, Tr.t("btb.t.doppelte_id") + asset.id() + Tr.t("btb.t.im_selben_pack_uebersprungen")));
 					continue;
 				}
 				pack.cosmetics.add(asset);
@@ -108,7 +110,7 @@ public final class PackReader {
 	public static CosmeticAsset readSingle(ArchiveFiles raw, String packId, List<PackProblem> problems) {
 		ArchiveFiles f = raw.unwrapSingleFolder();
 		if (!f.has(COSMETIC_JSON)) {
-			throw new FormatException("cosmetic.json fehlt – das ist kein BTB-Cosmetic");
+			throw new FormatException(Tr.t("btb.t.cosmetic_json_fehlt_das_ist_kein_btb_cos"));
 		}
 		return readCosmetic(f, packId, "", problems);
 	}
@@ -116,14 +118,14 @@ public final class PackReader {
 	public static CosmeticAsset readCosmetic(ArchiveFiles f, String packId, String where, List<PackProblem> problems) {
 		byte[] json = f.get(COSMETIC_JSON);
 		if (json == null) {
-			throw new FormatException("cosmetic.json fehlt");
+			throw new FormatException(Tr.t("btb.t.cosmetic_json_fehlt"));
 		}
 		CosmeticDefinition def = CosmeticJson.read(Json.parseObject(json));
 		String at = where.isEmpty() ? def.id : where;
 
 		byte[] modelBytes = f.get(def.model);
 		if (modelBytes == null) {
-			throw new FormatException("Modelldatei '" + def.model + "' fehlt");
+			throw new FormatException(Tr.t("btb.t.modelldatei") + def.model + Tr.t("btb.t.fehlt"));
 		}
 		GeometryIO.Result geo;
 		try {
@@ -134,26 +136,26 @@ public final class PackReader {
 		geo.warnings().forEach(w -> problems.add(PackProblem.warning(at, w)));
 		GeoModel model = geo.find(def.geometry);
 		if (model == null) {
-			throw new FormatException("Geometrie '" + def.geometry + "' nicht in " + def.model + " gefunden");
+			throw new FormatException(Tr.t("btb.t.geometrie") + def.geometry + Tr.t("btb.t.nicht_in") + def.model + Tr.t("btb.t.gefunden_2"));
 		}
 		if (model.cubeCount() == 0) {
-			throw new FormatException("Modell '" + model.identifier + "' enthält keine Würfel");
+			throw new FormatException(Tr.t("btb.t.modell_3") + model.identifier + Tr.t("btb.t.enthaelt_keine_wuerfel"));
 		}
 
 		byte[] tex = f.get(def.texture);
 		if (tex == null) {
-			throw new FormatException("Textur '" + def.texture + "' fehlt");
+			throw new FormatException(Tr.t("btb.t.textur") + def.texture + Tr.t("btb.t.fehlt"));
 		}
 		Png.Info info = Png.info(tex, def.texture);
 		if (info.width() * model.textureHeight != info.height() * model.textureWidth) {
-			problems.add(PackProblem.warning(at, "Textur " + info.width() + "×" + info.height() + " passt nicht zum Seitenverhältnis des Modells ("
-					+ model.textureWidth + "×" + model.textureHeight + ") – UVs können verschoben sein"));
+			problems.add(PackProblem.warning(at, Tr.t("btb.t.textur_2") + info.width() + "×" + info.height() + Tr.t("btb.t.passt_nicht_zum_seitenverhaeltnis_des_mo")
+					+ model.textureWidth + "×" + model.textureHeight + Tr.t("btb.t.uvs_koennen_verschoben_sein")));
 		}
 		for (String optional : new String[]{def.emissiveTexture, def.tintMask, def.preview}) {
 			if (optional != null) {
 				byte[] b = f.get(optional);
 				if (b == null) {
-					throw new FormatException("Datei '" + optional + "' fehlt");
+					throw new FormatException(Tr.t("btb.t.datei") + optional + Tr.t("btb.t.fehlt"));
 				}
 				Png.info(b, optional);
 			}
@@ -163,23 +165,23 @@ public final class PackReader {
 		if (def.animationFile != null) {
 			byte[] anim = f.get(def.animationFile);
 			if (anim == null) {
-				throw new FormatException("Animationsdatei '" + def.animationFile + "' fehlt");
+				throw new FormatException(Tr.t("btb.t.animationsdatei") + def.animationFile + Tr.t("btb.t.fehlt"));
 			}
 			try {
 				AnimationIO.Result r = AnimationIO.read(anim);
 				r.warnings().forEach(w -> problems.add(PackProblem.warning(at, w)));
 				animations.putAll(r.animations());
 			} catch (FormatException e) {
-				problems.add(PackProblem.warning(at, def.animationFile + ": " + e.getMessage() + " – ohne Animation geladen"));
+				problems.add(PackProblem.warning(at, def.animationFile + ": " + e.getMessage() + Tr.t("btb.t.ohne_animation_geladen")));
 			}
 			for (String name : def.animations) {
 				if (!animations.containsKey(name)) {
-					problems.add(PackProblem.warning(at, "Animation '" + name + "' nicht gefunden"));
+					problems.add(PackProblem.warning(at, Tr.t("btb.t.animation_2") + name + Tr.t("btb.t.nicht_gefunden")));
 				}
 			}
 		}
 		if (def.particles != null && !def.particles.type.matches("[a-z0-9_.-]+:[a-z0-9_/.-]+|[a-z0-9_/.-]+")) {
-			problems.add(PackProblem.warning(at, "Partikeltyp '" + def.particles.type + "' ungültig – Partikel deaktiviert"));
+			problems.add(PackProblem.warning(at, Tr.t("btb.t.partikeltyp") + def.particles.type + Tr.t("btb.t.ungueltig_partikel_deaktiviert")));
 			def.particles = null;
 		}
 		return new CosmeticAsset(def, model, animations, f, packId);

@@ -35,6 +35,9 @@ public final class Wardrobe {
 	private final Set<String> favorites = new LinkedHashSet<>();
 	private final List<String> recent = new ArrayList<>();
 	private final Map<String, Loadout> outfits = new LinkedHashMap<>();
+	/** Selected skin id; empty = the normal account skin. */
+	private String skin = "";
+	private final Set<String> favoriteSkins = new LinkedHashSet<>();
 	private final List<Runnable> listeners = new ArrayList<>();
 
 	private static Wardrobe instance;
@@ -61,6 +64,8 @@ public final class Wardrobe {
 			w.equipped = Loadout.fromJson(o.get("equipped"));
 			w.favorites.addAll(Json.strings(o, "favorites"));
 			w.recent.addAll(Json.strings(o, "recent"));
+			w.skin = Json.string(o, "skin", "");
+			w.favoriteSkins.addAll(Json.strings(o, "favorite_skins"));
 			JsonElement outfits = o.get("outfits");
 			if (outfits != null && outfits.isJsonObject()) {
 				outfits.getAsJsonObject().entrySet().forEach(e -> w.outfits.put(e.getKey(), Loadout.fromJson(e.getValue())));
@@ -90,6 +95,10 @@ public final class Wardrobe {
 		JsonObject out = new JsonObject();
 		outfits.forEach((k, v) -> out.add(k, v.toJson()));
 		o.add("outfits", out);
+		o.addProperty("skin", skin);
+		JsonArray fs = new JsonArray();
+		favoriteSkins.forEach(fs::add);
+		o.add("favorite_skins", fs);
 		String json = Json.PRETTY.toJson(o);
 		Path f = file();
 		CosmeticLibrary.IO.execute(() -> {
@@ -152,6 +161,26 @@ public final class Wardrobe {
 
 	public void deleteOutfit(String name) {
 		outfits.remove(name);
+		save();
+	}
+
+	public String skin() {
+		return skin;
+	}
+
+	public void setSkin(String id) {
+		skin = id == null ? "" : id;
+		changed();
+	}
+
+	public Set<String> favoriteSkins() {
+		return favoriteSkins;
+	}
+
+	public void toggleFavoriteSkin(String id) {
+		if (!favoriteSkins.remove(id)) {
+			favoriteSkins.add(id);
+		}
 		save();
 	}
 

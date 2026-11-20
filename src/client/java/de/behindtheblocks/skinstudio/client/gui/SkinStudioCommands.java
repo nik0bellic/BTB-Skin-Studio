@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.client.gui;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import de.behindtheblocks.skinstudio.client.data.Wardrobe;
@@ -64,20 +66,20 @@ public final class SkinStudioCommands {
 							Loadout l = Wardrobe.get().equipped().copy();
 							if (l.unequip(StringArgumentType.getString(c, "id"))) {
 								Wardrobe.get().setEquipped(l);
-								c.getSource().sendFeedback(Component.literal("Abgelegt."));
+								c.getSource().sendFeedback(Component.literal(Tr.t("btb.t.abgelegt")));
 								return 1;
 							}
-							c.getSource().sendError(Component.literal("Nicht ausgerüstet."));
+							c.getSource().sendError(Component.literal(Tr.t("btb.t.nicht_ausgeruestet")));
 							return 0;
 						})))
 				.then(literal("clear").executes(c -> {
 					Wardrobe.get().setEquipped(new Loadout());
-					c.getSource().sendFeedback(Component.literal("Alle Cosmetics abgelegt."));
+					c.getSource().sendFeedback(Component.literal(Tr.t("btb.t.alle_cosmetics_abgelegt")));
 					return 1;
 				}))
 				.then(literal("list").executes(c -> {
 					var all = CosmeticLibrary.get().all();
-					c.getSource().sendFeedback(Component.literal(all.size() + " Cosmetics verfügbar:"));
+					c.getSource().sendFeedback(Component.literal(all.size() + Tr.t("btb.t.cosmetics_verfuegbar")));
 					for (CosmeticAsset a : all) {
 						boolean on = Wardrobe.get().equipped().contains(a.id());
 						c.getSource().sendFeedback(Component.literal((on ? "● " : "○ ") + a.id() + "  " + a.definition.name(CosmeticLibrary.language())));
@@ -86,7 +88,7 @@ public final class SkinStudioCommands {
 				}))
 				.then(literal("reload").executes(c -> {
 					CosmeticLibrary.get().reload().thenRun(() -> c.getSource().sendFeedback(
-							Component.literal("Neu geladen: " + CosmeticLibrary.get().all().size() + " Cosmetics.")));
+							Component.literal(Tr.t("btb.t.neu_geladen_2") + CosmeticLibrary.get().all().size() + Tr.t("btb.t.cosmetics_3"))));
 					return 1;
 				}))));
 	}
@@ -98,7 +100,7 @@ public final class SkinStudioCommands {
 	private static int equip(CommandContext<FabricClientCommandSource> c, String id, int color) {
 		CosmeticDefinition def = CosmeticLibrary.get().definition(id);
 		if (def == null) {
-			c.getSource().sendError(Component.literal("Unbekanntes Cosmetic: " + id));
+			c.getSource().sendError(Component.literal(Tr.t("btb.t.unbekanntes_cosmetic") + id));
 			return 0;
 		}
 		Loadout l = Wardrobe.get().equipped().copy();
@@ -109,8 +111,8 @@ public final class SkinStudioCommands {
 		}
 		Wardrobe.get().markUsed(id);
 		Wardrobe.get().setEquipped(l);
-		c.getSource().sendFeedback(Component.literal("Ausgerüstet: " + def.name(CosmeticLibrary.language())
-				+ (r.removed().isEmpty() ? "" : " (abgelegt: " + String.join(", ", r.removed()) + ")")));
+		c.getSource().sendFeedback(Component.literal(Tr.t("btb.t.ausgeruestet") + def.name(CosmeticLibrary.language())
+				+ (r.removed().isEmpty() ? "" : Tr.t("btb.t.abgelegt_2") + String.join(", ", r.removed()) + ")")));
 		return 1;
 	}
 

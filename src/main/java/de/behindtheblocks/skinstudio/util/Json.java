@@ -31,7 +31,7 @@ public final class Json {
 			reader.setStrictness(Strictness.LENIENT);
 			return JsonParser.parseReader(reader);
 		} catch (RuntimeException e) {
-			throw new FormatException("Ungültiges JSON: " + rootMessage(e));
+			throw new FormatException(Tr.t("btb.t.ungueltiges_json") + rootMessage(e));
 		}
 	}
 
@@ -42,7 +42,7 @@ public final class Json {
 	public static JsonObject parseObject(byte[] bytes) {
 		JsonElement e = parse(bytes);
 		if (!e.isJsonObject()) {
-			throw new FormatException("JSON-Objekt erwartet");
+			throw new FormatException(Tr.t("btb.t.json_objekt_erwartet"));
 		}
 		return e.getAsJsonObject();
 	}
@@ -62,7 +62,7 @@ public final class Json {
 	public static String requireString(JsonObject o, String key) {
 		JsonElement e = o.get(key);
 		if (e == null || !e.isJsonPrimitive() || e.getAsString().isBlank()) {
-			throw new FormatException("Feld '" + key + "' fehlt");
+			throw new FormatException(Tr.t("btb.t.feld") + key + Tr.t("btb.t.fehlt"));
 		}
 		return e.getAsString();
 	}
@@ -79,7 +79,7 @@ public final class Json {
 		try {
 			return Float.parseFloat(p.getAsString());
 		} catch (NumberFormatException ex) {
-			throw new FormatException("Feld '" + key + "' ist keine Zahl: " + p.getAsString());
+			throw new FormatException(Tr.t("btb.t.feld") + key + Tr.t("btb.t.ist_keine_zahl") + p.getAsString());
 		}
 	}
 
@@ -98,7 +98,7 @@ public final class Json {
 			return new float[]{v, v, v};
 		}
 		if (!e.isJsonArray()) {
-			throw new FormatException("Vektor [x, y, z] erwartet");
+			throw new FormatException(Tr.t("btb.t.vektor_x_y_z_erwartet"));
 		}
 		JsonArray a = e.getAsJsonArray();
 		float[] out = new float[3];
@@ -112,7 +112,7 @@ public final class Json {
 		try {
 			return vec3(o.get(key), def);
 		} catch (RuntimeException e) {
-			throw new FormatException("Feld '" + key + "': " + e.getMessage());
+			throw new FormatException(Tr.t("btb.t.feld") + key + "': " + e.getMessage());
 		}
 	}
 

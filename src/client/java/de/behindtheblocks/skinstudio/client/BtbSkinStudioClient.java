@@ -26,6 +26,7 @@ import java.util.Set;
 public final class BtbSkinStudioClient implements ClientModInitializer {
 	private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(BtbSkinStudio.MOD_ID, "main"));
 	private static KeyMapping openWardrobe;
+	private static String lastLanguage = "";
 
 	@Override
 	public void onInitializeClient() {
@@ -49,6 +50,7 @@ public final class BtbSkinStudioClient implements ClientModInitializer {
 			CosmeticTextures.retain(live);
 		});
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
+			de.behindtheblocks.skinstudio.util.Tr.setLanguage(CosmeticLibrary.language());
 			library.reload();
 			library.preloadCache();
 		});
@@ -66,6 +68,12 @@ public final class BtbSkinStudioClient implements ClientModInitializer {
 				}
 			}
 			CosmeticParticles.tick(mc);
+			String lang = CosmeticLibrary.language();
+			if (!lang.equals(lastLanguage)) {
+				// follow language changes in the options; messages and labels switch immediately
+				lastLanguage = lang;
+				de.behindtheblocks.skinstudio.util.Tr.setLanguage(lang);
+			}
 		});
 	}
 }

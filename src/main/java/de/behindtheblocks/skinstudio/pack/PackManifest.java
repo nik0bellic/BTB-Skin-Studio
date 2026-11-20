@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.pack;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.behindtheblocks.skinstudio.util.FormatException;
@@ -31,11 +33,11 @@ public final class PackManifest {
 		PackManifest m = new PackManifest();
 		int format = (int) Json.number(o, "format", 1);
 		if (format > FORMAT) {
-			throw new FormatException("Pack-Format " + format + " ist neuer als diese Mod-Version unterstützt (" + FORMAT + ")");
+			throw new FormatException(Tr.t("btb.t.pack_format") + format + Tr.t("btb.t.ist_neuer_als_diese_mod_version_unterstu") + FORMAT + ")");
 		}
 		m.id = Json.requireString(o, "id");
 		if (!ID.matcher(m.id).matches()) {
-			throw new FormatException("Ungültige Pack-ID '" + m.id + "' (nur a-z 0-9 _ . -)");
+			throw new FormatException(Tr.t("btb.t.ungueltige_pack_id") + m.id + Tr.t("btb.t.nur_a_z_0_9"));
 		}
 		m.version = Json.string(o, "version", "1.0.0");
 		readLocalized(o, "name", m.names);

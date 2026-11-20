@@ -29,6 +29,7 @@ final class AutoTest {
 	private static final Logger LOG = LoggerFactory.getLogger("BTB Skin Studio/AutoTest");
 	private static final Deque<String> LINES = new ArrayDeque<>();
 	private static int waitTicks;
+	private static int waitPlayers;
 	private static boolean started;
 
 	private AutoTest() {
@@ -66,7 +67,15 @@ final class AutoTest {
 			waitTicks--;
 			return;
 		}
-		while (!LINES.isEmpty() && waitTicks == 0) {
+		if (waitPlayers > 0) {
+			if (mc.level.players().size() < waitPlayers) {
+				return;
+			}
+			waitPlayers = 0;
+			waitTicks = 60;
+			return;
+		}
+		while (!LINES.isEmpty() && waitTicks == 0 && waitPlayers == 0) {
 			String line = LINES.poll();
 			LOG.info("> {}", line);
 			try {
@@ -81,6 +90,10 @@ final class AutoTest {
 		String[] a = line.split("\\s+");
 		switch (a[0]) {
 			case "wait" -> waitTicks = Integer.parseInt(a[1]);
+			case "waitplayers" -> {
+				waitPlayers = Integer.parseInt(a[1]);
+				waitTicks = 1;
+			}
 			case "cmd" -> mc.getConnection().sendCommand(line.substring(4));
 			case "clear" -> Wardrobe.get().setEquipped(new Loadout());
 			case "equip" -> {

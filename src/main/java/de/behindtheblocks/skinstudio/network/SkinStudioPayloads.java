@@ -20,7 +20,7 @@ import java.util.UUID;
  */
 public final class SkinStudioPayloads {
 	/** Bump when the wire format changes incompatibly. */
-	public static final int PROTOCOL = 1;
+	public static final int PROTOCOL = 2;
 	public static final int CHUNK_SIZE = 30_000;
 	public static final int MAX_TRANSFER_BYTES = 512 * 1024;
 	public static final int MAX_CHUNKS = MAX_TRANSFER_BYTES / CHUNK_SIZE + 1;
@@ -32,10 +32,18 @@ public final class SkinStudioPayloads {
 		return new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(BtbSkinStudio.MOD_ID, path));
 	}
 
+	public static final StreamCodec<ByteBuf, Loadout.Adjust> ADJUST_CODEC = StreamCodec.composite(
+			ByteBufCodecs.FLOAT, Loadout.Adjust::x,
+			ByteBufCodecs.FLOAT, Loadout.Adjust::y,
+			ByteBufCodecs.FLOAT, Loadout.Adjust::z,
+			ByteBufCodecs.FLOAT, Loadout.Adjust::scale,
+			Loadout.Adjust::new);
+
 	public static final StreamCodec<ByteBuf, Loadout.Entry> ENTRY_CODEC = StreamCodec.composite(
 			ByteBufCodecs.stringUtf8(160), Loadout.Entry::id,
 			ByteBufCodecs.INT, Loadout.Entry::color,
 			ByteBufCodecs.stringUtf8(64), Loadout.Entry::hash,
+			ADJUST_CODEC, Loadout.Entry::adjust,
 			Loadout.Entry::new);
 
 	public static final StreamCodec<ByteBuf, List<Loadout.Entry>> ENTRIES_CODEC = ENTRY_CODEC.apply(ByteBufCodecs.list(Loadout.MAX_ENTRIES));
@@ -100,6 +108,45 @@ public final class SkinStudioPayloads {
 		}
 	}
 
+	// ------------------------------------------------------------------ skins
+
+	/** A worn skin: id, content hash (empty for Minecraft default skins) and arm model. */
+	public record SkinInfo(String id, String hash, boolean slim) {
+		public static final StreamCodec<ByteBuf, SkinInfo> CODEC = StreamCodec.composite(
+				ByteBufCodecs.stringUtf8(200), SkinInfo::id,
+				ByteBufCodecs.stringUtf8(64), SkinInfo::hash,
+				ByteBufCodecs.BOOL, SkinInfo::slim,
+				SkinInfo::new);
+	}
+
+	/** Client → server: my skin (empty id = account skin). */
+	public record SetSkin(SkinInfo skin) implements CustomPacketPayload {
+		public static final Type<SetSkin> TYPE = SkinStudioPayloads.payloadType("set_skin");
+		public static final StreamCodec<ByteBuf, SetSkin> CODEC = StreamCodec.composite(SkinInfo.CODEC, SetSkin::skin, SetSkin::new);
+
+		@Override
+		public Type<SetSkin> type() {
+			return TYPE;
+		}
+	}
+
+	public record PlayerSkinInfo(UUID player, SkinInfo skin) {
+		public static final StreamCodec<ByteBuf, PlayerSkinInfo> CODEC = StreamCodec.composite(
+				UUIDUtil.STREAM_CODEC, PlayerSkinInfo::player, SkinInfo.CODEC, PlayerSkinInfo::skin, PlayerSkinInfo::new);
+	}
+
+	/** Server → client: skins of one or more players. */
+	public record SyncSkins(List<PlayerSkinInfo> skins) implements CustomPacketPayload {
+		public static final Type<SyncSkins> TYPE = SkinStudioPayloads.payloadType("sync_skins");
+		public static final StreamCodec<ByteBuf, SyncSkins> CODEC = StreamCodec.composite(
+				PlayerSkinInfo.CODEC.apply(ByteBufCodecs.list(1024)), SyncSkins::skins, SyncSkins::new);
+
+		@Override
+		public Type<SyncSkins> type() {
+			return TYPE;
+		}
+	}
+
 	// ------------------------------------------------------------------ on-demand transfer
 
 	/** Client → server: "I don't have the cosmetic with this content hash" (server → owner: "please upload it"). */
@@ -135,6 +182,8 @@ public final class SkinStudioPayloads {
 		PayloadTypeRegistry.serverboundPlay().register(SetLoadout.TYPE, SetLoadout.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(SyncLoadouts.TYPE, SyncLoadouts.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(RemovePlayer.TYPE, RemovePlayer.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(SetSkin.TYPE, SetSkin.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncSkins.TYPE, SyncSkins.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(RequestCosmetic.TYPE, RequestCosmetic.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(RequestCosmetic.TYPE, RequestCosmetic.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(CosmeticChunk.TYPE, CosmeticChunk.CODEC);

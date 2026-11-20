@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.pack;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import de.behindtheblocks.skinstudio.util.FormatException;
 
 import java.io.ByteArrayInputStream;
@@ -57,7 +59,7 @@ public final class ArchiveFiles {
 			byte[] buf = new byte[16384];
 			while ((e = zip.getNextEntry()) != null) {
 				if (++entries > MAX_ENTRIES) {
-					throw new FormatException("Archiv enthält zu viele Dateien (max. " + MAX_ENTRIES + ")");
+					throw new FormatException(Tr.t("btb.t.archiv_enthaelt_zu_viele_dateien_max") + MAX_ENTRIES + ")");
 				}
 				if (e.isDirectory()) {
 					continue;
@@ -73,20 +75,20 @@ public final class ArchiveFiles {
 					size += n;
 					total += n;
 					if (size > MAX_FILE_BYTES) {
-						throw new FormatException("Datei '" + name + "' ist zu groß (max. 16 MB)");
+						throw new FormatException(Tr.t("btb.t.datei") + name + Tr.t("btb.t.ist_zu_gross_max_16_mb"));
 					}
 					if (total > MAX_TOTAL_BYTES) {
-						throw new FormatException("Archiv ist entpackt zu groß (max. 64 MB)");
+						throw new FormatException(Tr.t("btb.t.archiv_ist_entpackt_zu_gross_max_64_mb"));
 					}
 					bos.write(buf, 0, n);
 				}
 				out.files.put(name, bos.toByteArray());
 			}
 		} catch (IllegalArgumentException e) {
-			throw new FormatException("Archiv ist beschädigt oder kein ZIP: " + e.getMessage());
+			throw new FormatException(Tr.t("btb.t.archiv_ist_beschaedigt_oder_kein_zip") + e.getMessage());
 		}
 		if (out.files.isEmpty()) {
-			throw new FormatException("Archiv ist leer oder kein gültiges ZIP");
+			throw new FormatException(Tr.t("btb.t.archiv_ist_leer_oder_kein_gueltiges_zip"));
 		}
 		return out;
 	}
@@ -97,13 +99,13 @@ public final class ArchiveFiles {
 		try (Stream<Path> walk = Files.walk(dir, 12)) {
 			List<Path> paths = walk.filter(Files::isRegularFile).toList();
 			if (paths.size() > MAX_ENTRIES) {
-				throw new FormatException("Ordner enthält zu viele Dateien (max. " + MAX_ENTRIES + ")");
+				throw new FormatException(Tr.t("btb.t.ordner_enthaelt_zu_viele_dateien_max") + MAX_ENTRIES + ")");
 			}
 			for (Path p : paths) {
 				long size = Files.size(p);
 				total += size;
 				if (size > MAX_FILE_BYTES || total > MAX_TOTAL_BYTES) {
-					throw new FormatException("Ordner ist zu groß: " + dir.relativize(p));
+					throw new FormatException(Tr.t("btb.t.ordner_ist_zu_gross") + dir.relativize(p));
 				}
 				String name = normalize(dir.relativize(p).toString().replace('\\', '/'));
 				if (name != null) {
@@ -141,7 +143,7 @@ public final class ArchiveFiles {
 	public void put(String path, byte[] data) {
 		String n = normalize(path);
 		if (n == null) {
-			throw new FormatException("Ungültiger Pfad: " + path);
+			throw new FormatException(Tr.t("btb.t.ungueltiger_pfad") + path);
 		}
 		files.put(n, data);
 	}

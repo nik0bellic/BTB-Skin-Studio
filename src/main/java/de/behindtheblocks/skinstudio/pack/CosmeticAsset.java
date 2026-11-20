@@ -54,6 +54,10 @@ public final class CosmeticAsset {
 		return definition.preview == null ? null : files.get(definition.preview);
 	}
 
+	public static String hashOf(ArchiveFiles files) {
+		return hash(files);
+	}
+
 	static String hash(ArchiveFiles files) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("SHA-256");

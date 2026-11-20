@@ -7,8 +7,8 @@
     "en": "Lily Pad"
   },
   "description": {
-    "de": "Ein flaches Seerosenblatt, das oben auf dem Kopf liegt.",
-    "en": "A flat lily pad resting on top of your head."
+    "de": "Ein rundes, flaches Seerosenblatt mit Blüte, das oben auf dem Kopf liegt.",
+    "en": "A round, flat lily pad with a tiny blossom resting on top of your head."
   },
   "author": "BTB Studios",
   "type": "flower",
@@ -19,6 +19,7 @@
     "seerose",
     "pflanze",
     "natur",
-    "wasser"
+    "wasser",
+    "lily"
   ]
 }

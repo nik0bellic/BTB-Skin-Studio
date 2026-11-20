@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.cosmetic;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,11 +30,11 @@ public final class CosmeticJson {
 		CosmeticDefinition d = new CosmeticDefinition();
 		int format = (int) Json.number(o, "format", 1);
 		if (format > CosmeticDefinition.FORMAT) {
-			throw new FormatException("Cosmetic-Format " + format + " ist neuer als diese Version von BTB Skin Studio (" + CosmeticDefinition.FORMAT + ") – bitte die Mod aktualisieren");
+			throw new FormatException(Tr.t("btb.t.cosmetic_format") + format + Tr.t("btb.t.ist_neuer_als_diese_version_von_btb_skin") + CosmeticDefinition.FORMAT + Tr.t("btb.t.bitte_die_mod_aktualisieren"));
 		}
 		d.id = Json.requireString(o, "id");
 		if (!isValidId(d.id)) {
-			throw new FormatException("Ungültige ID '" + d.id + "' (erwartet namespace:name, nur a-z 0-9 _ . -)");
+			throw new FormatException(Tr.t("btb.t.ungueltige_id") + d.id + Tr.t("btb.t.erwartet_namespace_name_nur_a_z_0_9"));
 		}
 		d.version = Json.string(o, "version", "1.0.0");
 		readLocalized(o.get("name"), d.names);
@@ -45,19 +47,19 @@ public final class CosmeticJson {
 		if (type != null) {
 			d.type = CosmeticType.byId(type);
 			if (d.type == null) {
-				throw new FormatException("Unbekannter Typ '" + type + "'");
+				throw new FormatException(Tr.t("btb.t.unbekannter_typ") + type + "'");
 			}
 		}
 		String att = Json.string(o, "attachment", null);
 		d.attachment = att == null ? d.type.defaultAttachment : AttachmentPoint.byId(att);
 		if (d.attachment == null) {
-			throw new FormatException("Unbekannter Befestigungspunkt '" + att + "'");
+			throw new FormatException(Tr.t("btb.t.unbekannter_befestigungspunkt") + att + "'");
 		}
 		d.slots = EnumSet.noneOf(CosmeticSlot.class);
 		for (String s : Json.strings(o, "slots")) {
 			CosmeticSlot slot = CosmeticSlot.byId(s);
 			if (slot == null) {
-				throw new FormatException("Unbekannter Slot '" + s + "'");
+				throw new FormatException(Tr.t("btb.t.unbekannter_slot") + s + "'");
 			}
 			d.slots.add(slot);
 		}
@@ -78,7 +80,7 @@ public final class CosmeticJson {
 			d.transform.pivot = Json.vec(t, "pivot", new float[3]);
 			for (float s : d.transform.scale) {
 				if (s <= 0 || s > 16) {
-					throw new FormatException("Skalierung muss zwischen 0 und 16 liegen");
+					throw new FormatException(Tr.t("btb.t.skalierung_muss_zwischen_0_und_16_liegen"));
 				}
 			}
 		}
@@ -123,7 +125,7 @@ public final class CosmeticJson {
 			return null;
 		}
 		if (!FILE.matcher(f).matches() || f.contains("..") || f.startsWith("/")) {
-			throw new FormatException("Ungültiger Dateiname in '" + key + "': " + f);
+			throw new FormatException(Tr.t("btb.t.ungueltiger_dateiname_in") + key + "': " + f);
 		}
 		return f;
 	}

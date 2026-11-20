@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.geo;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -56,7 +58,7 @@ public final class GeometryIO {
 		if (root.has("minecraft:geometry")) {
 			JsonElement g = root.get("minecraft:geometry");
 			if (!g.isJsonArray()) {
-				throw new FormatException("'minecraft:geometry' muss eine Liste sein");
+				throw new FormatException(Tr.t("btb.t.minecraft_geometry_muss_eine_liste_sein"));
 			}
 			for (JsonElement e : g.getAsJsonArray()) {
 				if (e.isJsonObject()) {
@@ -84,7 +86,7 @@ public final class GeometryIO {
 				if (parent != null) {
 					GeoModel base = byName.get(parent);
 					if (base == null) {
-						warnings.add("Basis-Geometrie '" + parent + "' von '" + name + "' nicht in dieser Datei – ohne Vererbung geladen");
+						warnings.add(Tr.t("btb.t.basis_geometrie") + parent + Tr.t("btb.t.von_2") + name + Tr.t("btb.t.nicht_in_dieser_datei_ohne_vererbung_gel"));
 					} else {
 						model = inherit(base, model);
 					}
@@ -94,11 +96,11 @@ public final class GeometryIO {
 			}
 		}
 		if (models.isEmpty()) {
-			throw new FormatException("Keine Geometrie gefunden (weder 'minecraft:geometry' noch 'geometry.*')");
+			throw new FormatException(Tr.t("btb.t.keine_geometrie_gefunden_weder_minecraft"));
 		}
 		for (GeoModel m : models) {
 			if (m.bones.size() > MAX_BONES || m.cubeCount() > MAX_CUBES) {
-				throw new FormatException("Modell '" + m.identifier + "' ist zu groß (" + m.bones.size() + " Bones, " + m.cubeCount() + " Würfel)");
+				throw new FormatException(Tr.t("btb.t.modell_3") + m.identifier + Tr.t("btb.t.ist_zu_gross") + m.bones.size() + Tr.t("btb.t.bones_2") + m.cubeCount() + Tr.t("btb.t.wuerfel"));
 			}
 		}
 		return new Result(models, warnings);
@@ -153,7 +155,7 @@ public final class GeometryIO {
 			bone.mirror = Json.bool(bo, "mirror", false);
 			bone.inflate = Json.number(bo, "inflate", 0);
 			if (bo.has("poly_mesh")) {
-				warnings.add("Bone '" + bone.name + "': poly_mesh wird nicht unterstützt und ausgelassen");
+				warnings.add(Tr.t("btb.t.bone") + bone.name + Tr.t("btb.t.poly_mesh_wird_nicht_unterstuetzt_und_au"));
 			}
 			JsonElement cubes = bo.get("cubes");
 			if (cubes != null && cubes.isJsonArray()) {
@@ -198,7 +200,7 @@ public final class GeometryIO {
 				c.faces.put(f, new GeoCube.FaceUv(st[0], st[1], sz[0], sz[1]));
 			}
 		} else {
-			throw new FormatException("Modell '" + modelName + "', Bone '" + bone.name + "': 'uv' hat ein unbekanntes Format");
+			throw new FormatException(Tr.t("btb.t.modell_3") + modelName + Tr.t("btb.t.bone_2") + bone.name + Tr.t("btb.t.uv_hat_ein_unbekanntes_format"));
 		}
 		return c;
 	}

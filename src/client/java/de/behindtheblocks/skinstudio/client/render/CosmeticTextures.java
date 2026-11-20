@@ -48,7 +48,7 @@ public final class CosmeticTextures {
 			case PREVIEW -> asset.preview();
 		};
 		if (png == null) {
-			return null;
+			return layer == Layer.PREVIEW ? generatedPreview(asset) : null;
 		}
 		byte[] mask = layer == Layer.BASE && tint != 0xFFFFFFFF ? asset.tintMask() : null;
 		// keyed by image content, so editing metadata (transform, name …) never re-uploads textures
@@ -68,6 +68,38 @@ public final class CosmeticTextures {
 			}
 			Identifier tex = Identifier.fromNamespaceAndPath(BtbSkinStudio.MOD_ID, "cosmetic/" + key);
 			Minecraft.getInstance().getTextureManager().register(tex, new DynamicTexture(() -> label, image));
+			READY.put(key, tex);
+			evict();
+		}, Minecraft.getInstance());
+		return null;
+	}
+
+	/** Renders an icon for cosmetics without preview.png (own, imported, Bedrock) on the IO thread. */
+	private static Identifier generatedPreview(CosmeticAsset asset) {
+		String key = "gen_" + asset.contentHash;
+		Identifier id = READY.get(key);
+		if (id != null || FAILED.contains(key) || PENDING.contains(key)) {
+			return id;
+		}
+		PENDING.add(key);
+		CompletableFuture.supplyAsync(() -> {
+			java.awt.image.BufferedImage tex = de.behindtheblocks.skinstudio.bedrock.Images.read(asset.texture(), asset.definition.texture);
+			java.awt.image.BufferedImage emis = asset.emissive() == null ? null : de.behindtheblocks.skinstudio.bedrock.Images.read(asset.emissive(), "emissive.png");
+			java.awt.image.BufferedImage img = de.behindtheblocks.skinstudio.geo.PreviewRenderer.render(asset.model, tex, emis, asset.definition.attachment, 128);
+			try {
+				return NativeImage.read(de.behindtheblocks.skinstudio.bedrock.Images.png(img));
+			} catch (IOException e) {
+				throw new java.io.UncheckedIOException(e);
+			}
+		}, CosmeticLibrary.IO).whenCompleteAsync((image, error) -> {
+			PENDING.remove(key);
+			if (error != null || image == null) {
+				FAILED.add(key);
+				LOG.warn("Vorschau für {} konnte nicht erzeugt werden: {}", asset.id(), error == null ? "?" : error.getMessage());
+				return;
+			}
+			Identifier tex = Identifier.fromNamespaceAndPath(BtbSkinStudio.MOD_ID, "cosmetic/" + key);
+			Minecraft.getInstance().getTextureManager().register(tex, new DynamicTexture(() -> asset.id() + " (preview)", image));
 			READY.put(key, tex);
 			evict();
 		}, Minecraft.getInstance());
@@ -139,7 +171,7 @@ public final class CosmeticTextures {
 			int cut = k.indexOf('_');
 			int m = k.indexOf('m');
 			String file = k.substring(0, m >= 0 && m < cut ? m : cut);
-			if (!liveFileKeys.contains(file)) {
+			if (!k.startsWith("gen_") && !liveFileKeys.contains(file)) {
 				Minecraft.getInstance().getTextureManager().release(e.getValue());
 				it.remove();
 			}

@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.pack;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import de.behindtheblocks.skinstudio.util.FormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +111,7 @@ public final class PackStore {
 				try {
 					CosmeticAsset a = PackReader.readSingle(ArchiveFiles.read(p), CUSTOM_PACK_ID, pack.problems);
 					if (pack.cosmetics.stream().anyMatch(x -> x.id().equals(a.id()))) {
-						pack.problems.add(PackProblem.error(name, "doppelte ID '" + a.id() + "' – übersprungen"));
+						pack.problems.add(PackProblem.error(name, Tr.t("btb.t.doppelte_id") + a.id() + Tr.t("btb.t.uebersprungen_2")));
 						continue;
 					}
 					pack.cosmetics.add(a);
@@ -146,28 +148,28 @@ public final class PackStore {
 	public static InstallCheck checkInstall(LoadedPack incoming, Map<String, String> idToPack, Map<String, String> packVersions) {
 		List<PackProblem> problems = new ArrayList<>();
 		if (!incoming.usable || incoming.manifest == null) {
-			problems.add(PackProblem.error("", "Pack ist beschädigt und kann nicht installiert werden"));
+			problems.add(PackProblem.error("", Tr.t("btb.t.pack_ist_beschaedigt_und_kann_nicht_inst")));
 			return new InstallCheck(false, false, null, problems);
 		}
 		String packId = incoming.manifest.id;
 		if (packId.equals(CUSTOM_PACK_ID) || packId.startsWith("btb_builtin")) {
-			problems.add(PackProblem.error("", "Pack-ID '" + packId + "' ist reserviert"));
+			problems.add(PackProblem.error("", Tr.t("btb.t.pack_id") + packId + Tr.t("btb.t.ist_reserviert")));
 			return new InstallCheck(false, false, null, problems);
 		}
 		if (incoming.cosmetics.isEmpty()) {
-			problems.add(PackProblem.error("", "Pack enthält keine verwendbaren Cosmetics"));
+			problems.add(PackProblem.error("", Tr.t("btb.t.pack_enthaelt_keine_verwendbaren_cosmeti")));
 			return new InstallCheck(false, false, null, problems);
 		}
 		for (CosmeticAsset a : incoming.cosmetics) {
 			String owner = idToPack.get(a.id());
 			if (owner != null && !owner.equals(packId)) {
-				problems.add(PackProblem.error(a.id(), "ID ist bereits durch Pack '" + owner + "' belegt"));
+				problems.add(PackProblem.error(a.id(), Tr.t("btb.t.id_ist_bereits_durch_pack") + owner + Tr.t("btb.t.belegt_2")));
 			}
 		}
 		String installed = packVersions.get(packId);
 		boolean update = installed != null;
 		if (update && PackManifest.compareVersions(incoming.manifest.version, installed) < 0) {
-			problems.add(PackProblem.warning("", "Installierte Version " + installed + " ist neuer als " + incoming.manifest.version + " (Downgrade)"));
+			problems.add(PackProblem.warning("", Tr.t("btb.t.installierte_version") + installed + Tr.t("btb.t.ist_neuer_als") + incoming.manifest.version + Tr.t("btb.t.downgrade")));
 		}
 		boolean ok = problems.stream().noneMatch(p -> p.severity() == PackProblem.Severity.ERROR);
 		return new InstallCheck(ok, update, installed, problems);
@@ -189,7 +191,7 @@ public final class PackStore {
 
 	public void uninstall(LoadedPack pack) throws IOException {
 		if (pack.origin != LoadedPack.Origin.INSTALLED || pack.source == null) {
-			throw new FormatException("Nur installierte Packs können deinstalliert werden");
+			throw new FormatException(Tr.t("btb.t.nur_installierte_packs_koennen_deinstall"));
 		}
 		deleteRecursively(pack.source);
 		LOG.info("Pack '{}' deinstalliert", pack.id());
@@ -205,7 +207,7 @@ public final class PackStore {
 		for (String p : asset.files.paths()) {
 			Path out = tmp.resolve(p).normalize();
 			if (!out.startsWith(tmp)) {
-				throw new FormatException("Ungültiger Pfad " + p);
+				throw new FormatException(Tr.t("btb.t.ungueltiger_pfad_2") + p);
 			}
 			Files.createDirectories(out.getParent());
 			Files.write(out, asset.files.get(p));

@@ -104,7 +104,7 @@ class BedrockImportTest {
 		BedrockImporter.Result r = BedrockImporter.importFiles(f, "marketplace");
 		assertTrue(r.protectedContent);
 		assertTrue(r.cosmetics.isEmpty());
-		assertTrue(r.problems.getFirst().message().contains("verschlüsselt"));
+		assertTrue(r.problems.getFirst().message().contains("encrypted"));
 	}
 
 	@Test

@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.client.gui;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import de.behindtheblocks.skinstudio.client.gui.ui.Icon;
 import de.behindtheblocks.skinstudio.client.gui.ui.Theme;
 import de.behindtheblocks.skinstudio.client.gui.ui.Ui;
@@ -43,7 +45,7 @@ public class ImportScreen extends Screen {
 	private int problemScroll;
 
 	public ImportScreen(Screen parent, List<Path> files) {
-		super(Component.literal("Import"));
+		super(Component.literal(Tr.t("btb.t.import")));
 		this.parent = parent;
 		this.pending = files.size();
 		for (Path p : files) {
@@ -74,9 +76,9 @@ public class ImportScreen extends Screen {
 		ui.begin(g, font, mouseX, mouseY);
 		Theme t = ui.t;
 		int m = 8, top = 30;
-		ui.iconButton(m, 6, 18, Icon.BACK, false, this::onClose, "Zurück");
-		ui.title("Import-Vorschau", m + 24, 11, t.text);
-		ui.text("Prüfen, ansehen, dann übernehmen", m + 24 + font.width("Import-Vorschau") + 10, 11, t.textMuted);
+		ui.iconButton(m, 6, 18, Icon.BACK, false, this::onClose, Tr.t("btb.t.zurueck"));
+		ui.title(Tr.t("btb.t.import_vorschau"), m + 24, 11, t.text);
+		ui.text(Tr.t("btb.t.pruefen_ansehen_dann_uebernehmen"), m + 24 + font.width(Tr.t("btb.t.import_vorschau")) + 10, 11, t.textMuted);
 
 		int listW = Math.max(110, width / 5);
 		int stageW = Math.max(130, width / 4);
@@ -104,9 +106,9 @@ public class ImportScreen extends Screen {
 			y += 29;
 		}
 		if (pending > 0) {
-			ui.text("Analysiere " + pending + " Datei(en) …", m + 10, y + 4, t.textMuted);
+			ui.text(Tr.t("btb.t.analysiere") + pending + Tr.t("btb.t.datei_en"), m + 10, y + 4, t.textMuted);
 		} else if (plans.isEmpty()) {
-			ui.text("Keine Dateien.", m + 10, y + 4, t.textMuted);
+			ui.text(Tr.t("btb.t.keine_dateien"), m + 10, y + 4, t.textMuted);
 		}
 
 		ImportPlan plan = selectedPlan < plans.size() ? plans.get(selectedPlan) : null;
@@ -124,7 +126,7 @@ public class ImportScreen extends Screen {
 		}
 		preview.draw(g, sx + 4, top + 4, sx + stageW - 4, bottom - 8, previewCosmetic == null ? List.of() : List.of(previewCosmetic));
 		ui.region(sx + 4, top + 4, stageW - 8, bottom - top - 8, () -> dragging = true);
-		ui.text("Vorschau – ziehen zum Drehen", sx + 10, bottom - 20, t.textFaint);
+		ui.text(Tr.t("btb.t.vorschau_ziehen_zum_drehen"), sx + 10, bottom - 20, t.textFaint);
 
 		// details
 		int dx = sx + stageW + 6, dw = width - m - dx;
@@ -136,7 +138,7 @@ public class ImportScreen extends Screen {
 			ui.text(ui.ellipsize(plan.source.toString(), dw - 16), dx + 8, cy, t.textFaint);
 			cy += 14;
 			if (!plan.cosmetics.isEmpty()) {
-				ui.text("Enthaltene Cosmetics (" + plan.cosmetics.size() + ")", dx + 8, cy, t.textMuted);
+				ui.text(Tr.t("btb.t.enthaltene_cosmetics") + plan.cosmetics.size() + ")", dx + 8, cy, t.textMuted);
 				cy += 12;
 				int cx = dx + 8;
 				for (int i = 0; i < plan.cosmetics.size(); i++) {
@@ -148,7 +150,7 @@ public class ImportScreen extends Screen {
 						cy += 17;
 					}
 					if (cy > top + (bottom - top) / 2) {
-						ui.text("… und " + (plan.cosmetics.size() - i) + " weitere", cx, cy + 3, t.textFaint);
+						ui.text(Tr.t("btb.t.und") + (plan.cosmetics.size() - i) + Tr.t("btb.t.weitere"), cx, cy + 3, t.textFaint);
 						break;
 					}
 					int idx = i;
@@ -157,7 +159,7 @@ public class ImportScreen extends Screen {
 				}
 				cy += 22;
 			}
-			ui.text(plan.problems.isEmpty() ? "Keine Probleme gefunden." : "Hinweise (" + plan.problems.size() + ")", dx + 8, cy, plan.problems.isEmpty() ? t.success : t.textMuted);
+			ui.text(plan.problems.isEmpty() ? Tr.t("btb.t.keine_probleme_gefunden") : Tr.t("btb.t.hinweise") + plan.problems.size() + ")", dx + 8, cy, plan.problems.isEmpty() ? t.success : t.textMuted);
 			cy += 12;
 			int listBottom = bottom - 34;
 			g.enableScissor(dx + 4, cy, dx + dw - 4, listBottom);
@@ -177,15 +179,31 @@ public class ImportScreen extends Screen {
 				py += 3;
 			}
 			g.disableScissor();
-			int bw = Math.min(150, dw - 16);
-			ui.button(dx + dw - 8 - bw, bottom - 26, bw, 18, busy ? "Bitte warten …" : plan.actionLabel, Icon.IMPORT, Ui.Style.PRIMARY,
-					plan.allowed && !busy, () -> run(plan), plan.allowed ? null : "Wegen Fehlern nicht importierbar");
+			String label = busy ? de.behindtheblocks.skinstudio.util.Tr.t("btb.ui.wait") : plan.actionLabel;
+			int bw = Math.min(font.width(label) + 32, dw - 16);
+			ui.button(dx + dw - 8 - bw, bottom - 26, bw, 18, label, Icon.IMPORT, Ui.Style.PRIMARY,
+					plan.allowed && !busy, () -> run(plan), plan.allowed ? null : de.behindtheblocks.skinstudio.util.Tr.t("btb.ui.import.blocked"));
+			if (plan.canRename && !busy) {
+				String rl = de.behindtheblocks.skinstudio.util.Tr.t("btb.ui.import.rename");
+				int rw = font.width(rl) + 32;
+				ui.button(dx + dw - 8 - bw - 6 - rw, bottom - 26, rw, 18, rl, Icon.EDIT, Ui.Style.SECONDARY, true, () -> rename(plan),
+						de.behindtheblocks.skinstudio.util.Tr.t("btb.ui.import.rename.tooltip"));
+			}
 			if (status != null) {
 				ui.text(ui.ellipsize(status, dw - bw - 24), dx + 8, bottom - 21, t.textMuted);
 			}
 		}
 		super.extractRenderState(g, mouseX, mouseY, a);
 		ui.end();
+	}
+
+	private void rename(ImportPlan plan) {
+		busy = true;
+		CompletableFuture.runAsync(plan::renameConflicts, CosmeticLibrary.IO).whenCompleteAsync((v, err) -> {
+			busy = false;
+			status = err != null ? de.behindtheblocks.skinstudio.util.Tr.t("btb.ui.error", err.getMessage()) : de.behindtheblocks.skinstudio.util.Tr.t("btb.ui.import.renamed");
+			selectedCosmetic = 0;
+		}, Minecraft.getInstance());
 	}
 
 	private void run(ImportPlan plan) {
@@ -200,7 +218,7 @@ public class ImportScreen extends Screen {
 		}, CosmeticLibrary.IO).whenCompleteAsync((msg, err) -> {
 			if (err != null) {
 				busy = false;
-				status = "Fehler: " + (err.getCause() != null ? err.getCause().getMessage() : err.getMessage());
+				status = Tr.t("btb.t.fehler") + (err.getCause() != null ? err.getCause().getMessage() : err.getMessage());
 				LOG.error("Import fehlgeschlagen", err);
 				return;
 			}

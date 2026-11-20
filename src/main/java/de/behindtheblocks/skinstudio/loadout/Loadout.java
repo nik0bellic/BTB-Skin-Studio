@@ -27,13 +27,46 @@ public final class Loadout {
 	 * @param color ARGB tint, 0 = cosmetic default
 	 * @param hash  content hash of the cosmetic as the owner has it (for multiplayer transfer), may be empty
 	 */
-	public record Entry(String id, int color, String hash) {
+	public record Entry(String id, int color, String hash, Adjust adjust) {
 		public Entry {
 			hash = hash == null ? "" : hash;
+			adjust = adjust == null ? Adjust.NONE : adjust.clamped();
+		}
+
+		public Entry(String id, int color, String hash) {
+			this(id, color, hash, Adjust.NONE);
 		}
 
 		public Entry withColor(int c) {
-			return new Entry(id, c, hash);
+			return new Entry(id, c, hash, adjust);
+		}
+
+		public Entry withAdjust(Adjust a) {
+			return new Entry(id, color, hash, a);
+		}
+	}
+
+	/**
+	 * Personal fine-tuning of one worn cosmetic: offset in pixels (Bedrock space, Y up) and uniform scale.
+	 * Applied on top of the cosmetic's own transform and synced to other players.
+	 */
+	public record Adjust(float x, float y, float z, float scale) {
+		public static final Adjust NONE = new Adjust(0, 0, 0, 1);
+		public static final float MAX_OFFSET = 16;
+		public static final float MIN_SCALE = 0.25f;
+		public static final float MAX_SCALE = 3;
+
+		public Adjust clamped() {
+			float sc = Float.isFinite(scale) ? Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale)) : 1;
+			return new Adjust(c(x), c(y), c(z), sc);
+		}
+
+		private static float c(float v) {
+			return Float.isFinite(v) ? Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, v)) : 0;
+		}
+
+		public boolean isNone() {
+			return x == 0 && y == 0 && z == 0 && scale == 1;
 		}
 	}
 
@@ -86,7 +119,7 @@ public final class Loadout {
 		Set<CosmeticSlot> slots = def.effectiveSlots();
 		Entry existing = find(def.id);
 		if (existing != null) {
-			entries.set(entries.indexOf(existing), new Entry(def.id, color, hash));
+			entries.set(entries.indexOf(existing), new Entry(def.id, color, hash, existing.adjust()));
 			return new EquipResult(true, removed, null);
 		}
 		for (Entry e : new ArrayList<>(entries)) {
@@ -119,6 +152,13 @@ public final class Loadout {
 		}
 	}
 
+	public void setAdjust(String id, Adjust adjust) {
+		Entry e = find(id);
+		if (e != null) {
+			entries.set(entries.indexOf(e), e.withAdjust(adjust));
+		}
+	}
+
 	public void clear() {
 		entries.clear();
 	}
@@ -134,6 +174,10 @@ public final class Loadout {
 			o.addProperty("id", e.id());
 			if (e.color() != 0) {
 				o.addProperty("color", Colors.format(e.color()));
+			}
+			if (!e.adjust().isNone()) {
+				o.add("offset", Json.array(e.adjust().x(), e.adjust().y(), e.adjust().z()));
+				o.addProperty("scale", Json.round(e.adjust().scale()));
 			}
 			a.add(o);
 		}
@@ -155,7 +199,14 @@ public final class Loadout {
 					} catch (RuntimeException ignored) {
 						// invalid color → default
 					}
-					list.add(new Entry(Json.string(o, "id", ""), color, ""));
+					Adjust adj = Adjust.NONE;
+					try {
+						float[] off = Json.vec(o, "offset", new float[3]);
+						adj = new Adjust(off[0], off[1], off[2], Json.number(o, "scale", 1));
+					} catch (RuntimeException ignored) {
+						// invalid adjustment → default
+					}
+					list.add(new Entry(Json.string(o, "id", ""), color, "", adj));
 				}
 			}
 		}

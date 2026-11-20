@@ -50,6 +50,8 @@ public final class ServerCosmeticSync {
 	private static final int MAX_LOADOUT_UPDATES_PER_10S = 20;
 
 	private final Map<UUID, List<Loadout.Entry>> loadouts = new HashMap<>();
+	private final Map<UUID, SkinStudioPayloads.SkinInfo> skins = new HashMap<>();
+	private static final Pattern SKIN_ID = Pattern.compile("[a-z0-9_.-]{1,48}:[a-z0-9_./-]{1,128}");
 	private final Set<UUID> modded = new HashSet<>();
 	private final Map<UUID, long[]> rate = new HashMap<>();
 	/** content hash → validated .btbcosmetic archive (LRU). */
@@ -71,12 +73,14 @@ public final class ServerCosmeticSync {
 
 		ServerPlayNetworking.registerGlobalReceiver(Hello.TYPE, (payload, ctx) -> onHello(ctx.player(), payload, ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(SetLoadout.TYPE, (payload, ctx) -> onSetLoadout(ctx.player(), payload, ctx.server()));
+		ServerPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.SetSkin.TYPE, (payload, ctx) -> onSetSkin(ctx.player(), payload.skin(), ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(RequestCosmetic.TYPE, (payload, ctx) -> onRequest(ctx.player(), payload.hash(), ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(CosmeticChunk.TYPE, (payload, ctx) -> onUploadChunk(ctx.player(), payload, ctx.server()));
 	}
 
 	private void reset() {
 		loadouts.clear();
+		skins.clear();
 		modded.clear();
 		rate.clear();
 		blobs.clear();
@@ -98,6 +102,11 @@ public final class ServerCosmeticSync {
 		if (!all.isEmpty()) {
 			ServerPlayNetworking.send(player, new SyncLoadouts(all));
 		}
+		List<SkinStudioPayloads.PlayerSkinInfo> allSkins = new ArrayList<>();
+		skins.forEach((id, info) -> allSkins.add(new SkinStudioPayloads.PlayerSkinInfo(id, info)));
+		if (!allSkins.isEmpty()) {
+			ServerPlayNetworking.send(player, new SkinStudioPayloads.SyncSkins(allSkins));
+		}
 	}
 
 	private void onLeave(ServerPlayer player, MinecraftServer server) {
@@ -106,7 +115,9 @@ public final class ServerCosmeticSync {
 		rate.remove(id);
 		uploads.keySet().removeIf(k -> k.startsWith(id + "/"));
 		waiting.values().forEach(s -> s.remove(id));
-		if (loadouts.remove(id) != null) {
+		boolean had = loadouts.remove(id) != null;
+		had |= skins.remove(id) != null;
+		if (had) {
 			broadcast(server, new RemovePlayer(id), null);
 		}
 	}
@@ -123,7 +134,7 @@ public final class ServerCosmeticSync {
 				continue;
 			}
 			String hash = HASH.matcher(e.hash()).matches() ? e.hash() : "";
-			out.add(new Loadout.Entry(e.id(), e.color(), hash));
+			out.add(new Loadout.Entry(e.id(), e.color(), hash, e.adjust()));
 		}
 		return out;
 	}
@@ -148,6 +159,29 @@ public final class ServerCosmeticSync {
 		}
 		loadouts.put(player.getUUID(), clean);
 		broadcast(server, new SyncLoadouts(List.of(new PlayerLoadout(player.getUUID(), clean))), null);
+	}
+
+	private void onSetSkin(ServerPlayer player, SkinStudioPayloads.SkinInfo info, MinecraftServer server) {
+		if (!modded.contains(player.getUUID()) || rateLimited(player.getUUID())) {
+			return;
+		}
+		SkinStudioPayloads.SkinInfo clean;
+		if (info.id().isEmpty()) {
+			clean = new SkinStudioPayloads.SkinInfo("", "", false);
+		} else if (SKIN_ID.matcher(info.id()).matches()) {
+			clean = new SkinStudioPayloads.SkinInfo(info.id(), HASH.matcher(info.hash()).matches() ? info.hash() : "", info.slim());
+		} else {
+			return;
+		}
+		if (clean.equals(skins.get(player.getUUID()))) {
+			return;
+		}
+		if (clean.id().isEmpty()) {
+			skins.remove(player.getUUID());
+		} else {
+			skins.put(player.getUUID(), clean);
+		}
+		broadcast(server, new SkinStudioPayloads.SyncSkins(List.of(new SkinStudioPayloads.PlayerSkinInfo(player.getUUID(), clean))), null);
 	}
 
 	private void broadcast(MinecraftServer server, net.minecraft.network.protocol.common.custom.CustomPacketPayload payload, UUID except) {
@@ -186,7 +220,21 @@ public final class ServerCosmeticSync {
 		}
 	}
 
+	private boolean owns(UUID player, String hash) {
+		SkinStudioPayloads.SkinInfo sk = skins.get(player);
+		return sk != null && sk.hash().equals(hash)
+				|| loadouts.getOrDefault(player, List.of()).stream().anyMatch(e -> e.hash().equals(hash));
+	}
+
 	private ServerPlayer findOwner(String hash, MinecraftServer server) {
+		for (Map.Entry<UUID, SkinStudioPayloads.SkinInfo> e : skins.entrySet()) {
+			if (e.getValue().hash().equals(hash)) {
+				ServerPlayer p = server.getPlayerList().getPlayer(e.getKey());
+				if (p != null) {
+					return p;
+				}
+			}
+		}
 		for (Map.Entry<UUID, List<Loadout.Entry>> e : loadouts.entrySet()) {
 			for (Loadout.Entry entry : e.getValue()) {
 				if (entry.hash().equals(hash)) {
@@ -205,7 +253,7 @@ public final class ServerCosmeticSync {
 		if (!transferAllowed || !HASH.matcher(hash).matches() || !askedOwner.containsKey(hash) || blobs.containsKey(hash)) {
 			return;
 		}
-		boolean ownsIt = loadouts.getOrDefault(owner.getUUID(), List.of()).stream().anyMatch(e -> e.hash().equals(hash));
+		boolean ownsIt = owns(owner.getUUID(), hash);
 		if (!ownsIt) {
 			return;
 		}
@@ -246,7 +294,11 @@ public final class ServerCosmeticSync {
 	/** Parses the archive like a client would and checks that the content hash matches. */
 	static boolean verify(byte[] zip, String hash) {
 		try {
-			CosmeticAsset a = PackReader.readSingle(ArchiveFiles.readZip(zip), "remote", new ArrayList<>());
+			ArchiveFiles files = ArchiveFiles.readZip(zip);
+			if (de.behindtheblocks.skinstudio.skin.SkinIO.isSkinArchive(files)) {
+				return de.behindtheblocks.skinstudio.skin.SkinIO.read(files, de.behindtheblocks.skinstudio.skin.SkinData.Source.REMOTE, "").hash.equals(hash);
+			}
+			CosmeticAsset a = PackReader.readSingle(files, "remote", new ArrayList<>());
 			return a.contentHash.equals(hash);
 		} catch (Exception e) {
 			return false;

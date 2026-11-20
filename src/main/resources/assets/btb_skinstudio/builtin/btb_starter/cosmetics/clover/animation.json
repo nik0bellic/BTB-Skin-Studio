@@ -7,7 +7,7 @@
         "clover": {
           "rotation": [
             "math.sin(q.anim_time * 140) * 4",
-            0,
+            "math.sin(q.anim_time * 50) * 20",
             "math.sin(q.anim_time * 90) * 7"
           ]
         }

@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.bedrock;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.behindtheblocks.skinstudio.anim.AnimationIO;
@@ -106,13 +108,18 @@ public final class BedrockImporter {
 		}
 
 		if (r.cosmetics.isEmpty() && r.problems.stream().noneMatch(p -> p.severity() == PackProblem.Severity.ERROR)) {
-			r.problems.add(PackProblem.error("", "Keine importierbaren Bedrock-Ressourcen gefunden (erwartet: Persona-Ordner mit .meta.json, "
-					+ "Skin-Pack mit skins.json oder .geo.json mit PNG)"));
+			r.problems.add(PackProblem.error("", Tr.t("btb.t.keine_importierbaren_bedrock_ressourcen_")
+					+ Tr.t("btb.t.skin_pack_mit_skins_json_oder_geo_json_m")));
 		}
 		return r;
 	}
 
 	// ------------------------------------------------------------------ protection
+
+	public static boolean isEncrypted(ArchiveFiles f) {
+		Result r = new Result();
+		return isProtected(f, r);
+	}
 
 	private static boolean isProtected(ArchiveFiles f, Result r) {
 		boolean encrypted = false;
@@ -127,8 +134,8 @@ public final class BedrockImporter {
 		}
 		if (encrypted) {
 			r.protectedContent = true;
-			r.problems.add(PackProblem.error("", "Dieses Pack ist verschlüsselt (Marketplace-Kopierschutz). BTB Skin Studio umgeht keinen "
-					+ "Kopierschutz und keine Kontoberechtigungen – importierbar sind nur eigene oder frei verfügbare, unverschlüsselte Inhalte."));
+			r.problems.add(PackProblem.error("", Tr.t("btb.t.dieses_pack_ist_verschluesselt_marketpla")
+					+ Tr.t("btb.t.kopierschutz_und_keine_kontoberechtigung")));
 		}
 		return encrypted;
 	}
@@ -167,11 +174,11 @@ public final class BedrockImporter {
 		JsonObject meta = Json.parseObject(dir.get(metaName));
 		String pieceType = Json.string(meta, "piece_type", "");
 		if (!pieceType.startsWith("persona_") || pieceType.equals("persona_emote") || pieceType.equals("persona_skin")) {
-			problems.add(PackProblem.info(folderName, "Persona-Typ '" + pieceType + "' ist kein tragbares Cosmetic – übersprungen"));
+			problems.add(PackProblem.info(folderName, Tr.t("btb.t.persona_typ") + pieceType + Tr.t("btb.t.ist_kein_tragbares_cosmetic_uebersprunge")));
 			return null;
 		}
 		String pieceName = Json.string(meta, "piece_name", folderName);
-		String where = "Persona " + pieceName;
+		String where = Tr.t("btb.t.persona") + pieceName;
 
 		GeoModel model = new GeoModel("geometry.import." + sanitize(pieceName), 64, 64);
 		List<BufferedImage> layers = new ArrayList<>();
@@ -194,7 +201,7 @@ public final class BedrockImporter {
 				String texName = Json.string(s, "texture", null);
 				BufferedImage tex = texName == null ? null : Images.read(find(dir, texName), texName);
 				if (tex == null) {
-					problems.add(PackProblem.warning(where, "Textur '" + texName + "' fehlt"));
+					problems.add(PackProblem.warning(where, Tr.t("btb.t.textur") + texName + Tr.t("btb.t.fehlt")));
 					continue;
 				}
 				boolean face = Json.bool(s, "use_face_uv", false);
@@ -227,19 +234,19 @@ public final class BedrockImporter {
 			String gid = Json.string(s, "geometry", null);
 			GeoModel g = gid == null ? null : geometries.get(gid);
 			if (g == null) {
-				problems.add(PackProblem.warning(where, "Geometrie '" + gid + "' nicht gefunden"));
+				problems.add(PackProblem.warning(where, Tr.t("btb.t.geometrie") + gid + Tr.t("btb.t.nicht_gefunden")));
 				continue;
 			}
 			String texName = Json.string(s, "texture", null);
 			BufferedImage tex = texName == null ? null : Images.read(find(dir, texName), texName);
 			if (tex == null) {
-				problems.add(PackProblem.warning(where, "Textur '" + texName + "' fehlt – Geometrie übersprungen"));
+				problems.add(PackProblem.warning(where, Tr.t("btb.t.textur") + texName + Tr.t("btb.t.fehlt_geometrie_uebersprungen")));
 				continue;
 			}
 			if (Json.bool(s, "animated", false)) {
 				int frames = Math.max(1, (int) Json.number(s, "frames", 1));
 				tex = tex.getSubimage(0, 0, tex.getWidth(), Math.max(1, tex.getHeight() / frames));
-				problems.add(PackProblem.info(where, "Animierte Textur: erstes Bild übernommen"));
+				problems.add(PackProblem.info(where, Tr.t("btb.t.animierte_textur_erstes_bild_uebernommen")));
 			}
 			tex = Images.resize(tex, g.textureWidth, g.textureHeight);
 			String tintName = Json.string(s, "tint_map", null);
@@ -259,7 +266,7 @@ public final class BedrockImporter {
 			atlasH += 64;
 		}
 		if (layers.isEmpty()) {
-			throw new FormatException("Persona-Teil enthält keine verwendbare Geometrie oder Textur");
+			throw new FormatException(Tr.t("btb.t.persona_teil_enthaelt_keine_verwendbare_"));
 		}
 
 		// atlas
@@ -297,7 +304,7 @@ public final class BedrockImporter {
 		}
 		model.bones.addAll(byName.values());
 		if (model.cubeCount() == 0) {
-			throw new FormatException("Persona-Teil ergibt ein leeres Modell");
+			throw new FormatException(Tr.t("btb.t.persona_teil_ergibt_ein_leeres_modell"));
 		}
 
 		CosmeticDefinition def = new CosmeticDefinition();
@@ -305,10 +312,10 @@ public final class BedrockImporter {
 		String display = lang.getOrDefault(pieceName, lang.getOrDefault("persona." + pieceName + ".title", prettify(pieceName)));
 		def.names.put("de", display);
 		def.names.put("en", display);
-		def.author = "Bedrock-Import";
+		def.author = Tr.t("btb.t.bedrock_import");
 		def.type = personaType(pieceType);
 		def.attachment = def.type.defaultAttachment;
-		def.source = "Bedrock Persona: " + pieceType + " (" + folderName + ")";
+		def.source = Tr.t("btb.t.bedrock_persona") + pieceType + " (" + folderName + ")";
 		def.tags.add("bedrock");
 		def.tags.add("persona");
 		ArchiveFiles files = ArchiveFiles.empty();
@@ -402,7 +409,7 @@ public final class BedrockImporter {
 		}
 		var list = skins.getAsJsonArray("skins");
 		if (list == null) {
-			throw new FormatException("skins.json enthält keine 'skins'");
+			throw new FormatException(Tr.t("btb.t.skins_json_enthaelt_keine_skins"));
 		}
 		for (JsonElement e : list) {
 			if (!e.isJsonObject()) {
@@ -425,7 +432,7 @@ public final class BedrockImporter {
 			String texName = Json.string(s, "texture", null);
 			byte[] tex = texName == null ? null : find(dir, texName);
 			if (tex == null) {
-				r.problems.add(PackProblem.warning(display, "Textur '" + texName + "' fehlt"));
+				r.problems.add(PackProblem.warning(display, Tr.t("btb.t.textur") + texName + Tr.t("btb.t.fehlt")));
 				continue;
 			}
 			BufferedImage img = Images.read(tex, texName);
@@ -433,10 +440,10 @@ public final class BedrockImporter {
 			def.id = uniqueId(NAMESPACE + ":" + sanitize(packName) + "_" + sanitize(locName), ids);
 			def.names.put("de", display + " – Accessoire");
 			def.names.put("en", display + " – Accessory");
-			def.author = "Bedrock-Import";
+			def.author = Tr.t("btb.t.bedrock_import");
 			def.type = guessType(extra);
 			def.attachment = def.type.defaultAttachment;
-			def.source = "Bedrock-Skin-Pack " + packName + ", Skin " + locName;
+			def.source = Tr.t("btb.t.bedrock_skin_pack") + packName + Tr.t("btb.t.skin") + locName;
 			def.tags.add("bedrock");
 			def.tags.add("skinpack");
 			ArchiveFiles files = ArchiveFiles.empty();
@@ -449,7 +456,7 @@ public final class BedrockImporter {
 			}
 		}
 		if (r.skippedSkins > 0) {
-			r.problems.add(PackProblem.info(packName, r.skippedSkins + " Skins ohne Zusatzteile (nur Skin-Textur) – als Cosmetic nicht übernommen"));
+			r.problems.add(PackProblem.info(packName, r.skippedSkins + Tr.t("btb.t.skins_ohne_zusatzteile_nur_skin_textur_a")));
 		}
 	}
 
@@ -463,7 +470,7 @@ public final class BedrockImporter {
 	 * Everything is re-parented under bones named like the vanilla part it follows, so the renderer
 	 * moves it with that part.
 	 */
-	static GeoModel extractAccessories(GeoModel skin) {
+	public static GeoModel extractAccessories(GeoModel skin) {
 		Map<String, GeoBone> byName = new HashMap<>();
 		for (GeoBone b : skin.bones) {
 			byName.put(b.name.toLowerCase(Locale.ROOT), b);
@@ -617,7 +624,7 @@ public final class BedrockImporter {
 		for (GeoModel m : geo.models()) {
 			String texPath = pickTexture(pngs, base, m.identifier);
 			if (texPath == null) {
-				r.problems.add(PackProblem.error(geoPath, "Keine PNG-Textur zu '" + m.identifier + "' gefunden"));
+				r.problems.add(PackProblem.error(geoPath, Tr.t("btb.t.keine_png_textur_zu") + m.identifier + Tr.t("btb.t.gefunden")));
 				continue;
 			}
 			BufferedImage img = Images.read(f.get(texPath), texPath);
@@ -626,11 +633,11 @@ public final class BedrockImporter {
 			def.id = uniqueId(NAMESPACE + ":" + sanitize(m.identifier.replaceFirst("^geometry\\.", "")), ids);
 			def.names.put("de", name);
 			def.names.put("en", name);
-			def.author = "Import";
+			def.author = Tr.t("btb.t.import");
 			boolean bodyBound = m.bones.stream().anyMatch(b -> AttachmentPoint.Part.fromBoneName(b.name) != null);
 			def.type = bodyBound ? CosmeticType.MOVING_DECORATION : CosmeticType.HEAD_DECORATION;
 			def.attachment = AttachmentPoint.HEAD;
-			def.source = "Geometrie-Import: " + lastSegment(geoPath);
+			def.source = Tr.t("btb.t.geometrie_import") + lastSegment(geoPath);
 			def.tags.add("import");
 			ArchiveFiles files = ArchiveFiles.empty();
 			files.put("texture.png", Images.png(img));
@@ -658,7 +665,7 @@ public final class BedrockImporter {
 
 	// ------------------------------------------------------------------ helpers
 
-	static boolean isGeometryFile(String p) {
+	public static boolean isGeometryFile(String p) {
 		String l = p.toLowerCase(Locale.ROOT);
 		return l.endsWith(".geo.json") || l.endsWith(".geometry.json") || l.endsWith("geometry.json") || (l.contains("/models/") && l.endsWith(".json"));
 	}
@@ -682,7 +689,7 @@ public final class BedrockImporter {
 		}
 	}
 
-	private static byte[] find(ArchiveFiles dir, String name) {
+	public static byte[] find(ArchiveFiles dir, String name) {
 		for (String candidate : new String[]{name, name + ".png", name + ".tga"}) {
 			byte[] b = dir.get(candidate);
 			if (b != null) {
@@ -699,7 +706,7 @@ public final class BedrockImporter {
 		return null;
 	}
 
-	private static Map<String, String> readLang(ArchiveFiles f) {
+	public static Map<String, String> readLang(ArchiveFiles f) {
 		Map<String, String> out = new HashMap<>();
 		List<String> langs = f.find(p -> p.toLowerCase(Locale.ROOT).endsWith(".lang"));
 		langs.sort((a, b) -> Boolean.compare(b.toLowerCase(Locale.ROOT).contains("de_de"), a.toLowerCase(Locale.ROOT).contains("de_de")));
@@ -746,7 +753,7 @@ public final class BedrockImporter {
 		return c;
 	}
 
-	static String prettify(String raw) {
+	public static String prettify(String raw) {
 		String s = raw.replaceAll("^persona_", "").replace('_', ' ').replace('.', ' ').trim();
 		if (s.isEmpty()) {
 			return raw;

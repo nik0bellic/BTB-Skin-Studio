@@ -48,7 +48,7 @@ public final class ClientCosmeticSync {
 	private static int revision;
 	private static int wardrobeRevision;
 
-	private record Cached(int libRev, int rev, int wardRev, boolean showOthers, List<ActiveCosmetic> list) {
+	private record Cached(int libRev, int rev, int wardRev, boolean showOthers, int skinRev, boolean layers3d, List<ActiveCosmetic> list) {
 	}
 
 	private static final Map<UUID, Cached> RESOLVED = new HashMap<>();
@@ -67,6 +67,7 @@ public final class ClientCosmeticSync {
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			serverHasMod = false;
 			REMOTE.clear();
+			de.behindtheblocks.skinstudio.client.skin.ClientSkins.clearRemote();
 			INCOMING.clear();
 			revision++;
 		});
@@ -88,7 +89,15 @@ public final class ClientCosmeticSync {
 			}
 			revision++;
 		});
+		ClientPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.SyncSkins.TYPE, (sync, ctx) -> {
+			for (SkinStudioPayloads.PlayerSkinInfo p : sync.skins()) {
+				de.behindtheblocks.skinstudio.client.skin.ClientSkins.setRemote(p.player(),
+						new de.behindtheblocks.skinstudio.client.skin.ClientSkins.SkinRef(p.skin().id(), p.skin().hash(), p.skin().slim()));
+			}
+			revision++;
+		});
 		ClientPlayNetworking.registerGlobalReceiver(RemovePlayer.TYPE, (rm, ctx) -> {
+			de.behindtheblocks.skinstudio.client.skin.ClientSkins.setRemote(rm.player(), null);
 			REMOTE.remove(rm.player());
 			RESOLVED.remove(rm.player());
 			revision++;
@@ -101,6 +110,7 @@ public final class ClientCosmeticSync {
 			wardrobeRevision++;
 		});
 		CosmeticLibrary.get().addListener(lib -> dirty = true);
+		de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().reload().thenRun(() -> dirty = true);
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> {
 			if (cooldown > 0) {
 				cooldown--;
@@ -109,6 +119,9 @@ public final class ClientCosmeticSync {
 				dirty = false;
 				cooldown = 10;
 				ClientPlayNetworking.send(new SetLoadout(withHashes(Wardrobe.get().equipped())));
+				var skin = de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().find(Wardrobe.get().skin());
+				ClientPlayNetworking.send(new SkinStudioPayloads.SetSkin(skin == null ? new SkinStudioPayloads.SkinInfo("", "", false)
+						: new SkinStudioPayloads.SkinInfo(skin.id, skin.hash, skin.slim)));
 			}
 		});
 	}
@@ -121,7 +134,7 @@ public final class ClientCosmeticSync {
 		List<Loadout.Entry> out = new ArrayList<>();
 		for (Loadout.Entry e : l.entries()) {
 			CosmeticAsset a = CosmeticLibrary.get().find(e.id());
-			out.add(new Loadout.Entry(e.id(), e.color(), a == null ? "" : a.contentHash));
+			out.add(new Loadout.Entry(e.id(), e.color(), a == null ? "" : a.contentHash, e.adjust()));
 		}
 		return out;
 	}
@@ -134,7 +147,9 @@ public final class ClientCosmeticSync {
 		ClientSettings s = ClientSettings.get();
 		int libRev = CosmeticLibrary.get().revision();
 		Cached c = RESOLVED.get(player);
-		if (c != null && c.libRev == libRev && c.rev == revision && c.wardRev == wardrobeRevision && c.showOthers == s.showOtherPlayers) {
+		int skinRev = de.behindtheblocks.skinstudio.client.skin.ClientSkins.revision();
+		if (c != null && c.libRev == libRev && c.rev == revision && c.wardRev == wardrobeRevision && c.showOthers == s.showOtherPlayers
+				&& c.skinRev == skinRev && c.layers3d == s.skinLayers3d) {
 			return c.list;
 		}
 		List<Loadout.Entry> entries;
@@ -145,8 +160,10 @@ public final class ClientCosmeticSync {
 		} else {
 			entries = REMOTE.getOrDefault(player, List.of());
 		}
-		List<ActiveCosmetic> list = resolve(entries, !self);
-		RESOLVED.put(player, new Cached(libRev, revision, wardrobeRevision, s.showOtherPlayers, list));
+		List<ActiveCosmetic> list = new ArrayList<>(de.behindtheblocks.skinstudio.client.skin.ClientSkins.extras(player));
+		list.addAll(resolve(entries, !self));
+		list = List.copyOf(list);
+		RESOLVED.put(player, new Cached(libRev, revision, wardrobeRevision, s.showOtherPlayers, skinRev, s.skinLayers3d, list));
 		return list;
 	}
 
@@ -155,12 +172,18 @@ public final class ClientCosmeticSync {
 		for (Loadout.Entry e : entries) {
 			CosmeticAsset a = CosmeticLibrary.get().resolve(e.id(), e.hash());
 			if (a != null) {
-				list.add(ActiveCosmetic.of(a, e.color()));
+				list.add(ActiveCosmetic.of(a, e.color(), e.adjust()));
 			} else if (fetchMissing) {
 				requestMissing(e.hash());
 			}
 		}
 		return List.copyOf(list);
+	}
+
+	public static void requestMissingHash(String hash) {
+		if (hash != null) {
+			requestMissing(hash);
+		}
 	}
 
 	private static void requestMissing(String hash) {
@@ -195,8 +218,8 @@ public final class ClientCosmeticSync {
 		CosmeticLibrary.get().acceptReceived(chunk.hash(), done).thenAcceptAsync(a -> {
 			if (a != null) {
 				LOG.info("Cosmetic {} von einem Mitspieler empfangen ({} KB)", a.id(), done.length / 1024);
-				revision++;
 			}
+			revision++;
 		}, Minecraft.getInstance());
 	}
 
@@ -212,19 +235,22 @@ public final class ClientCosmeticSync {
 				own = a;
 			}
 		}
-		if (own == null) {
+		var mySkin = de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().find(Wardrobe.get().skin());
+		de.behindtheblocks.skinstudio.pack.ArchiveFiles upload = own != null ? own.files
+				: mySkin != null && hash.equals(mySkin.hash) && mySkin.files != null ? mySkin.files : null;
+		if (upload == null) {
 			return;
 		}
-		CosmeticAsset asset = own;
+		String label = own != null ? own.id() : mySkin.id;
 		CompletableFuture.supplyAsync(() -> {
 			try {
-				return asset.files.toZip();
+				return upload.toZip();
 			} catch (Exception e) {
 				return null;
 			}
 		}, CosmeticLibrary.IO).thenAcceptAsync(zip -> {
 			if (zip == null || zip.length > SkinStudioPayloads.MAX_TRANSFER_BYTES) {
-				LOG.warn("Cosmetic {} ist zu groß zum Teilen ({} KB, max. 512 KB)", asset.id(), zip == null ? -1 : zip.length / 1024);
+				LOG.warn("{} ist zu groß zum Teilen ({} KB, max. 512 KB)", label, zip == null ? -1 : zip.length / 1024);
 				return;
 			}
 			for (CosmeticChunk c : SkinStudioPayloads.split(hash, zip)) {

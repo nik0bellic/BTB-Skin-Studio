@@ -45,6 +45,10 @@ public final class CosmeticParticles {
 			if (p.isInvisible() || p.isSpectator() || p.distanceToSqr(mc.player) > MAX_DISTANCE_SQ) {
 				continue;
 			}
+			// own cosmetics must never put particles in front of the eyes in first person
+			if (p == mc.player && mc.options.getCameraType().isFirstPerson()) {
+				continue;
+			}
 			for (ActiveCosmetic c : ClientCosmeticSync.activeFor(p.getUUID())) {
 				CosmeticDefinition d = c.asset().definition;
 				if (d.particles == null) {

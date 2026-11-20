@@ -53,6 +53,9 @@ java {
 test {
 	useJUnitPlatform()
 	// optional real-data import check: ./gradlew test -Pbtb.realdata=/path
+	if (project.hasProperty('btb.previewdir')) {
+		systemProperty 'btb.previewdir', project.property('btb.previewdir')
+	}
 	if (project.hasProperty('btb.realdata')) {
 		systemProperty 'btb.realdata', project.property('btb.realdata')
 		testLogging.showStandardStreams = true

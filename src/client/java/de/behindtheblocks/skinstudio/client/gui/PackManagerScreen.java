@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.client.gui;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import de.behindtheblocks.skinstudio.client.gui.ui.Icon;
 import de.behindtheblocks.skinstudio.client.gui.ui.Theme;
 import de.behindtheblocks.skinstudio.client.gui.ui.Ui;
@@ -44,7 +46,7 @@ public class PackManagerScreen extends Screen {
 	private int detailScroll;
 
 	public PackManagerScreen(Screen parent) {
-		super(Component.literal("Packs"));
+		super(Component.literal(Tr.t("btb.t.packs")));
 		this.parent = parent;
 	}
 
@@ -65,14 +67,14 @@ public class PackManagerScreen extends Screen {
 		Theme t = ui.t;
 		CosmeticLibrary lib = CosmeticLibrary.get();
 		int m = 8, top = 30, bottom = height - m;
-		ui.iconButton(m, 6, 18, Icon.BACK, false, this::onClose, "Zurück");
-		ui.title("Cosmetic-Packs", m + 24, 11, t.text);
+		ui.iconButton(m, 6, 18, Icon.BACK, false, this::onClose, Tr.t("btb.t.zurueck"));
+		ui.title(Tr.t("btb.t.cosmetic_packs"), m + 24, 11, t.text);
 		int bx = width - m;
-		String[] labels = {"Datei importieren", "Import-Ordner", "Neu laden"};
+		String[] labels = {Tr.t("btb.t.datei_importieren"), Tr.t("btb.t.import_ordner"), Tr.t("btb.t.neu_laden")};
 		Icon[] icons = {Icon.IMPORT, Icon.FOLDER, Icon.REFRESH};
-		Runnable[] actions = {this::pickFiles, this::scanImportFolder, () -> lib.reload().thenRun(() -> status("Neu geladen", false))};
-		String[] tips = {".btbcosmeticpack, .btbcosmetic, .mcpack, .zip, .json, .png – oder einfach Dateien ins Fenster ziehen",
-				"Dateien aus " + lib.store.importDir + " importieren (öffnet den Ordner, wenn er leer ist)", "Alle Packs neu einlesen"};
+		Runnable[] actions = {this::pickFiles, this::scanImportFolder, () -> lib.reload().thenRun(() -> status(Tr.t("btb.t.neu_geladen"), false))};
+		String[] tips = {Tr.t("btb.t.btbcosmeticpack_btbcosmetic_mcpack_zip_j"),
+				Tr.t("btb.t.dateien_aus") + lib.store.importDir + Tr.t("btb.t.importieren_oeffnet_den_ordner_wenn_er_l"), Tr.t("btb.t.alle_packs_neu_einlesen")};
 		for (int i = labels.length - 1; i >= 0; i--) {
 			int w = font.width(labels[i]) + 26;
 			bx -= w;
@@ -104,12 +106,12 @@ public class PackManagerScreen extends Screen {
 			String name = p.manifest == null ? (p.source == null ? "?" : p.source.getFileName().toString()) : p.manifest.name(CosmeticLibrary.language());
 			ui.text(ui.ellipsize(name, listW - 50), m + 39, y + 6, t.text);
 			String origin = switch (p.origin) {
-				case BUILTIN -> "Eingebaut";
-				case INSTALLED -> "Installiert";
-				case CUSTOM -> "Eigene";
-				case PREVIEW -> "Vorschau";
+				case BUILTIN -> Tr.t("btb.t.eingebaut");
+				case INSTALLED -> Tr.t("btb.t.installiert");
+				case CUSTOM -> Tr.t("btb.t.eigene");
+				case PREVIEW -> Tr.t("btb.t.vorschau");
 			};
-			String sub = origin + (p.manifest != null ? " · v" + p.manifest.version : "") + " · " + p.cosmetics.size() + " Cosmetics";
+			String sub = origin + (p.manifest != null ? " · v" + p.manifest.version : "") + " · " + p.cosmetics.size() + Tr.t("btb.t.cosmetics");
 			ui.text(ui.ellipsize(sub, listW - 50), m + 39, y + 18, t.textMuted);
 			if (p.errorCount() > 0 || !p.usable) {
 				ui.rounded(m + listW - 16, y + 13, 7, 7, 3, t.danger);
@@ -132,7 +134,7 @@ public class PackManagerScreen extends Screen {
 		if (p != null) {
 			drawDetails(p, dx, top, dw, bottom - top);
 		} else {
-			ui.textCentered("Ziehe .btbcosmeticpack-, .btbcosmetic- oder Bedrock-Dateien hierher.", dx + dw / 2, top + 40, t.textMuted);
+			ui.textCentered(Tr.t("btb.t.ziehe_btbcosmeticpack_btbcosmetic_oder_b"), dx + dw / 2, top + 40, t.textMuted);
 		}
 		if (status != null) {
 			int tw = font.width(status) + 20;
@@ -157,11 +159,11 @@ public class PackManagerScreen extends Screen {
 	private void drawDetails(LoadedPack p, int x, int y, int w, int h) {
 		Theme t = ui.t;
 		int cy = y + 8;
-		String name = p.manifest == null ? "Beschädigtes Pack" : p.manifest.name(CosmeticLibrary.language());
+		String name = p.manifest == null ? Tr.t("btb.t.beschaedigtes_pack") : p.manifest.name(CosmeticLibrary.language());
 		ui.title(ui.ellipsize(name, w - 16), x + 8, cy, t.text);
 		cy += 12;
 		if (p.manifest != null) {
-			String meta = "ID " + p.id() + " · Version " + p.manifest.version + (p.manifest.author.isEmpty() ? "" : " · von " + p.manifest.author);
+			String meta = "ID " + p.id() + Tr.t("btb.t.version") + p.manifest.version + (p.manifest.author.isEmpty() ? "" : Tr.t("btb.t.von") + p.manifest.author);
 			ui.text(ui.ellipsize(meta, w - 16), x + 8, cy, t.textMuted);
 			cy += 11;
 			String desc = p.manifest.description(CosmeticLibrary.language());
@@ -180,13 +182,13 @@ public class PackManagerScreen extends Screen {
 		// buttons
 		int bx = x + 8;
 		if (p.usable && !p.cosmetics.isEmpty()) {
-			int bw = font.width("Exportieren") + 26;
-			ui.button(bx, cy, bw, 18, "Exportieren", Icon.EXPORT, Ui.Style.SECONDARY, true, () -> exportPack(p), "Als .btbcosmeticpack in den exports-Ordner schreiben");
+			int bw = font.width(Tr.t("btb.t.exportieren")) + 26;
+			ui.button(bx, cy, bw, 18, Tr.t("btb.t.exportieren"), Icon.EXPORT, Ui.Style.SECONDARY, true, () -> exportPack(p), Tr.t("btb.t.als_btbcosmeticpack_in_den_exports_ordne"));
 			bx += bw + 4;
 		}
 		if (p.origin == LoadedPack.Origin.INSTALLED) {
 			boolean confirm = key(p).equals(confirmUninstall);
-			String l = confirm ? "Wirklich deinstallieren?" : "Deinstallieren";
+			String l = confirm ? Tr.t("btb.t.wirklich_deinstallieren") : Tr.t("btb.t.deinstallieren");
 			int bw = font.width(l) + 26;
 			ui.button(bx, cy, bw, 18, l, Icon.TRASH, Ui.Style.DANGER, true, () -> {
 				if (confirm) {
@@ -198,12 +200,12 @@ public class PackManagerScreen extends Screen {
 			bx += bw + 4;
 		}
 		if (p.origin == LoadedPack.Origin.CUSTOM) {
-			int bw = font.width("Ordner öffnen") + 26;
-			ui.button(bx, cy, bw, 18, "Ordner öffnen", Icon.FOLDER, Ui.Style.SECONDARY, true, () -> com.mojang.blaze3d.Blaze3D.openPath(CosmeticLibrary.get().store.custom), null);
+			int bw = font.width(Tr.t("btb.t.ordner_oeffnen")) + 26;
+			ui.button(bx, cy, bw, 18, Tr.t("btb.t.ordner_oeffnen"), Icon.FOLDER, Ui.Style.SECONDARY, true, () -> com.mojang.blaze3d.Blaze3D.openPath(CosmeticLibrary.get().store.custom), null);
 		}
 		cy += 26;
 		// cosmetics grid
-		ui.text("Cosmetics (" + p.cosmetics.size() + ")", x + 8, cy, t.textMuted);
+		ui.text(Tr.t("btb.t.cosmetics_2") + p.cosmetics.size() + ")", x + 8, cy, t.textMuted);
 		cy += 12;
 		int listBottom = y + h - 8 - (p.problems.isEmpty() ? 0 : Math.min(90, 14 + p.problems.size() * 11));
 		ui.g.enableScissor(x + 4, cy, x + w - 4, listBottom);
@@ -228,11 +230,11 @@ public class PackManagerScreen extends Screen {
 		}
 		ui.g.disableScissor();
 		if (p.origin == LoadedPack.Origin.CUSTOM && !p.cosmetics.isEmpty()) {
-			ui.text("Klick: als .btbcosmetic exportieren · Rechtsklick: löschen", x + 8, listBottom - 10, t.textFaint);
+			ui.text(Tr.t("btb.t.klick_als_btbcosmetic_exportieren_rechts"), x + 8, listBottom - 10, t.textFaint);
 		}
 		if (!p.problems.isEmpty()) {
 			int py = listBottom + 4;
-			ui.text("Hinweise", x + 8, py, t.textMuted);
+			ui.text(Tr.t("btb.t.hinweise_2"), x + 8, py, t.textMuted);
 			py += 12;
 			for (PackProblem pr : p.problems) {
 				if (py > y + h - 12) {
@@ -252,11 +254,11 @@ public class PackManagerScreen extends Screen {
 	}
 
 	private void pickFiles() {
-		FileDialogs.openFiles("Cosmetics & Bedrock", "btbcosmeticpack;btbcosmetic;mcpack;mcaddon;zip;json;png", false, files -> {
+		FileDialogs.openFiles(Tr.t("btb.t.cosmetics_bedrock"), "btbcosmeticpack;btbcosmetic;mcpack;mcaddon;zip;json;png", false, files -> {
 			if (!files.isEmpty()) {
 				minecraft.gui.setScreen(new ImportScreen(this, files));
 			} else {
-				status("Kein Datei-Dialog verfügbar – Dateien ins Fenster ziehen oder den Import-Ordner nutzen", false);
+				status(Tr.t("btb.t.kein_datei_dialog_verfuegbar_dateien_ins"), false);
 			}
 		});
 	}
@@ -275,7 +277,7 @@ public class PackManagerScreen extends Screen {
 		}, CosmeticLibrary.IO).thenAcceptAsync(files -> {
 			if (files.isEmpty()) {
 				com.mojang.blaze3d.Blaze3D.openPath(dir);
-				status("Import-Ordner ist leer – Dateien hineinlegen und erneut klicken", false);
+				status(Tr.t("btb.t.import_ordner_ist_leer_dateien_hineinleg"), false);
 			} else {
 				minecraft.gui.setScreen(new ImportScreen(this, files));
 			}
@@ -300,10 +302,10 @@ public class PackManagerScreen extends Screen {
 			}
 		}, CosmeticLibrary.IO).whenCompleteAsync((path, err) -> {
 			if (err != null) {
-				status("Export fehlgeschlagen: " + err.getMessage(), true);
+				status(Tr.t("btb.t.export_fehlgeschlagen") + err.getMessage(), true);
 				LOG.error("Export fehlgeschlagen", err);
 			} else {
-				status("Exportiert: " + path.getFileName(), false);
+				status(Tr.t("btb.t.exportiert") + path.getFileName(), false);
 				com.mojang.blaze3d.Blaze3D.openPath(path.getParent());
 			}
 		}, Minecraft.getInstance());
@@ -318,9 +320,9 @@ public class PackManagerScreen extends Screen {
 			}
 		}, CosmeticLibrary.IO).whenCompleteAsync((path, err) -> {
 			if (err != null) {
-				status("Export fehlgeschlagen: " + err.getMessage(), true);
+				status(Tr.t("btb.t.export_fehlgeschlagen") + err.getMessage(), true);
 			} else {
-				status("Exportiert: " + path.getFileName(), false);
+				status(Tr.t("btb.t.exportiert") + path.getFileName(), false);
 			}
 		}, Minecraft.getInstance());
 	}
@@ -334,10 +336,10 @@ public class PackManagerScreen extends Screen {
 			}
 		}, CosmeticLibrary.IO).whenCompleteAsync((v, err) -> {
 			if (err != null) {
-				status("Löschen fehlgeschlagen: " + err.getMessage(), true);
+				status(Tr.t("btb.t.loeschen_fehlgeschlagen") + err.getMessage(), true);
 			} else {
 				CosmeticLibrary.get().reload();
-				status(c.definition.name(CosmeticLibrary.language()) + " gelöscht", false);
+				status(c.definition.name(CosmeticLibrary.language()) + Tr.t("btb.t.geloescht"), false);
 			}
 		}, Minecraft.getInstance());
 	}
@@ -351,12 +353,12 @@ public class PackManagerScreen extends Screen {
 			}
 		}, CosmeticLibrary.IO).whenCompleteAsync((v, err) -> {
 			if (err != null) {
-				status("Deinstallieren fehlgeschlagen: " + err.getMessage(), true);
+				status(Tr.t("btb.t.deinstallieren_fehlgeschlagen") + err.getMessage(), true);
 			} else {
 				selectedPack = null;
 				confirmUninstall = null;
 				CosmeticLibrary.get().reload();
-				status("Pack deinstalliert", false);
+				status(Tr.t("btb.t.pack_deinstalliert"), false);
 			}
 		}, Minecraft.getInstance());
 	}

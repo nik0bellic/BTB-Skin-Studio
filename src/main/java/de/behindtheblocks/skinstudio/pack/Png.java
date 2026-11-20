@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.pack;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import de.behindtheblocks.skinstudio.util.FormatException;
 
 /** Header check for PNG files without decoding (works on the server and in tests). */
@@ -27,11 +29,11 @@ public final class Png {
 
 	public static Info info(byte[] data, String name) {
 		if (!isPng(data)) {
-			throw new FormatException("'" + name + "' ist keine PNG-Datei");
+			throw new FormatException("'" + name + Tr.t("btb.t.ist_keine_png_datei"));
 		}
 		int w = readInt(data, 16), h = readInt(data, 20);
 		if (w <= 0 || h <= 0 || w > MAX_SIZE || h > MAX_SIZE) {
-			throw new FormatException("'" + name + "' hat eine ungültige Größe " + w + "×" + h + " (max. " + MAX_SIZE + ")");
+			throw new FormatException("'" + name + Tr.t("btb.t.hat_eine_ungueltige_groesse") + w + "×" + h + Tr.t("btb.t.max") + MAX_SIZE + ")");
 		}
 		return new Info(w, h);
 	}

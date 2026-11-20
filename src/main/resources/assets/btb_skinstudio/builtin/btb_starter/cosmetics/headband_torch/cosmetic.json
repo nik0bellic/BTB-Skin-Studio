@@ -7,8 +7,8 @@
     "en": "Headband Torch"
   },
   "description": {
-    "de": "Breites Lederstirnband mit einer Fackel vorne in der Mitte – wie eine Stirnlampe.",
-    "en": "A wide leather headband with a torch at the front center – like a head lamp."
+    "de": "Breites Lederstirnband über den Augen, vorne mittig steckt eine Fackel in einer Schlaufe.",
+    "en": "A wide leather headband above the eyes with a torch tucked into a loop at the front."
   },
   "author": "BTB Studios",
   "type": "head_decoration",
@@ -26,7 +26,7 @@
     "intensity": 0.5,
     "offset": [
       0,
-      2.5,
+      3,
       -5
     ],
     "flicker": true
@@ -36,7 +36,7 @@
     "rate": 0.8,
     "offset": [
       0,
-      4,
+      4.5,
       -5
     ],
     "spread": 0.4
@@ -45,6 +45,7 @@
     "fackel",
     "höhle",
     "licht",
-    "stirnlampe"
+    "stirnlampe",
+    "torch"
   ]
 }

@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.anim;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -31,7 +33,7 @@ public final class AnimationIO {
 		List<String> warnings = new ArrayList<>();
 		JsonElement anims = root.get("animations");
 		if (anims == null || !anims.isJsonObject()) {
-			throw new FormatException("Keine 'animations' gefunden");
+			throw new FormatException(Tr.t("btb.t.keine_animations_gefunden"));
 		}
 		for (Map.Entry<String, JsonElement> e : anims.getAsJsonObject().entrySet()) {
 			if (!e.getValue().isJsonObject()) {
@@ -40,7 +42,7 @@ public final class AnimationIO {
 			try {
 				out.put(e.getKey(), readAnimation(e.getKey(), e.getValue().getAsJsonObject(), warnings));
 			} catch (FormatException ex) {
-				warnings.add("Animation '" + e.getKey() + "' übersprungen: " + ex.getMessage());
+				warnings.add(Tr.t("btb.t.animation_2") + e.getKey() + Tr.t("btb.t.uebersprungen") + ex.getMessage());
 			}
 		}
 		return new Result(out, warnings);
@@ -71,7 +73,7 @@ public final class AnimationIO {
 			}
 		}
 		if (o.has("particle_effects") || o.has("sound_effects")) {
-			warnings.add("Animation '" + name + "': Partikel-/Sound-Keyframes werden ignoriert");
+			warnings.add(Tr.t("btb.t.animation_2") + name + Tr.t("btb.t.partikel_sound_keyframes_werden_ignorier"));
 		}
 		return a;
 	}
@@ -90,7 +92,7 @@ public final class AnimationIO {
 			try {
 				time = Float.parseFloat(k.getKey());
 			} catch (NumberFormatException ex) {
-				warnings.add("Animation '" + anim + "': ungültige Keyframe-Zeit '" + k.getKey() + "'");
+				warnings.add(Tr.t("btb.t.animation_2") + anim + Tr.t("btb.t.ungueltige_keyframe_zeit") + k.getKey() + "'");
 				continue;
 			}
 			JsonElement v = k.getValue();
@@ -138,7 +140,7 @@ public final class AnimationIO {
 			}
 			Molang.Expr x = Molang.compile(s);
 			for (String u : x.unknown()) {
-				String msg = "Animation '" + anim + "': Molang '" + u + "' wird nicht unterstützt (als 0 gewertet)";
+				String msg = Tr.t("btb.t.animation_2") + anim + Tr.t("btb.t.molang") + u + Tr.t("btb.t.wird_nicht_unterstuetzt_als_0_gewertet");
 				if (!warnings.contains(msg)) {
 					warnings.add(msg);
 				}

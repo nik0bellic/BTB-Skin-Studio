@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.client.editor;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import de.behindtheblocks.skinstudio.anim.AnimationIO;
 import de.behindtheblocks.skinstudio.anim.AnimationPresets;
 import de.behindtheblocks.skinstudio.anim.CosmeticAnimation;
@@ -63,7 +65,7 @@ public class CosmeticEditorScreen extends Screen {
 	private static final int[] QUICK_COLORS = {0xFFFFFFFF, 0xFFFFB347, 0xFFFF6A5A, 0xFFFFE066, 0xFF7CFFB0, 0xFF7FD8FF, 0xFFB08CFF, 0xFFFF8FD0, 0xFF303030};
 
 	private enum Tab {
-		GENERAL("Allgemein"), MODEL("Modell"), COLOR("Farbe"), ANIMATION("Animation"), EFFECTS("Effekte");
+		GENERAL(Tr.t("btb.t.allgemein")), MODEL(Tr.t("btb.t.modell")), COLOR(Tr.t("btb.t.farbe")), ANIMATION(Tr.t("btb.t.animation")), EFFECTS(Tr.t("btb.t.effekte"));
 
 		final String label;
 
@@ -103,7 +105,7 @@ public class CosmeticEditorScreen extends Screen {
 	private float presetAmp = 1.5f;
 
 	private CosmeticEditorScreen(Screen parent, CosmeticDefinition def, GeoModel model, Map<String, CosmeticAnimation> anims, ArchiveFiles extra, String originalId) {
-		super(Component.literal("Cosmetic-Editor"));
+		super(Component.literal(Tr.t("btb.t.cosmetic_editor")));
 		this.parent = parent;
 		this.def = def;
 		this.model = model;
@@ -222,7 +224,7 @@ public class CosmeticEditorScreen extends Screen {
 		warnings.clear();
 		try {
 			if (!CosmeticJson.isValidId(def.id)) {
-				throw new FormatException("ID muss die Form namespace:name haben (nur a-z 0-9 _ . -)");
+				throw new FormatException(Tr.t("btb.t.id_muss_die_form_namespace_name_haben_nu"));
 			}
 			CosmeticDefinition d = def.copy();
 			ArchiveFiles out = PackWriter.cosmeticFiles(d, model, animations, files);
@@ -232,7 +234,7 @@ public class CosmeticEditorScreen extends Screen {
 		} catch (FormatException e) {
 			error = e.getMessage();
 		} catch (RuntimeException e) {
-			error = "Fehler: " + e.getMessage();
+			error = Tr.t("btb.t.fehler") + e.getMessage();
 			LOG.warn("Editor-Vorschau fehlgeschlagen", e);
 		}
 	}
@@ -253,9 +255,9 @@ public class CosmeticEditorScreen extends Screen {
 		ui.begin(g, font, mouseX, mouseY);
 		Theme t = ui.t;
 		int m = 8, top = 30, bottom = height - m;
-		ui.iconButton(m, 6, 18, Icon.BACK, false, this::onClose, unsaved ? "Zurück (ungespeicherte Änderungen gehen verloren)" : "Zurück");
-		ui.title("Cosmetic-Editor", m + 24, 11, t.text);
-		ui.text(ui.ellipsize(def.name("de") + (unsaved ? " •" : ""), 200), m + 24 + font.width("Cosmetic-Editor") + 10, 11, t.textMuted);
+		ui.iconButton(m, 6, 18, Icon.BACK, false, this::onClose, unsaved ? Tr.t("btb.t.zurueck_ungespeicherte_aenderungen_gehen") : Tr.t("btb.t.zurueck"));
+		ui.title(Tr.t("btb.t.cosmetic_editor"), m + 24, 11, t.text);
+		ui.text(ui.ellipsize(def.name("de") + (unsaved ? " •" : ""), 200), m + 24 + font.width(Tr.t("btb.t.cosmetic_editor")) + 10, 11, t.textMuted);
 
 		int panelW = Math.max(190, Math.min(250, width * 2 / 5));
 		ui.glass(m, top, panelW, bottom - top, 8);
@@ -307,8 +309,8 @@ public class CosmeticEditorScreen extends Screen {
 		};
 		preview.draw(g, sx + 4, top + 4, sx + sw - 4, py1, list);
 		ui.region(sx + 4, top + 22, sw - 8, py1 - top - 22, () -> dragging = true);
-		ui.toggle(sx + 10, top + 10, 112, "Mit meinem Outfit", withOutfit, () -> withOutfit = !withOutfit);
-		ui.text("Ziehen zum Drehen · Live-Vorschau", sx + 10, py1 - 14, t.textFaint);
+		ui.toggle(sx + 10, top + 10, 112, Tr.t("btb.t.mit_meinem_outfit"), withOutfit, () -> withOutfit = !withOutfit);
+		ui.text(Tr.t("btb.t.ziehen_zum_drehen_live_vorschau"), sx + 10, py1 - 14, t.textFaint);
 		if (error != null) {
 			ui.rounded(sx + 10, top + 28, sw - 20, 28, 6, (t.danger & 0xFFFFFF) | 0xD0000000);
 			var lines = font.split(Component.literal(error), sw - 32);
@@ -322,9 +324,9 @@ public class CosmeticEditorScreen extends Screen {
 		// bottom actions
 		int by = bottom - 30;
 		int bw = Math.min(120, (sw - 32) / 3);
-		ui.button(sx + 8, by, bw, 20, "Speichern", Icon.SAVE, Ui.Style.PRIMARY, error == null, () -> save(false), "In „Meine Cosmetics“ speichern");
-		ui.button(sx + 12 + bw, by, bw, 20, "Speichern & anlegen", Icon.HANGER, Ui.Style.SECONDARY, error == null, () -> save(true), null);
-		ui.button(sx + 16 + bw * 2, by, bw, 20, "Exportieren", Icon.EXPORT, Ui.Style.SECONDARY, error == null, this::export, "Als .btbcosmetic in den exports-Ordner");
+		ui.button(sx + 8, by, bw, 20, Tr.t("btb.t.speichern"), Icon.SAVE, Ui.Style.PRIMARY, error == null, () -> save(false), Tr.t("btb.t.in_meine_cosmetics_speichern"));
+		ui.button(sx + 12 + bw, by, bw, 20, Tr.t("btb.t.speichern_anlegen"), Icon.HANGER, Ui.Style.SECONDARY, error == null, () -> save(true), null);
+		ui.button(sx + 16 + bw * 2, by, bw, 20, Tr.t("btb.t.exportieren"), Icon.EXPORT, Ui.Style.SECONDARY, error == null, this::export, Tr.t("btb.t.als_btbcosmetic_in_den_exports_ordner"));
 		if (status != null) {
 			ui.text(ui.ellipsize(status, sw - 20), sx + 10, by - 12, t.textMuted);
 		}
@@ -345,14 +347,14 @@ public class CosmeticEditorScreen extends Screen {
 
 	private void drawGeneral(int x, int y, int w) {
 		Theme t = ui.t;
-		field(nameBox, x, y, w, "Name");
+		field(nameBox, x, y, w, Tr.t("btb.t.name"));
 		y += 32;
-		field(idBox, x, y, w, "ID (namespace:name)");
+		field(idBox, x, y, w, Tr.t("btb.t.id_namespace_name"));
 		y += 32;
-		field(descBox, x, y, w, "Beschreibung");
+		field(descBox, x, y, w, Tr.t("btb.t.beschreibung"));
 		y += 34;
 		CosmeticType[] types = CosmeticType.values();
-		ui.cycle(x, y, w, "Typ", def.type.category.labelDe + " › " + def.type.label, () -> {
+		ui.cycle(x, y, w, Tr.t("btb.t.typ"), de.behindtheblocks.skinstudio.client.gui.WardrobeScreen.categoryLabel(def.type.category) + " › " + de.behindtheblocks.skinstudio.client.gui.WardrobeScreen.typeLabel(def.type), () -> {
 			def.type = types[(def.type.ordinal() + 1) % types.length];
 			def.slots.clear();
 			changed();
@@ -363,7 +365,7 @@ public class CosmeticEditorScreen extends Screen {
 		});
 		y += 18;
 		AttachmentPoint[] aps = AttachmentPoint.values();
-		ui.cycle(x, y, w, "Befestigung", def.attachment.label, () -> {
+		ui.cycle(x, y, w, Tr.t("btb.t.befestigung"), de.behindtheblocks.skinstudio.client.gui.WardrobeScreen.attachmentLabel(def.attachment), () -> {
 			def.attachment = aps[(def.attachment.ordinal() + 1) % aps.length];
 			changed();
 		}, () -> {
@@ -371,16 +373,16 @@ public class CosmeticEditorScreen extends Screen {
 			changed();
 		});
 		y += 22;
-		ui.text("Belegt: " + String.join(", ", def.effectiveSlots().stream().map(s -> s.label).toList()), x + 2, y, t.textFaint);
+		ui.text(Tr.t("btb.t.belegt") + String.join(", ", def.effectiveSlots().stream().map(sl -> Tr.t("btb.slot." + sl.id())).toList()), x + 2, y, t.textFaint);
 		y += 16;
-		ui.text("Hautebenen ausblenden", x + 2, y, t.textMuted);
+		ui.text(Tr.t("btb.t.hautebenen_ausblenden"), x + 2, y, t.textMuted);
 		y += 12;
 		for (String layer : new String[]{"hat", "jacket", "sleeves", "pants"}) {
 			String label = switch (layer) {
-				case "hat" -> "Hut-Ebene";
-				case "jacket" -> "Jacke";
-				case "sleeves" -> "Ärmel";
-				default -> "Hose";
+				case "hat" -> Tr.t("btb.ui.layer.hat");
+				case "jacket" -> Tr.t("btb.ui.layer.jacket");
+				case "sleeves" -> Tr.t("btb.ui.layer.sleeves");
+				default -> Tr.t("btb.ui.layer.pants");
 			};
 			ui.toggle(x, y, w, label, def.hideLayers.contains(layer), () -> {
 				if (!def.hideLayers.remove(layer)) {
@@ -395,28 +397,28 @@ public class CosmeticEditorScreen extends Screen {
 	private void drawModel(int x, int y, int w) {
 		Theme t = ui.t;
 		int half = (w - 4) / 2;
-		ui.button(x, y, half, 18, "Modell importieren", Icon.IMPORT, Ui.Style.PRIMARY, true,
-				() -> pick("Bedrock-/Blockbench-Modell", "json", this::loadFile), ".geo.json aus Blockbench (Bedrock-Modell) oder Bedrock-Geometrie");
-		ui.button(x + half + 4, y, half, 18, "Textur tauschen", Icon.PALETTE, Ui.Style.SECONDARY, true,
-				() -> pick("PNG-Textur", "png", this::loadFile), "PNG passend zum Modell");
+		ui.button(x, y, half, 18, Tr.t("btb.t.modell_importieren"), Icon.IMPORT, Ui.Style.PRIMARY, true,
+				() -> pick(Tr.t("btb.t.bedrock_blockbench_modell"), "json", this::loadFile), Tr.t("btb.t.geo_json_aus_blockbench_bedrock_modell_o"));
+		ui.button(x + half + 4, y, half, 18, Tr.t("btb.t.textur_tauschen"), Icon.PALETTE, Ui.Style.SECONDARY, true,
+				() -> pick(Tr.t("btb.t.png_textur"), "png", this::loadFile), Tr.t("btb.t.png_passend_zum_modell"));
 		y += 22;
 		boolean hasEmissive = def.emissiveTexture != null;
-		ui.button(x, y, half, 18, hasEmissive ? "Leuchttextur ersetzen" : "Leuchttextur", Icon.SUN, Ui.Style.SECONDARY, true,
-				() -> pick("Leuchtende Bereiche (PNG)", "png", p -> loadTexture(p, true)), "Bereiche, die im Dunkeln leuchten");
-		ui.button(x + half + 4, y, half, 18, "Leuchten entfernen", Icon.TRASH, Ui.Style.GHOST, hasEmissive, () -> {
+		ui.button(x, y, half, 18, hasEmissive ? Tr.t("btb.t.leuchttextur_ersetzen") : Tr.t("btb.t.leuchttextur"), Icon.SUN, Ui.Style.SECONDARY, true,
+				() -> pick(Tr.t("btb.t.leuchtende_bereiche_png"), "png", p -> loadTexture(p, true)), Tr.t("btb.t.bereiche_die_im_dunkeln_leuchten"));
+		ui.button(x + half + 4, y, half, 18, Tr.t("btb.t.leuchten_entfernen"), Icon.TRASH, Ui.Style.GHOST, hasEmissive, () -> {
 			def.emissiveTexture = null;
 			changed();
 		}, null);
 		y += 24;
-		ui.text(model.bones.size() + " Bones · " + model.cubeCount() + " Würfel · Textur " + model.textureWidth + "×" + model.textureHeight, x + 2, y, t.textFaint);
+		ui.text(model.bones.size() + Tr.t("btb.t.bones") + model.cubeCount() + Tr.t("btb.t.wuerfel_textur") + model.textureWidth + "×" + model.textureHeight, x + 2, y, t.textFaint);
 		y += 14;
 		CosmeticDefinition.Transform tr = def.transform;
-		ui.text("POSITION (Pixel)", x + 2, y, t.textFaint);
+		ui.text(Tr.t("btb.t.position_pixel"), x + 2, y, t.textFaint);
 		y += 11;
 		String[] ax = {"X", "Y", "Z"};
 		for (int i = 0; i < 3; i++) {
 			int k = i;
-			ui.stepper(x, y, w, "Verschieben " + ax[i], tr.offset[i], 0.5f, -64, 64, " px", v -> {
+			ui.stepper(x, y, w, Tr.t("btb.t.verschieben") + ax[i], tr.offset[i], 0.5f, -64, 64, " px", v -> {
 				tr.offset[k] = v;
 				changed();
 			});
@@ -426,31 +428,31 @@ public class CosmeticEditorScreen extends Screen {
 		y += 13;
 		for (int i = 0; i < 3; i++) {
 			int k = i;
-			ui.stepper(x, y, w, "Drehen " + ax[i], tr.rotation[i], 5, -180, 180, "°", v -> {
+			ui.stepper(x, y, w, Tr.t("btb.t.drehen") + ax[i], tr.rotation[i], 5, -180, 180, "°", v -> {
 				tr.rotation[k] = v;
 				changed();
 			});
 			y += 15;
 		}
-		ui.stepper(x, y, w, "Größe", tr.scale[0], 0.05f, 0.1f, 8, "×", v -> {
+		ui.stepper(x, y, w, Tr.t("btb.t.groesse"), tr.scale[0], 0.05f, 0.1f, 8, "×", v -> {
 			tr.scale[0] = tr.scale[1] = tr.scale[2] = v;
 			changed();
 		});
 		y += 17;
-		ui.text("DREHPUNKT (relativ zum Befestigungspunkt)", x + 2, y, t.textFaint);
+		ui.text(Tr.t("btb.t.drehpunkt_relativ_zum_befestigungspunkt"), x + 2, y, t.textFaint);
 		y += 11;
 		for (int i = 0; i < 3; i++) {
 			int k = i;
-			ui.stepper(x, y, w, "Pivot " + ax[i], tr.pivot[i], 0.5f, -32, 32, " px", v -> {
+			ui.stepper(x, y, w, Tr.t("btb.t.pivot") + ax[i], tr.pivot[i], 0.5f, -32, 32, " px", v -> {
 				tr.pivot[k] = v;
 				changed();
 			});
 			y += 15;
 		}
 		y += 3;
-		ui.button(x, y, half, 16, "Am Punkt ausrichten", Icon.LAYERS, Ui.Style.SECONDARY, true, this::alignToAnchor,
-				"Setzt das Modell auf den Befestigungspunkt (für Modelle, die um 0,0,0 gebaut sind)");
-		ui.button(x + half + 4, y, half, 16, "Zurücksetzen", Icon.REFRESH, Ui.Style.GHOST, true, () -> {
+		ui.button(x, y, half, 16, Tr.t("btb.t.am_punkt_ausrichten"), Icon.LAYERS, Ui.Style.SECONDARY, true, this::alignToAnchor,
+				Tr.t("btb.t.setzt_das_modell_auf_den_befestigungspun"));
+		ui.button(x + half + 4, y, half, 16, Tr.t("btb.t.zuruecksetzen"), Icon.REFRESH, Ui.Style.GHOST, true, () -> {
 			tr.copyFrom(new CosmeticDefinition.Transform());
 			changed();
 		}, null);
@@ -458,32 +460,32 @@ public class CosmeticEditorScreen extends Screen {
 
 	private void drawColor(int x, int y, int w) {
 		Theme t = ui.t;
-		ui.toggle(x, y, w, "Einfärbbar", def.tint.enabled, () -> {
+		ui.toggle(x, y, w, Tr.t("btb.t.einfaerbbar"), def.tint.enabled, () -> {
 			def.tint.enabled = !def.tint.enabled;
 			changed();
 		});
 		y += 18;
-		ui.text(def.tintMask != null ? "Nur markierte Bereiche (Färbemaske) werden gefärbt." : "Die ganze Textur wird gefärbt.", x + 2, y, t.textFaint);
+		ui.text(def.tintMask != null ? Tr.t("btb.t.nur_markierte_bereiche_faerbemaske_werde") : Tr.t("btb.t.die_ganze_textur_wird_gefaerbt"), x + 2, y, t.textFaint);
 		y += 12;
 		int half = (w - 4) / 2;
-		ui.button(x, y, half, 16, "Färbemaske laden", Icon.PALETTE, Ui.Style.SECONDARY, true, () -> pick("Färbemaske (PNG)", "png", p -> loadMask(p)),
-				"PNG: deckende Pixel werden eingefärbt, transparente bleiben original");
-		ui.button(x + half + 4, y, half, 16, "Maske entfernen", Icon.TRASH, Ui.Style.GHOST, def.tintMask != null, () -> {
+		ui.button(x, y, half, 16, Tr.t("btb.t.faerbemaske_laden"), Icon.PALETTE, Ui.Style.SECONDARY, true, () -> pick(Tr.t("btb.t.faerbemaske_png"), "png", p -> loadMask(p)),
+				Tr.t("btb.t.png_deckende_pixel_werden_eingefaerbt_tr"));
+		ui.button(x + half + 4, y, half, 16, Tr.t("btb.t.maske_entfernen"), Icon.TRASH, Ui.Style.GHOST, def.tintMask != null, () -> {
 			def.tintMask = null;
 			changed();
 		}, null);
 		y += 24;
 		int color = previewColor != 0 ? previewColor : def.tint.defaultColor;
-		ui.text("Farbe", x + 2, y, t.textMuted);
+		ui.text(Tr.t("btb.t.farbe"), x + 2, y, t.textMuted);
 		ui.rounded(x + w - 40, y - 3, 40, 14, 6, color | 0xFF000000);
 		ui.text(Colors.format(color), x + w - 92, y, t.textFaint);
 		y += 16;
 		float[] hsv = Colors.toHsv(color);
-		ui.slider(x, y, w, "Farbton", hsv[0] / 360f, Colors.hsv(hsv[0], 0.7f, 1), v -> setPreviewColor(Colors.hsv(v * 360, hsv[1], hsv[2])));
+		ui.slider(x, y, w, Tr.t("btb.t.farbton"), hsv[0] / 360f, Colors.hsv(hsv[0], 0.7f, 1), v -> setPreviewColor(Colors.hsv(v * 360, hsv[1], hsv[2])));
 		y += 16;
-		ui.slider(x, y, w, "Sättigung", hsv[1], t.accent, v -> setPreviewColor(Colors.hsv(hsv[0], v, hsv[2])));
+		ui.slider(x, y, w, Tr.t("btb.t.saettigung"), hsv[1], t.accent, v -> setPreviewColor(Colors.hsv(hsv[0], v, hsv[2])));
 		y += 16;
-		ui.slider(x, y, w, "Helligkeit", hsv[2], t.textMuted, v -> setPreviewColor(Colors.hsv(hsv[0], hsv[1], Math.max(0.05f, v))));
+		ui.slider(x, y, w, Tr.t("btb.t.helligkeit"), hsv[2], t.textMuted, v -> setPreviewColor(Colors.hsv(hsv[0], hsv[1], Math.max(0.05f, v))));
 		y += 20;
 		int bx = x;
 		for (int c : QUICK_COLORS) {
@@ -493,19 +495,19 @@ public class CosmeticEditorScreen extends Screen {
 			bx += 17;
 		}
 		y += 22;
-		ui.button(x, y, half, 16, "Als Standard", Icon.CHECK, Ui.Style.SECONDARY, true, () -> {
+		ui.button(x, y, half, 16, Tr.t("btb.t.als_standard"), Icon.CHECK, Ui.Style.SECONDARY, true, () -> {
 			def.tint.defaultColor = color;
 			previewColor = 0;
 			changed();
-		}, "Diese Farbe ist die Grundfarbe des Cosmetics");
-		ui.button(x + half + 4, y, half, 16, "Zur Palette", Icon.PLUS, Ui.Style.SECONDARY, def.tint.palette.size() < 12, () -> {
+		}, Tr.t("btb.t.diese_farbe_ist_die_grundfarbe_des_cosme"));
+		ui.button(x + half + 4, y, half, 16, Tr.t("btb.t.zur_palette"), Icon.PLUS, Ui.Style.SECONDARY, def.tint.palette.size() < 12, () -> {
 			if (!def.tint.palette.contains(color)) {
 				def.tint.palette.add(color);
 				changed();
 			}
-		}, "Spieler können diese Farbe in der Garderobe wählen");
+		}, Tr.t("btb.t.spieler_koennen_diese_farbe_in_der_garde"));
 		y += 22;
-		ui.text("Palette (Rechtsklick entfernt)", x + 2, y, t.textMuted);
+		ui.text(Tr.t("btb.t.palette_rechtsklick_entfernt"), x + 2, y, t.textMuted);
 		y += 12;
 		bx = x;
 		for (int i = 0; i < def.tint.palette.size(); i++) {
@@ -534,10 +536,10 @@ public class CosmeticEditorScreen extends Screen {
 
 	private void drawAnimation(int x, int y, int w) {
 		Theme t = ui.t;
-		ui.text("Aktive Animationen", x + 2, y, t.textMuted);
+		ui.text(Tr.t("btb.t.aktive_animationen"), x + 2, y, t.textMuted);
 		y += 12;
 		if (animations.isEmpty()) {
-			ui.text("Noch keine – unten eine Vorlage hinzufügen.", x + 2, y + 2, t.textFaint);
+			ui.text(Tr.t("btb.t.noch_keine_unten_eine_vorlage_hinzufuege"), x + 2, y + 2, t.textFaint);
 			y += 14;
 		}
 		for (CosmeticAnimation an : new ArrayList<>(animations.values())) {
@@ -550,31 +552,31 @@ public class CosmeticEditorScreen extends Screen {
 				animations.remove(an.name);
 				def.animations.remove(an.name);
 				changed();
-			}, null, "Entfernen");
+			}, null, Tr.t("btb.t.entfernen"));
 			y += 17;
 		}
 		y += 6;
 		ui.divider(x, y, w);
 		y += 8;
-		ui.text("VORLAGE HINZUFÜGEN", x + 2, y, t.textFaint);
+		ui.text(Tr.t("btb.t.vorlage_hinzufuegen"), x + 2, y, t.textFaint);
 		y += 12;
 		AnimationPresets.Preset[] ps = AnimationPresets.Preset.values();
-		ui.cycle(x, y, w, "Bewegung", preset.label, () -> preset = ps[(preset.ordinal() + 1) % ps.length], () -> preset = ps[(preset.ordinal() + ps.length - 1) % ps.length]);
+		ui.cycle(x, y, w, Tr.t("btb.t.bewegung"), preset.label, () -> preset = ps[(preset.ordinal() + 1) % ps.length], () -> preset = ps[(preset.ordinal() + ps.length - 1) % ps.length]);
 		y += 14;
 		ui.text(preset.description, x + 2, y + 2, t.textFaint);
 		y += 14;
 		List<String> bones = model.bones.stream().map(b -> b.name).toList();
 		if (!bones.isEmpty()) {
 			presetBone = Math.min(presetBone, bones.size() - 1);
-			ui.cycle(x, y, w, "Teil (Bone)", bones.get(presetBone), () -> presetBone = (presetBone + 1) % bones.size(), () -> presetBone = (presetBone + bones.size() - 1) % bones.size());
+			ui.cycle(x, y, w, Tr.t("btb.t.teil_bone"), bones.get(presetBone), () -> presetBone = (presetBone + 1) % bones.size(), () -> presetBone = (presetBone + bones.size() - 1) % bones.size());
 			y += 18;
 		}
-		ui.stepper(x, y, w, "Tempo", presetSpeed, 0.1f, 0.1f, 6, "/s", v -> presetSpeed = v);
+		ui.stepper(x, y, w, Tr.t("btb.t.tempo"), presetSpeed, 0.1f, 0.1f, 6, "/s", v -> presetSpeed = v);
 		y += 15;
-		ui.stepper(x, y, w, "Stärke", presetAmp, 0.5f, 0.5f, 60, "", v -> presetAmp = v);
+		ui.stepper(x, y, w, Tr.t("btb.t.staerke"), presetAmp, 0.5f, 0.5f, 60, "", v -> presetAmp = v);
 		y += 19;
 		int half = (w - 4) / 2;
-		ui.button(x, y, half, 18, "Hinzufügen", Icon.PLUS, Ui.Style.PRIMARY, !bones.isEmpty(), () -> {
+		ui.button(x, y, half, 18, Tr.t("btb.t.hinzufuegen"), Icon.PLUS, Ui.Style.PRIMARY, !bones.isEmpty(), () -> {
 			String bone = bones.get(presetBone);
 			String second = preset == AnimationPresets.Preset.FLAP ? mirrorBone(bone, bones) : null;
 			CosmeticAnimation an = AnimationPresets.create(preset, bone, second, presetSpeed, presetAmp);
@@ -584,7 +586,7 @@ public class CosmeticEditorScreen extends Screen {
 			changed();
 		}, null);
 		ui.button(x + half + 4, y, half, 18, "animation.json", Icon.IMPORT, Ui.Style.SECONDARY, true,
-				() -> pick("Bedrock-Animation", "json", this::loadFile), "Animationen aus Blockbench/Bedrock importieren");
+				() -> pick(Tr.t("btb.t.bedrock_animation"), "json", this::loadFile), Tr.t("btb.t.animationen_aus_blockbench_bedrock_impor"));
 	}
 
 	private static String mirrorBone(String bone, List<String> bones) {
@@ -605,7 +607,7 @@ public class CosmeticEditorScreen extends Screen {
 	private void drawEffects(int x, int y, int w) {
 		Theme t = ui.t;
 		boolean glow = def.glow != null;
-		ui.toggle(x, y, w, "Lichtschein (nur optisch)", glow, () -> {
+		ui.toggle(x, y, w, Tr.t("btb.t.lichtschein_nur_optisch"), glow, () -> {
 			def.glow = glow ? null : new CosmeticDefinition.Glow();
 			changed();
 		});
@@ -623,22 +625,22 @@ public class CosmeticEditorScreen extends Screen {
 				bx += 17;
 			}
 			y += 18;
-			ui.stepper(x, y, w, "Größe", gl.size, 0.5f, 1, 32, " px", v -> {
+			ui.stepper(x, y, w, Tr.t("btb.t.groesse"), gl.size, 0.5f, 1, 32, " px", v -> {
 				gl.size = v;
 				changed();
 			});
 			y += 15;
-			ui.stepper(x, y, w, "Stärke", gl.intensity, 0.05f, 0.05f, 1, "", v -> {
+			ui.stepper(x, y, w, Tr.t("btb.t.staerke"), gl.intensity, 0.05f, 0.05f, 1, "", v -> {
 				gl.intensity = v;
 				changed();
 			});
 			y += 15;
-			ui.stepper(x, y, w, "Höhe", gl.offset[1], 0.5f, -32, 32, " px", v -> {
+			ui.stepper(x, y, w, Tr.t("btb.t.hoehe"), gl.offset[1], 0.5f, -32, 32, " px", v -> {
 				gl.offset[1] = v;
 				changed();
 			});
 			y += 15;
-			ui.toggle(x, y + 1, w, "Flackern", gl.flicker, () -> {
+			ui.toggle(x, y + 1, w, Tr.t("btb.t.flackern"), gl.flicker, () -> {
 				gl.flicker = !gl.flicker;
 				changed();
 			});
@@ -647,7 +649,7 @@ public class CosmeticEditorScreen extends Screen {
 		ui.divider(x, y, w);
 		y += 8;
 		boolean parts = def.particles != null;
-		ui.toggle(x, y, w, "Partikel", parts, () -> {
+		ui.toggle(x, y, w, Tr.t("btb.t.partikel"), parts, () -> {
 			def.particles = parts ? null : new CosmeticDefinition.Particles();
 			changed();
 		});
@@ -655,7 +657,7 @@ public class CosmeticEditorScreen extends Screen {
 		if (parts) {
 			CosmeticDefinition.Particles p = def.particles;
 			int idx = java.util.Arrays.asList(PARTICLES).indexOf(p.type);
-			ui.cycle(x, y, w, "Art", p.type.replace("minecraft:", ""), () -> {
+			ui.cycle(x, y, w, Tr.t("btb.t.art"), p.type.replace("minecraft:", ""), () -> {
 				p.type = PARTICLES[(idx + 1) % PARTICLES.length];
 				changed();
 			}, () -> {
@@ -663,22 +665,22 @@ public class CosmeticEditorScreen extends Screen {
 				changed();
 			});
 			y += 18;
-			ui.stepper(x, y, w, "Pro Sekunde", p.rate, 0.1f, 0, 20, "", v -> {
+			ui.stepper(x, y, w, Tr.t("btb.t.pro_sekunde"), p.rate, 0.1f, 0, 20, "", v -> {
 				p.rate = v;
 				changed();
 			});
 			y += 15;
-			ui.stepper(x, y, w, "Höhe", p.offset[1], 0.5f, -32, 32, " px", v -> {
+			ui.stepper(x, y, w, Tr.t("btb.t.hoehe"), p.offset[1], 0.5f, -32, 32, " px", v -> {
 				p.offset[1] = v;
 				changed();
 			});
 			y += 15;
-			ui.stepper(x, y, w, "Streuung", p.spread, 0.5f, 0, 16, " px", v -> {
+			ui.stepper(x, y, w, Tr.t("btb.t.streuung"), p.spread, 0.5f, 0, 16, " px", v -> {
 				p.spread = v;
 				changed();
 			});
 			y += 18;
-			ui.text("Partikel sieht man in der Welt, nicht in der Vorschau.", x + 2, y, t.textFaint);
+			ui.text(Tr.t("btb.t.partikel_sieht_man_in_der_welt_nicht_in_"), x + 2, y, t.textFaint);
 		}
 	}
 
@@ -699,13 +701,13 @@ public class CosmeticEditorScreen extends Screen {
 		}
 		def.transform.offset = new float[]{tx, ty, tz};
 		changed();
-		status = "Modell auf „" + ap.label + "“ ausgerichtet";
+		status = Tr.t("btb.t.modell_auf") + de.behindtheblocks.skinstudio.client.gui.WardrobeScreen.attachmentLabel(ap) + Tr.t("btb.t.ausgerichtet");
 	}
 
 	private void pick(String label, String patterns, Consumer<Path> handler) {
 		FileDialogs.openFiles(label, patterns, false, paths -> {
 			if (paths.isEmpty()) {
-				status = "Kein Datei-Dialog verfügbar – Datei einfach in dieses Fenster ziehen.";
+				status = Tr.t("btb.t.kein_datei_dialog_verfuegbar_datei_einfa");
 				return;
 			}
 			paths.forEach(handler);
@@ -728,7 +730,7 @@ public class CosmeticEditorScreen extends Screen {
 			try {
 				return Files.readAllBytes(p);
 			} catch (Exception e) {
-				throw new FormatException("Datei nicht lesbar: " + e.getMessage());
+				throw new FormatException(Tr.t("btb.t.datei_nicht_lesbar") + e.getMessage());
 			}
 		}, CosmeticLibrary.IO).whenCompleteAsync((bytes, err) -> {
 			if (err != null) {
@@ -740,17 +742,17 @@ public class CosmeticEditorScreen extends Screen {
 				if (text.contains("\"animations\"")) {
 					AnimationIO.Result r = AnimationIO.read(bytes);
 					animations.putAll(r.animations());
-					status = r.animations().size() + " Animation(en) importiert" + (r.warnings().isEmpty() ? "" : " – " + r.warnings().getFirst());
+					status = r.animations().size() + Tr.t("btb.t.animation_en_importiert") + (r.warnings().isEmpty() ? "" : " – " + r.warnings().getFirst());
 				} else {
 					GeometryIO.Result r = GeometryIO.read(bytes);
 					model = r.first().copy();
 					def.preview = null;
-					status = "Modell „" + model.identifier + "“ geladen (" + model.cubeCount() + " Würfel)" + (r.warnings().isEmpty() ? "" : " – " + r.warnings().getFirst());
+					status = Tr.t("btb.t.modell_2") + model.identifier + Tr.t("btb.t.geladen") + model.cubeCount() + Tr.t("btb.t.wuerfel") + (r.warnings().isEmpty() ? "" : " – " + r.warnings().getFirst());
 					if (model.bones.stream().noneMatch(b -> AttachmentPoint.Part.fromBoneName(b.name) != null)) {
 						float[] b = model.bounds();
 						if (b[1] < 10) {
 							alignToAnchor();
-							status += " und am Befestigungspunkt ausgerichtet";
+							status += Tr.t("btb.t.und_am_befestigungspunkt_ausgerichtet");
 						}
 					}
 				}
@@ -770,7 +772,7 @@ public class CosmeticEditorScreen extends Screen {
 			} catch (FormatException e) {
 				throw e;
 			} catch (Exception e) {
-				throw new FormatException("Datei nicht lesbar: " + e.getMessage());
+				throw new FormatException(Tr.t("btb.t.datei_nicht_lesbar") + e.getMessage());
 			}
 		}, CosmeticLibrary.IO).whenCompleteAsync((bytes, err) -> {
 			if (err != null) {
@@ -780,13 +782,13 @@ public class CosmeticEditorScreen extends Screen {
 			if (emissive) {
 				files.put("emissive.png", bytes);
 				def.emissiveTexture = "emissive.png";
-				status = "Leuchttextur geladen";
+				status = Tr.t("btb.t.leuchttextur_geladen");
 			} else {
 				files.put("texture.png", bytes);
 				def.texture = "texture.png";
 				def.preview = null;
 				Png.Info info = Png.info(bytes, "texture.png");
-				status = "Textur geladen (" + info.width() + "×" + info.height() + ")";
+				status = Tr.t("btb.t.textur_geladen") + info.width() + "×" + info.height() + ")";
 			}
 			changed();
 		}, Minecraft.getInstance());
@@ -832,11 +834,11 @@ public class CosmeticEditorScreen extends Screen {
 			}
 		}, CosmeticLibrary.IO).whenCompleteAsync((v, err) -> {
 			if (err != null) {
-				status = "Speichern fehlgeschlagen: " + err.getMessage();
+				status = Tr.t("btb.t.speichern_fehlgeschlagen") + err.getMessage();
 				return;
 			}
 			unsaved = false;
-			status = "Gespeichert in „Meine Cosmetics“ ✓";
+			status = Tr.t("btb.t.gespeichert_in_meine_cosmetics");
 			CosmeticLibrary.get().reload().thenRun(() -> {
 				if (equip) {
 					CosmeticAsset saved = CosmeticLibrary.get().find(asset.id());
@@ -848,7 +850,7 @@ public class CosmeticEditorScreen extends Screen {
 						l.equip(saved.definition, previewColor, saved.contentHash, CosmeticLibrary.get()::definition);
 						Wardrobe.get().markUsed(saved.id());
 						Wardrobe.get().setEquipped(l);
-						status = "Gespeichert und angelegt ✓";
+						status = Tr.t("btb.t.gespeichert_und_angelegt");
 					}
 				}
 			});
@@ -868,7 +870,7 @@ public class CosmeticEditorScreen extends Screen {
 				throw new RuntimeException(e.getMessage(), e);
 			}
 		}, CosmeticLibrary.IO).whenCompleteAsync((path, err) -> {
-			status = err != null ? "Export fehlgeschlagen: " + err.getMessage() : "Exportiert nach " + path;
+			status = err != null ? Tr.t("btb.t.export_fehlgeschlagen") + err.getMessage() : Tr.t("btb.t.exportiert_nach") + path;
 			if (err == null) {
 				com.mojang.blaze3d.Blaze3D.openPath(path.getParent());
 			}

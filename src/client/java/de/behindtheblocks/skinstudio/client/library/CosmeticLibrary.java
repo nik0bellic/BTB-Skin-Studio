@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.client.library;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import de.behindtheblocks.skinstudio.BtbSkinStudio;
 import de.behindtheblocks.skinstudio.cosmetic.CosmeticDefinition;
 import de.behindtheblocks.skinstudio.pack.ArchiveFiles;
@@ -158,7 +160,7 @@ public final class CosmeticLibrary {
 			for (CosmeticAsset a : p.cosmetics) {
 				String existing = owner.get(a.id());
 				if (existing != null) {
-					p.problems.add(PackProblem.error(a.id(), "ID bereits durch Pack '" + existing + "' belegt – nicht geladen"));
+					p.problems.add(PackProblem.error(a.id(), Tr.t("btb.t.id_bereits_durch_pack") + existing + Tr.t("btb.t.belegt_nicht_geladen")));
 					LOG.warn("Doppelte Cosmetic-ID {} in Pack {} (bereits in {})", a.id(), p.id(), existing);
 					continue;
 				}
@@ -196,6 +198,14 @@ public final class CosmeticLibrary {
 	/** Loads a received cosmetic from the disk cache (background thread). */
 	public CompletableFuture<Boolean> loadCached(String hash) {
 		return CompletableFuture.supplyAsync(() -> {
+			Path skinFile = store.cache.resolve(hash + ".btbskin");
+			if (Files.isRegularFile(skinFile)) {
+				try {
+					return de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().acceptRemote(hash, ArchiveFiles.read(skinFile)) != null;
+				} catch (Exception e) {
+					return false;
+				}
+			}
 			Path file = store.cache.resolve(hash + PackStore.COSMETIC_EXT);
 			if (!Files.isRegularFile(file)) {
 				return false;
@@ -224,6 +234,16 @@ public final class CosmeticLibrary {
 	public CompletableFuture<CosmeticAsset> acceptReceived(String hash, byte[] zip) {
 		return CompletableFuture.supplyAsync(() -> {
 			try {
+				ArchiveFiles files = ArchiveFiles.readZip(zip);
+				if (de.behindtheblocks.skinstudio.skin.SkinIO.isSkinArchive(files)) {
+					var skin = de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().acceptRemote(hash, files);
+					if (skin != null) {
+						store.ensureDirectories();
+						Files.write(store.cache.resolve(hash + ".btbskin"), zip);
+						LOG.info("Skin {} von einem Mitspieler empfangen", skin.id);
+					}
+					return null;
+				}
 				CosmeticAsset a = PackReader.readSingle(ArchiveFiles.readZip(zip), "remote", new ArrayList<>());
 				if (!a.contentHash.equals(hash)) {
 					LOG.warn("Empfangenes Cosmetic hat falschen Hash – verworfen");
@@ -247,8 +267,8 @@ public final class CosmeticLibrary {
 				return;
 			}
 			try (Stream<Path> s = Files.list(store.cache)) {
-				s.map(p -> p.getFileName().toString()).filter(n -> n.endsWith(PackStore.COSMETIC_EXT))
-						.map(n -> n.substring(0, n.length() - PackStore.COSMETIC_EXT.length()))
+				s.map(p -> p.getFileName().toString()).filter(n -> n.endsWith(PackStore.COSMETIC_EXT) || n.endsWith(".btbskin"))
+						.map(n -> n.substring(0, n.lastIndexOf('.')))
 						.forEach(this::loadCached);
 			} catch (IOException e) {
 				LOG.warn("Cache nicht lesbar: {}", e.getMessage());

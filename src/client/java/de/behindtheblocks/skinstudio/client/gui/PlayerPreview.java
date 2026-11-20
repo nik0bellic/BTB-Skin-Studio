@@ -22,7 +22,7 @@ import java.util.function.Supplier;
  */
 public final class PlayerPreview {
 	public enum Focus {
-		FULL(1.0f, 0f), HEAD(2.0f, 0.38f), UPPER(1.5f, 0.2f), LEGS(1.5f, -0.27f);
+		FULL(1.0f, 0f), HEAD(1.5f, 0.47f), UPPER(1.5f, 0.2f), LEGS(1.5f, -0.27f);
 
 		final float zoom;
 		final float shift;
@@ -39,6 +39,8 @@ public final class PlayerPreview {
 	private float zoom = 1;
 	private float shift;
 	private Supplier<PlayerSkin> skinLookup;
+	/** Skin to show instead of the worn one (try-on in the skin list); null = current. */
+	public de.behindtheblocks.skinstudio.skin.SkinData skinOverride;
 
 	/** Drag rotates the model. */
 	public void drag(double dx, double dy) {
@@ -69,6 +71,16 @@ public final class PlayerPreview {
 		state.boundingBoxWidth = 0.6f;
 		state.boundingBoxHeight = 1.8f;
 		state.scale = 1;
+		if (skinOverride != null) {
+			state.skin = de.behindtheblocks.skinstudio.client.skin.ClientSkins.toPlayerSkin(skinOverride, state.skin);
+			java.util.List<ActiveCosmetic> all = new java.util.ArrayList<>(de.behindtheblocks.skinstudio.client.skin.ClientSkins.extrasFor(skinOverride));
+			for (ActiveCosmetic c : cosmetics) {
+				if (!c.asset().id().startsWith("skinpart:")) {
+					all.add(c);
+				}
+			}
+			cosmetics = all;
+		}
 		state.setData(CosmeticRenderData.COSMETICS, cosmetics);
 		state.setData(CosmeticRenderData.PREVIEW, true);
 		state.showHat = state.showJacket = state.showLeftSleeve = state.showRightSleeve = state.showLeftPants = state.showRightPants = true;
@@ -106,6 +118,10 @@ public final class PlayerPreview {
 		}
 		PlayerSkin skin = skinLookup.get();
 		s.skin = skin == null ? DefaultPlayerSkin.getDefaultSkin() : skin;
+		var chosen = de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().find(de.behindtheblocks.skinstudio.client.data.Wardrobe.get().skin());
+		if (chosen != null) {
+			s.skin = de.behindtheblocks.skinstudio.client.skin.ClientSkins.toPlayerSkin(chosen, s.skin);
+		}
 		return s;
 	}
 }

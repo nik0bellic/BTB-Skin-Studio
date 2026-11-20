@@ -27,6 +27,8 @@ public final class ClientSettings {
 	public boolean shareOwnCosmetics = true;
 	/** Download cosmetics of other players that are not installed locally. */
 	public boolean downloadOthers = true;
+	/** Render the outer skin layer as real 3D pixels. */
+	public boolean skinLayers3d = false;
 	public Theme theme = Theme.DARK;
 
 	private static ClientSettings instance;
@@ -56,6 +58,7 @@ public final class ClientSettings {
 			s.animations = Json.bool(o, "animations", true);
 			s.shareOwnCosmetics = Json.bool(o, "share_own_cosmetics", true);
 			s.downloadOthers = Json.bool(o, "download_others", true);
+			s.skinLayers3d = Json.bool(o, "skin_layers_3d", false);
 			s.theme = "light".equals(Json.string(o, "theme", "dark")) ? Theme.LIGHT : Theme.DARK;
 		} catch (Exception e) {
 			LOG.warn("settings.json ist fehlerhaft, Standardwerte werden verwendet: {}", e.getMessage());
@@ -71,6 +74,7 @@ public final class ClientSettings {
 		o.addProperty("animations", animations);
 		o.addProperty("share_own_cosmetics", shareOwnCosmetics);
 		o.addProperty("download_others", downloadOthers);
+		o.addProperty("skin_layers_3d", skinLayers3d);
 		o.addProperty("theme", theme == Theme.LIGHT ? "light" : "dark");
 		String json = Json.PRETTY.toJson(o);
 		Path f = file();

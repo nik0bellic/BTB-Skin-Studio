@@ -24,7 +24,7 @@ public final class Colors {
 		} catch (NumberFormatException ignored) {
 			// fall through
 		}
-		throw new FormatException("Ungültige Farbe '" + value + "' (erwartet #RRGGBB)");
+		throw new FormatException(Tr.t("btb.t.ungueltige_farbe") + value + Tr.t("btb.t.erwartet_rrggbb"));
 	}
 
 	public static String format(int argb) {

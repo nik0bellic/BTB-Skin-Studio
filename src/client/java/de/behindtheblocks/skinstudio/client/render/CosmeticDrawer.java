@@ -54,6 +54,7 @@ public final class CosmeticDrawer {
 			poseStack.pushPose();
 			partOf(model, part).translateAndRotate(poseStack);
 			applyAttachment(poseStack, def, part);
+			applyAdjust(poseStack, active.adjust(), def, part);
 			float bx = (root.pivotX - part.pivotX) / 16f;
 			float by = (root.pivotY - (24f - part.pivotY)) / 16f;
 			float bz = (root.pivotZ - part.pivotZ) / 16f;
@@ -65,7 +66,7 @@ public final class CosmeticDrawer {
 		}
 
 		if (def.glow != null && ClientSettings.get().glowEffects) {
-			submitGlow(poseStack, collector, model, def, state.ageInTicks);
+			submitGlow(poseStack, collector, model, def, active.adjust(), state.ageInTicks);
 		}
 	}
 
@@ -102,6 +103,20 @@ public final class CosmeticDrawer {
 			ps.rotate(new Quaternionf().rotationZYX((float) Math.toRadians(t.rotation[2]), (float) Math.toRadians(t.rotation[1]), (float) Math.toRadians(t.rotation[0])));
 		}
 		ps.scale(t.scale[0], t.scale[1], t.scale[2]);
+		ps.translate(-ax, -ay, -az);
+	}
+
+	/** The player's personal offset/scale (from the wardrobe), around the attachment anchor. */
+	private static void applyAdjust(PoseStack ps, de.behindtheblocks.skinstudio.loadout.Loadout.Adjust a, CosmeticDefinition def, AttachmentPoint.Part part) {
+		if (a.isNone()) {
+			return;
+		}
+		AttachmentPoint ap = def.attachment;
+		float ax = ap.part == part ? (ap.anchorX - part.pivotX) / 16f : 0;
+		float ay = ap.part == part ? -(ap.anchorY - part.pivotY) / 16f : 0;
+		float az = ap.part == part ? (ap.anchorZ - part.pivotZ) / 16f : 0;
+		ps.translate(ax + a.x() / 16f, ay - a.y() / 16f, az + a.z() / 16f);
+		ps.scale(a.scale(), a.scale(), a.scale());
 		ps.translate(-ax, -ay, -az);
 	}
 
@@ -195,12 +210,14 @@ public final class CosmeticDrawer {
 
 	// ----------------------------------------------------------------- visual light halo
 
-	private static void submitGlow(PoseStack poseStack, SubmitNodeCollector collector, PlayerModel model, CosmeticDefinition def, float ageInTicks) {
+	private static void submitGlow(PoseStack poseStack, SubmitNodeCollector collector, PlayerModel model, CosmeticDefinition def,
+								   de.behindtheblocks.skinstudio.loadout.Loadout.Adjust adjust, float ageInTicks) {
 		CosmeticDefinition.Glow g = def.glow;
 		AttachmentPoint ap = def.attachment;
 		poseStack.pushPose();
 		partOf(model, ap.part).translateAndRotate(poseStack);
 		applyAttachment(poseStack, def, ap.part);
+		applyAdjust(poseStack, adjust, def, ap.part);
 		float cx = (ap.anchorX - ap.part.pivotX + g.offset[0]) / 16f;
 		float cy = -(ap.anchorY - ap.part.pivotY + g.offset[1]) / 16f;
 		float cz = (ap.anchorZ - ap.part.pivotZ + g.offset[2]) / 16f;

@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.molang;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import de.behindtheblocks.skinstudio.util.FormatException;
 
 import java.util.ArrayList;
@@ -83,7 +85,7 @@ public final class Molang {
 					continue;
 				}
 				if (pos < s.length()) {
-					throw error("unerwartetes Zeichen '" + s.charAt(pos) + "'");
+					throw error(Tr.t("btb.t.unerwartetes_zeichen") + s.charAt(pos) + "'");
 				}
 			}
 			if (last == null) {
@@ -245,7 +247,7 @@ public final class Molang {
 		Node parsePrimary() {
 			skip();
 			if (pos >= s.length()) {
-				throw error("Ausdruck endet unerwartet");
+				throw error(Tr.t("btb.t.ausdruck_endet_unerwartet"));
 			}
 			char c = s.charAt(pos);
 			if (c == '(') {
@@ -302,7 +304,7 @@ public final class Molang {
 				}
 				return identifier(name, args);
 			}
-			throw error("unerwartetes Zeichen '" + c + "'");
+			throw error(Tr.t("btb.t.unerwartetes_zeichen") + c + "'");
 		}
 
 		private static boolean isVariable(String name) {
@@ -416,7 +418,7 @@ public final class Molang {
 		private void expect(char c) {
 			skip();
 			if (!peek(c)) {
-				throw error("'" + c + "' erwartet");
+				throw error("'" + c + Tr.t("btb.t.erwartet"));
 			}
 			pos++;
 		}
@@ -428,7 +430,7 @@ public final class Molang {
 		}
 
 		private FormatException error(String msg) {
-			return new FormatException("Molang '" + s + "': " + msg + " (Position " + pos + ")");
+			return new FormatException(Tr.t("btb.t.molang_2") + s + "': " + msg + Tr.t("btb.t.position") + pos + ")");
 		}
 	}
 }

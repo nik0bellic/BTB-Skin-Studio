@@ -4,7 +4,7 @@
 	"version": "${version}",
 	"name": "BTB Skin Studio",
 	"description": "Cosmetics, Garderobe und Cosmetic-Editor der BTB-Studios-Mod-Familie.",
-	"authors": ["Nik2810"],
+	"authors": ["Behind The Blocks contributors"],
 	"contact": {
 		"sources": "https://github.com/nik0bellic/BTB-Skin-Studio"
 	},

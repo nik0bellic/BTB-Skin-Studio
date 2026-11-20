@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.bedrock;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import de.behindtheblocks.skinstudio.util.FormatException;
 
 import javax.imageio.ImageIO;
@@ -24,11 +26,11 @@ public final class Images {
 			}
 			BufferedImage img = ImageIO.read(new ByteArrayInputStream(data));
 			if (img == null) {
-				throw new FormatException("'" + name + "' ist kein lesbares Bild");
+				throw new FormatException("'" + name + Tr.t("btb.t.ist_kein_lesbares_bild"));
 			}
 			return toArgb(img);
 		} catch (IOException e) {
-			throw new FormatException("'" + name + "' ist beschädigt: " + e.getMessage());
+			throw new FormatException("'" + name + Tr.t("btb.t.ist_beschaedigt") + e.getMessage());
 		}
 	}
 
@@ -47,7 +49,7 @@ public final class Images {
 			ImageIO.write(img, "png", bos);
 			return bos.toByteArray();
 		} catch (IOException e) {
-			throw new FormatException("PNG konnte nicht geschrieben werden: " + e.getMessage());
+			throw new FormatException(Tr.t("btb.t.png_konnte_nicht_geschrieben_werden") + e.getMessage());
 		}
 	}
 
@@ -69,13 +71,13 @@ public final class Images {
 	static final class Tga {
 		static BufferedImage read(byte[] d) {
 			if (d.length < 18) {
-				throw new FormatException("TGA zu kurz");
+				throw new FormatException(Tr.t("btb.t.tga_zu_kurz"));
 			}
 			int idLen = d[0] & 0xFF, type = d[2] & 0xFF;
 			int w = (d[12] & 0xFF) | (d[13] & 0xFF) << 8, h = (d[14] & 0xFF) | (d[15] & 0xFF) << 8;
 			int bpp = d[16] & 0xFF, desc = d[17] & 0xFF;
 			if ((type != 2 && type != 10) || (bpp != 24 && bpp != 32) || w <= 0 || h <= 0 || w > 4096 || h > 4096) {
-				throw new FormatException("TGA-Format nicht unterstützt (Typ " + type + ", " + bpp + " Bit)");
+				throw new FormatException(Tr.t("btb.t.tga_format_nicht_unterstuetzt_typ") + type + ", " + bpp + Tr.t("btb.t.bit"));
 			}
 			int bytes = bpp / 8;
 			int[] px = new int[w * h];
@@ -102,7 +104,7 @@ public final class Images {
 					}
 				}
 			} catch (ArrayIndexOutOfBoundsException e) {
-				throw new FormatException("TGA ist unvollständig");
+				throw new FormatException(Tr.t("btb.t.tga_ist_unvollstaendig"));
 			}
 			boolean topDown = (desc & 0x20) != 0;
 			BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);

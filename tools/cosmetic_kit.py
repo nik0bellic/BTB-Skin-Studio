@@ -401,3 +401,57 @@ HEAD_BODY = [((-4, 24, -4), (8, 8, 8)), ((-4, 12, -2), (8, 12, 4))]
 BODY = [((-4, 12, -2), (8, 12, 4)), ((-4, 24, -4), (8, 8, 8))]
 FULL = [((-4, 24, -4), (8, 8, 8)), ((-4, 12, -2), (8, 12, 4)), ((-8, 12, -2), (4, 12, 4)), ((4, 12, -2), (4, 12, 4)),
         ((-4, 0, -2), (4, 12, 4)), ((0, 0, -2), (4, 12, 4))]
+
+
+# ------------------------------------------------------------------ pixel silhouettes
+
+def shape(m, bone, rows, origin, plane='xy', depth=1, paint=None, inflate=0.0, tint=False, emissive=None, mirror_x=False):
+    """Builds a solid pixel silhouette from text rows ('#' = filled, other chars = empty or color keys).
+
+    plane 'xy': a vertical sheet facing the front; rows run top→bottom, columns left→right as seen
+               from the front (+X on the viewer's right). origin = (left x, top y, front z).
+    plane 'xz': a flat sheet lying horizontally; rows run back→front, columns -x→+x. origin = (min x, bottom y, back z).
+    Each horizontal run of filled pixels becomes one box, so the silhouette is correct from every side.
+    paint(face, gx, gy, rnd) receives global pixel coordinates (column, row) and the row character.
+    """
+    for r, row in enumerate(rows):
+        c = 0
+        while c < len(row):
+            if row[c] in ' .':
+                c += 1
+                continue
+            start, ch = c, row[c]
+            while c < len(row) and row[c] == ch:
+                c += 1
+            n = c - start
+            col0 = start if not mirror_x else len(row) - c
+            if plane == 'xy':
+                o = (origin[0] + col0, origin[1] - r - 1, origin[2])
+                s = (n, 1, depth)
+            else:
+                o = (origin[0] + col0, origin[1], origin[2] + (len(rows) - 1 - r))
+                s = (n, depth, 1)
+
+            def painter(face, x, y, w, h, rnd, _r=r, _s=col0, _ch=ch, _n=n):
+                gx = _s + (min(x, _n - 1) if face in ('front', 'back', 'top', 'bottom') else 0)
+                return paint(face, gx, _r, _ch, rnd)
+            em = None
+            if emissive is not None:
+                def em(face, x, y, w, h, rnd, _r=r, _s=col0, _ch=ch, _n=n):
+                    gx = _s + (min(x, _n - 1) if face in ('front', 'back', 'top', 'bottom') else 0)
+                    return emissive(face, gx, _r, _ch, rnd)
+            m.box(bone, o, s, painter, inflate=inflate, tint=tint, emissive=em)
+
+
+def ramp(colors):
+    """Maps row characters to colors: ramp({'#': '#ffffff', 'g': '#d0d0d0'})."""
+    cs = {k: rgb(v) for k, v in colors.items()}
+    def p(face, gx, gy, ch, rnd):
+        c = cs.get(ch, cs.get('#'))
+        f = 0.96 + rnd.random() * 0.06
+        if face == 'bottom':
+            f *= 0.86
+        elif face in ('left', 'right'):
+            f *= 0.92
+        return shade(c, f) + (255,)
+    return p

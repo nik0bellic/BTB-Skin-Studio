@@ -1,5 +1,7 @@
 package de.behindtheblocks.skinstudio.client.importer;
 
+import de.behindtheblocks.skinstudio.util.Tr;
+
 import de.behindtheblocks.skinstudio.bedrock.BedrockImporter;
 import de.behindtheblocks.skinstudio.client.library.CosmeticLibrary;
 import de.behindtheblocks.skinstudio.cosmetic.CosmeticDefinition;
@@ -26,7 +28,7 @@ import java.util.Set;
  */
 public final class ImportPlan {
 	public enum Kind {
-		BTB_PACK("BTB-Cosmetic-Pack"), BTB_COSMETIC("BTB-Cosmetic"), BEDROCK("Bedrock-Ressourcen"), INVALID("Nicht importierbar");
+		BTB_PACK(Tr.t("btb.t.btb_cosmetic_pack")), BTB_COSMETIC(Tr.t("btb.t.btb_cosmetic")), BEDROCK(Tr.t("btb.t.bedrock_ressourcen")), INVALID(Tr.t("btb.t.nicht_importierbar"));
 
 		public final String label;
 
@@ -41,7 +43,9 @@ public final class ImportPlan {
 	public final List<CosmeticAsset> cosmetics = new ArrayList<>();
 	public final List<PackProblem> problems = new ArrayList<>();
 	public boolean allowed;
-	public String actionLabel = "Importieren";
+	/** True when only id clashes block the import – they can be renamed automatically. */
+	public boolean canRename;
+	public String actionLabel = Tr.t("btb.t.importieren");
 	public String summary = "";
 	LoadedPack pack;
 	ArchiveFiles packFiles;
@@ -60,7 +64,7 @@ public final class ImportPlan {
 		try {
 			files = ArchiveFiles.read(path);
 		} catch (Exception e) {
-			plan.problems.add(PackProblem.error("", "Datei kann nicht gelesen werden: " + e.getMessage()));
+			plan.problems.add(PackProblem.error("", Tr.t("btb.t.datei_kann_nicht_gelesen_werden") + e.getMessage()));
 			return plan;
 		}
 		Map<String, String> owners = new HashMap<>();
@@ -90,9 +94,11 @@ public final class ImportPlan {
 				PackStore.InstallCheck check = PackStore.checkInstall(pack, owners, versions);
 				plan.problems.addAll(check.problems());
 				plan.allowed = check.allowed();
-				plan.actionLabel = check.isUpdate() ? "Aktualisieren" : "Installieren";
-				plan.summary = check.isUpdate() ? "Update von " + check.installedVersion() + " auf " + (pack.manifest == null ? "?" : pack.manifest.version)
-						: pack.cosmetics.size() + " Cosmetics";
+				plan.canRename = !check.allowed() && pack.usable && !pack.cosmetics.isEmpty()
+						&& check.problems().stream().filter(p -> p.severity() == PackProblem.Severity.ERROR).allMatch(p -> owners.containsKey(p.where()));
+				plan.actionLabel = check.isUpdate() ? Tr.t("btb.t.aktualisieren") : Tr.t("btb.t.installieren");
+				plan.summary = check.isUpdate() ? Tr.t("btb.t.update_von") + check.installedVersion() + Tr.t("btb.t.auf") + (pack.manifest == null ? "?" : pack.manifest.version)
+						: pack.cosmetics.size() + Tr.t("btb.t.cosmetics");
 				plan.pack = pack;
 				plan.packFiles = files;
 			}
@@ -103,7 +109,7 @@ public final class ImportPlan {
 					plan.title = a.definition.name(CosmeticLibrary.language());
 					plan.cosmetics.add(renameIfTaken(a, owners, plan.problems));
 					plan.allowed = true;
-					plan.actionLabel = "Zu meinen Cosmetics";
+					plan.actionLabel = Tr.t("btb.t.zu_meinen_cosmetics");
 					plan.summary = a.id();
 				} catch (FormatException e) {
 					plan.problems.add(PackProblem.error("", e.getMessage()));
@@ -118,8 +124,8 @@ public final class ImportPlan {
 						plan.cosmetics.add(renameIfTaken(a, owners, plan.problems));
 					}
 					plan.allowed = !plan.cosmetics.isEmpty();
-					plan.actionLabel = "Zu meinen Cosmetics";
-					plan.summary = r.protectedContent ? "geschützt" : plan.cosmetics.size() + " Cosmetics erkannt";
+					plan.actionLabel = Tr.t("btb.t.zu_meinen_cosmetics");
+					plan.summary = r.protectedContent ? Tr.t("btb.t.geschuetzt") : plan.cosmetics.size() + Tr.t("btb.t.cosmetics_erkannt");
 				} catch (FormatException e) {
 					plan.problems.add(PackProblem.error("", e.getMessage()));
 				}
@@ -131,12 +137,51 @@ public final class ImportPlan {
 		return plan;
 	}
 
+	/**
+	 * Renames every clashing cosmetic id (and a taken pack id) so the pack can be installed next to the
+	 * existing ones; blocking IO, call off-thread. The plan is re-checked afterwards.
+	 */
+	public void renameConflicts() {
+		CosmeticLibrary lib = CosmeticLibrary.get();
+		Map<String, String> owners = new HashMap<>();
+		Map<String, String> versions = new HashMap<>();
+		for (LoadedPack p : lib.packs()) {
+			if (p.manifest != null) {
+				versions.put(p.id(), p.manifest.version);
+			}
+			for (CosmeticAsset a : p.cosmetics) {
+				owners.put(a.id(), p.id());
+			}
+		}
+		List<CosmeticAsset> renamed = new ArrayList<>();
+		List<PackProblem> notes = new ArrayList<>();
+		for (CosmeticAsset a : pack.cosmetics) {
+			String owner = owners.get(a.id());
+			renamed.add(owner != null && !owner.equals(pack.id()) ? renameIfTaken(a, owners, notes) : a);
+		}
+		de.behindtheblocks.skinstudio.pack.PackManifest m = pack.manifest;
+		ArchiveFiles files = de.behindtheblocks.skinstudio.pack.PackWriter.pack(m, pack.icon, renamed);
+		LoadedPack fresh = PackReader.readPack(files);
+		PackStore.InstallCheck check = PackStore.checkInstall(fresh, owners, versions);
+		problems.clear();
+		problems.addAll(fresh.problems);
+		problems.addAll(notes);
+		problems.addAll(check.problems());
+		cosmetics.clear();
+		cosmetics.addAll(fresh.cosmetics);
+		pack = fresh;
+		packFiles = files;
+		allowed = check.allowed();
+		canRename = false;
+		actionLabel = check.isUpdate() ? de.behindtheblocks.skinstudio.util.Tr.t("btb.ui.import.update") : de.behindtheblocks.skinstudio.util.Tr.t("btb.ui.import.install");
+	}
+
 	/** Gives imported own cosmetics a free id instead of clashing with an installed one. */
 	private static CosmeticAsset renameIfTaken(CosmeticAsset a, Map<String, String> owners, List<PackProblem> problems) {
 		String owner = owners.get(a.id());
 		if (owner == null || owner.equals(PackStore.CUSTOM_PACK_ID)) {
 			if (owner != null) {
-				problems.add(PackProblem.info(a.id(), "existiert bereits in „Meine Cosmetics“ und wird ersetzt"));
+				problems.add(PackProblem.info(a.id(), Tr.t("btb.t.existiert_bereits_in_meine_cosmetics_und")));
 			}
 			return a;
 		}
@@ -147,7 +192,7 @@ public final class ImportPlan {
 		while (taken.contains(id)) {
 			id = base + "_import" + n++;
 		}
-		problems.add(PackProblem.info(a.id(), "ID ist durch Pack '" + owner + "' belegt – wird als " + id + " importiert"));
+		problems.add(PackProblem.info(a.id(), Tr.t("btb.t.id_ist_durch_pack") + owner + Tr.t("btb.t.belegt_wird_als") + id + Tr.t("btb.t.importiert")));
 		CosmeticDefinition d = a.definition.copy();
 		d.id = id;
 		ArchiveFiles files = ArchiveFiles.empty();
@@ -169,16 +214,16 @@ public final class ImportPlan {
 	public String execute() throws Exception {
 		PackStore store = CosmeticLibrary.get().store;
 		if (!allowed) {
-			throw new FormatException("Import nicht möglich");
+			throw new FormatException(Tr.t("btb.t.import_nicht_moeglich"));
 		}
 		if (kind == Kind.BTB_PACK) {
 			store.install(pack, packFiles, previousSource);
-			return "Pack „" + pack.manifest.name(CosmeticLibrary.language()) + "“ " + (actionLabel.equals("Aktualisieren") ? "aktualisiert" : "installiert");
+			return Tr.t(actionLabel.equals(Tr.t("btb.t.aktualisieren")) ? "btb.ui.import.done_update" : "btb.ui.import.done_install", pack.manifest.name(CosmeticLibrary.language()));
 		}
 		for (CosmeticAsset a : cosmetics) {
 			store.saveCustom(a);
 		}
-		return cosmetics.size() == 1 ? "„" + cosmetics.getFirst().definition.name(CosmeticLibrary.language()) + "“ importiert"
-				: cosmetics.size() + " Cosmetics importiert";
+		return cosmetics.size() == 1 ? "„" + cosmetics.getFirst().definition.name(CosmeticLibrary.language()) + Tr.t("btb.t.importiert_2")
+				: cosmetics.size() + Tr.t("btb.t.cosmetics_importiert");
 	}
 }
