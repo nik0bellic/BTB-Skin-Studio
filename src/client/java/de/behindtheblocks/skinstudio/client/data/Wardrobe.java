@@ -43,6 +43,7 @@ public final class Wardrobe {
 
 	private final Map<String, Cloth> clothes = new LinkedHashMap<>();
 	private String characterBase = "vanilla:steve_wide";
+	private de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body body = de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body.NORMAL;
 	private final Set<String> favoriteSkins = new LinkedHashSet<>();
 	private final List<Runnable> listeners = new ArrayList<>();
 
@@ -73,6 +74,11 @@ public final class Wardrobe {
 			w.skin = Json.string(o, "skin", "");
 			w.favoriteSkins.addAll(Json.strings(o, "favorite_skins"));
 			w.characterBase = Json.string(o, "character_base", w.characterBase);
+			if (o.has("body") && o.get("body").isJsonObject()) {
+				JsonObject b = o.getAsJsonObject("body");
+				w.body = new de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body(Json.number(b, "height", 1), Json.number(b, "head", 1),
+						Json.number(b, "arms", 1), Json.number(b, "legs", 1)).clamp();
+			}
 			JsonElement cl = o.get("clothes");
 			if (cl != null && cl.isJsonObject()) {
 				for (var e : cl.getAsJsonObject().entrySet()) {
@@ -114,6 +120,12 @@ public final class Wardrobe {
 		favoriteSkins.forEach(fs::add);
 		o.add("favorite_skins", fs);
 		o.addProperty("character_base", characterBase);
+		JsonObject bo = new JsonObject();
+		bo.addProperty("height", body.height());
+		bo.addProperty("head", body.head());
+		bo.addProperty("arms", body.arms());
+		bo.addProperty("legs", body.legs());
+		o.add("body", bo);
 		JsonObject cl = new JsonObject();
 		clothes.forEach((slot, c) -> {
 			JsonObject e = new JsonObject();
@@ -206,6 +218,15 @@ public final class Wardrobe {
 		} else {
 			clothes.put(slot, c);
 		}
+		changed();
+	}
+
+	public de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body body() {
+		return body;
+	}
+
+	public void setBody(de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body b) {
+		body = b.clamp();
 		changed();
 	}
 

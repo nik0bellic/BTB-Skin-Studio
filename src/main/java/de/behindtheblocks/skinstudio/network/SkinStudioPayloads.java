@@ -20,7 +20,7 @@ import java.util.UUID;
  */
 public final class SkinStudioPayloads {
 	/** Bump when the wire format changes incompatibly. */
-	public static final int PROTOCOL = 3;
+	public static final int PROTOCOL = 4;
 	public static final int CHUNK_SIZE = 30_000;
 	public static final int MAX_TRANSFER_BYTES = 512 * 1024;
 	public static final int MAX_CHUNKS = MAX_TRANSFER_BYTES / CHUNK_SIZE + 1;
@@ -176,6 +176,52 @@ public final class SkinStudioPayloads {
 		}
 	}
 
+	// ------------------------------------------------------------------ body proportions
+
+	/** Height and head/arm/leg size of a character (1 = normal), checked against {@link #clamp}. */
+	public record Body(float height, float head, float arms, float legs) {
+		public static final Body NORMAL = new Body(1, 1, 1, 1);
+		public static final float MIN = 0.8f, MAX = 1.25f;
+		public static final StreamCodec<ByteBuf, Body> CODEC = StreamCodec.composite(
+				ByteBufCodecs.FLOAT, Body::height, ByteBufCodecs.FLOAT, Body::head, ByteBufCodecs.FLOAT, Body::arms, ByteBufCodecs.FLOAT, Body::legs, Body::new);
+
+		public Body clamp() {
+			return new Body(c(height), c(head), c(arms), c(legs));
+		}
+
+		public boolean isNormal() {
+			return equals(NORMAL);
+		}
+
+		private static float c(float v) {
+			return Float.isFinite(v) ? Math.max(MIN, Math.min(MAX, Math.round(v * 100) / 100f)) : 1;
+		}
+	}
+
+	public record SetBody(Body body) implements CustomPacketPayload {
+		public static final Type<SetBody> TYPE = SkinStudioPayloads.payloadType("set_body");
+		public static final StreamCodec<ByteBuf, SetBody> CODEC = StreamCodec.composite(Body.CODEC, SetBody::body, SetBody::new);
+
+		@Override
+		public Type<SetBody> type() {
+			return TYPE;
+		}
+	}
+
+	public record PlayerBody(UUID player, Body body) {
+		public static final StreamCodec<ByteBuf, PlayerBody> CODEC = StreamCodec.composite(UUIDUtil.STREAM_CODEC, PlayerBody::player, Body.CODEC, PlayerBody::body, PlayerBody::new);
+	}
+
+	public record SyncBodies(List<PlayerBody> bodies) implements CustomPacketPayload {
+		public static final Type<SyncBodies> TYPE = SkinStudioPayloads.payloadType("sync_bodies");
+		public static final StreamCodec<ByteBuf, SyncBodies> CODEC = StreamCodec.composite(PlayerBody.CODEC.apply(ByteBufCodecs.list(256)), SyncBodies::bodies, SyncBodies::new);
+
+		@Override
+		public Type<SyncBodies> type() {
+			return TYPE;
+		}
+	}
+
 	// ------------------------------------------------------------------ emotes
 
 	/** Client → server: start an emote (empty id = stop). */
@@ -202,6 +248,8 @@ public final class SkinStudioPayloads {
 	}
 
 	public static void register() {
+		PayloadTypeRegistry.serverboundPlay().register(SetBody.TYPE, SetBody.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncBodies.TYPE, SyncBodies.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(PlayEmote.TYPE, PlayEmote.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(EmotePlayed.TYPE, EmotePlayed.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(Hello.TYPE, Hello.CODEC);

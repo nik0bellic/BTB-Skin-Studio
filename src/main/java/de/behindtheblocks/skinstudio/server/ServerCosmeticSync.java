@@ -74,6 +74,7 @@ public final class ServerCosmeticSync {
 		ServerPlayNetworking.registerGlobalReceiver(Hello.TYPE, (payload, ctx) -> onHello(ctx.player(), payload, ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(SetLoadout.TYPE, (payload, ctx) -> onSetLoadout(ctx.player(), payload, ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.SetSkin.TYPE, (payload, ctx) -> onSetSkin(ctx.player(), payload.skin(), ctx.server()));
+		ServerPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.SetBody.TYPE, (payload, ctx) -> onBody(ctx.player(), payload.body(), ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.PlayEmote.TYPE, (payload, ctx) -> onEmote(ctx.player(), payload.id(), ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(RequestCosmetic.TYPE, (payload, ctx) -> onRequest(ctx.player(), payload.hash(), ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(CosmeticChunk.TYPE, (payload, ctx) -> onUploadChunk(ctx.player(), payload, ctx.server()));
@@ -105,6 +106,11 @@ public final class ServerCosmeticSync {
 		}
 		List<SkinStudioPayloads.PlayerSkinInfo> allSkins = new ArrayList<>();
 		skins.forEach((id, info) -> allSkins.add(new SkinStudioPayloads.PlayerSkinInfo(id, info)));
+		List<SkinStudioPayloads.PlayerBody> allBodies = new ArrayList<>();
+		bodies.forEach((id, b) -> allBodies.add(new SkinStudioPayloads.PlayerBody(id, b)));
+		if (!allBodies.isEmpty()) {
+			ServerPlayNetworking.send(player, new SkinStudioPayloads.SyncBodies(allBodies));
+		}
 		if (!allSkins.isEmpty()) {
 			ServerPlayNetworking.send(player, new SkinStudioPayloads.SyncSkins(allSkins));
 		}
@@ -114,6 +120,7 @@ public final class ServerCosmeticSync {
 		UUID id = player.getUUID();
 		modded.remove(id);
 		lastEmote.remove(id);
+		bodies.remove(id);
 		rate.remove(id);
 		uploads.keySet().removeIf(k -> k.startsWith(id + "/"));
 		waiting.values().forEach(s -> s.remove(id));
@@ -187,6 +194,23 @@ public final class ServerCosmeticSync {
 	}
 
 	private final Map<UUID, Long> lastEmote = new HashMap<>();
+	private final Map<UUID, SkinStudioPayloads.Body> bodies = new HashMap<>();
+
+	private void onBody(ServerPlayer player, SkinStudioPayloads.Body body, MinecraftServer server) {
+		if (!modded.contains(player.getUUID()) || rateLimited(player.getUUID())) {
+			return;
+		}
+		SkinStudioPayloads.Body clean = body.clamp();
+		if (clean.equals(bodies.getOrDefault(player.getUUID(), SkinStudioPayloads.Body.NORMAL))) {
+			return;
+		}
+		if (clean.isNormal()) {
+			bodies.remove(player.getUUID());
+		} else {
+			bodies.put(player.getUUID(), clean);
+		}
+		broadcast(server, new SkinStudioPayloads.SyncBodies(List.of(new SkinStudioPayloads.PlayerBody(player.getUUID(), clean))), null);
+	}
 
 	private void onEmote(ServerPlayer player, String id, MinecraftServer server) {
 		if (!modded.contains(player.getUUID()) || (!id.isEmpty() && !de.behindtheblocks.skinstudio.emote.Emotes.exists(id))) {

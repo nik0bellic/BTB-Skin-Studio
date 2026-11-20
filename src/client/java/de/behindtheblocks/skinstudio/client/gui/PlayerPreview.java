@@ -41,6 +41,8 @@ public final class PlayerPreview {
 	public float lift = 0f;
 	/** Emote shown in this preview (or null). */
 	public String emote;
+	/** Body proportions to show instead of the own ones (null = own). */
+	public de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body bodyOverride;
 	/** Restart the emote when it ends (wardrobe preview). */
 	public boolean loopEmote;
 	private long emoteStart;
@@ -68,6 +70,10 @@ public final class PlayerPreview {
 		AvatarRenderState state = createState();
 		if (state == null) {
 			return;
+		}
+		var bodyNow = bodyOverride != null ? bodyOverride : de.behindtheblocks.skinstudio.client.data.Wardrobe.get().body();
+		if (!bodyNow.isNormal()) {
+			state.setData(de.behindtheblocks.skinstudio.client.render.CosmeticRenderData.BODY, new float[]{bodyNow.height(), bodyNow.head(), bodyNow.arms(), bodyNow.legs()});
 		}
 		if (emote != null) {
 			float[] pose = de.behindtheblocks.skinstudio.emote.Emotes.sample(emote, (System.nanoTime() - emoteStart) / 1e9f);

@@ -891,18 +891,88 @@ public class WardrobeScreen extends Screen {
 			var worn = wd.clothes().get(slot.name());
 			var item = worn == null ? null : de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.items().get(worn.id());
 			boolean act = slot == clothSlot;
-			boolean hov = ui.hover(ix, cy, iw, 26);
-			ui.rounded(ix, cy, iw, 26, 7, act ? (t.accent & 0xFFFFFF) | 0x38000000 : hov ? t.surfaceHover : t.surface);
-			ui.text(Tr.t("btb.ui.character.slot." + slot.name().toLowerCase(Locale.ROOT)), ix + 6, cy + 4, t.textMuted);
-			ui.text(ui.ellipsize(item == null ? Tr.t("btb.ui.character.none") : item.name(lang()), iw - 26), ix + 6, cy + 15, t.text);
+			boolean hov = ui.hover(ix, cy, iw, 22);
+			ui.rounded(ix, cy, iw, 22, 7, act ? (t.accent & 0xFFFFFF) | 0x38000000 : hov ? t.surfaceHover : t.surface);
+			ui.text(Tr.t("btb.ui.character.slot." + slot.name().toLowerCase(Locale.ROOT)), ix + 6, cy + 2, t.textMuted);
+			ui.text(ui.ellipsize(item == null ? Tr.t("btb.ui.character.none") : item.name(lang()), iw - 26), ix + 6, cy + 12, t.text);
 			if (worn != null) {
-				ui.rounded(ix + iw - 16, cy + 8, 10, 10, 5, worn.color() | 0xFF000000);
+				ui.rounded(ix + iw - 16, cy + 6, 10, 10, 5, worn.color() | 0xFF000000);
 			}
-			ui.region(ix, cy, iw, 26, () -> {
+			ui.region(ix, cy, iw, 22, () -> {
 				clothSlot = slot;
 				clothScroll = 0;
 			});
-			cy += 29;
+			cy += 24;
+		}
+		// body proportions
+		cy += 4;
+		sectionLabel("btb.ui.character.body", ix + 4, cy);
+		cy += 11;
+		var b = wd.body();
+		float min = de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body.MIN, max = de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body.MAX;
+		ui.stepper(ix, cy, iw, Tr.t("btb.ui.character.height"), b.height(), 0.05f, min, max, "×",
+				v -> wd.setBody(new de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body(v, b.head(), b.arms(), b.legs())));
+		cy += 16;
+		ui.stepper(ix, cy, iw, Tr.t("btb.ui.character.head"), b.head(), 0.05f, min, max, "×",
+				v -> wd.setBody(new de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body(b.height(), v, b.arms(), b.legs())));
+		cy += 16;
+		ui.stepper(ix, cy, iw, Tr.t("btb.ui.character.arms"), b.arms(), 0.05f, min, max, "×",
+				v -> wd.setBody(new de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body(b.height(), b.head(), v, b.legs())));
+		cy += 16;
+		ui.stepper(ix, cy, iw, Tr.t("btb.ui.character.legs"), b.legs(), 0.05f, min, max, "×",
+				v -> wd.setBody(new de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body(b.height(), b.head(), b.arms(), v)));
+		cy += 20;
+		// face: eyes and mouth (animated parts from the built-in face pack)
+		sectionLabel("btb.ui.character.face", ix + 4, cy);
+		cy += 11;
+		faceCycle(ix, cy, iw, "btb.ui.character.eyes", new String[]{"googly", "big_eyes", "sleepy_eyes", "blink_eyes"});
+		cy += 16;
+		faceCycle(ix, cy, iw, "btb.ui.character.mouth", new String[]{"smile", "talk", "tongue"});
+	}
+
+	/** Cycles through face parts of one kind (none → part → part …); equipped like cosmetics, lids tinted like the skin. */
+	private void faceCycle(int x, int y, int w, String labelKey, String[] parts) {
+		Loadout cur = Wardrobe.get().equipped();
+		int idx = -1;
+		for (int i = 0; i < parts.length; i++) {
+			if (cur.contains("btb_face:" + parts[i])) {
+				idx = i;
+			}
+		}
+		final int now = idx;
+		CosmeticAsset a = idx < 0 ? null : CosmeticLibrary.get().find("btb_face:" + parts[idx]);
+		String value = a == null ? Tr.t("btb.ui.character.none") : a.definition.name(lang());
+		Runnable next = () -> setFace(parts, now + 1 >= parts.length ? -1 : now + 1);
+		Runnable prev = () -> setFace(parts, now - 1 < -1 ? parts.length - 1 : now - 1);
+		ui.cycle(x, y, w, Tr.t(labelKey), ui.ellipsize(value, w / 2 - 20), next, prev);
+	}
+
+	private void setFace(String[] parts, int index) {
+		Loadout l = Wardrobe.get().equipped().copy();
+		for (String p : parts) {
+			l.unequip("btb_face:" + p);
+		}
+		if (index >= 0) {
+			CosmeticAsset a = CosmeticLibrary.get().find("btb_face:" + parts[index]);
+			if (a != null) {
+				l.equip(a.definition, a.definition.tint.enabled ? skinTone() : 0, "", CosmeticLibrary.get()::definition);
+			}
+		}
+		Wardrobe.get().setEquipped(l);
+	}
+
+	/** Skin colour of the current character (sampled from the cheek), used for eyelids. */
+	private int skinTone() {
+		SkinData s = character();
+		byte[] png = s == null ? null : ClientSkins.iconSource(s);
+		if (png == null) {
+			return 0xFFC69C7A;
+		}
+		try {
+			var img = de.behindtheblocks.skinstudio.bedrock.Images.read(png, "skin.png");
+			return img.getRGB(9, 14) | 0xFF000000;
+		} catch (RuntimeException e) {
+			return 0xFFC69C7A;
 		}
 	}
 

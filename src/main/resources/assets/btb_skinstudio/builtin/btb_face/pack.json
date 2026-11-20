@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "id": "btb_builtin_face",
+  "version": "1.0.0",
+  "name": {
+    "de": "BTB Gesicht",
+    "en": "BTB Face"
+  },
+  "description": {
+    "de": "Augen und Münder für den Charakter-Editor.",
+    "en": "Eyes and mouths for the character editor."
+  },
+  "author": "BTB Studios"
+}

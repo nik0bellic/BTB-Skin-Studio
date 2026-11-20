@@ -1,0 +1,39 @@
+{
+  "format": 1,
+  "id": "btb_face:sleepy_eyes",
+  "version": "1.0.0",
+  "name": {
+    "de": "Verschlafene Augen",
+    "en": "Sleepy Eyes"
+  },
+  "description": {
+    "de": "Halb geschlossene Augen mit langsamem Blinzeln.",
+    "en": "Half-closed eyes with a slow blink."
+  },
+  "author": "BTB Studios",
+  "type": "face_accessory",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_face.sleepy_eyes"
+  ],
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#C69C7A",
+    "palette": [
+      "#F2D2B4",
+      "#E0B08A",
+      "#C69C7A",
+      "#9A6A48",
+      "#6A4430",
+      "#4A2E20"
+    ]
+  },
+  "tags": [
+    "character",
+    "face"
+  ]
+}

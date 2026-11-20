@@ -1,0 +1,120 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.btb_face.googly",
+        "texture_width": 32,
+        "texture_height": 32
+      },
+      "bones": [
+        {
+          "name": "left_eye",
+          "pivot": [
+            2.1,
+            28,
+            -4.62
+          ],
+          "cubes": [
+            {
+              "origin": [
+                0.6,
+                26.4,
+                -5.52
+              ],
+              "size": [
+                3,
+                3,
+                0.9
+              ],
+              "uv": [
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "name": "left_eye_pupil",
+          "pivot": [
+            2.1,
+            27.9,
+            -5.57
+          ],
+          "parent": "left_eye",
+          "cubes": [
+            {
+              "origin": [
+                1.5,
+                27.3,
+                -5.62
+              ],
+              "size": [
+                1.2,
+                1.2,
+                0.1
+              ],
+              "uv": [
+                16,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "name": "right_eye",
+          "pivot": [
+            -2.1,
+            28,
+            -4.62
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -3.6,
+                26.4,
+                -5.52
+              ],
+              "size": [
+                3,
+                3,
+                0.9
+              ],
+              "uv": [
+                8,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "name": "right_eye_pupil",
+          "pivot": [
+            -2.1,
+            27.9,
+            -5.57
+          ],
+          "parent": "right_eye",
+          "cubes": [
+            {
+              "origin": [
+                -2.7,
+                27.3,
+                -5.62
+              ],
+              "size": [
+                1.2,
+                1.2,
+                0.1
+              ],
+              "uv": [
+                22,
+                0
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

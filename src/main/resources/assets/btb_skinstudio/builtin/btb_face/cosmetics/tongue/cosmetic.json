@@ -1,0 +1,26 @@
+{
+  "format": 1,
+  "id": "btb_face:tongue",
+  "version": "1.0.0",
+  "name": {
+    "de": "Zunge raus",
+    "en": "Tongue Out"
+  },
+  "description": {
+    "de": "Zunge raus – mit tropfender Spucke.",
+    "en": "Tongue out – with a dripping drop."
+  },
+  "author": "BTB Studios",
+  "type": "mustache",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_face.tongue"
+  ],
+  "preview": "preview.png",
+  "tags": [
+    "character",
+    "face"
+  ]
+}

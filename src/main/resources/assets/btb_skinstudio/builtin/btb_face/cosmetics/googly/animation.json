@@ -1,0 +1,24 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb_face.googly": {
+      "loop": true,
+      "bones": {
+        "left_eye_pupil": {
+          "position": [
+            "math.sin(q.anim_time * 470) * 0.55",
+            "math.cos(q.anim_time * 380) * 0.5",
+            0
+          ]
+        },
+        "right_eye_pupil": {
+          "position": [
+            "math.sin(q.anim_time * 430 + 60) * 0.55",
+            "math.cos(q.anim_time * 410 + 40) * 0.5",
+            0
+          ]
+        }
+      }
+    }
+  }
+}

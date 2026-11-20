@@ -1,0 +1,22 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb_face.tongue": {
+      "loop": true,
+      "bones": {
+        "drool": {
+          "position": [
+            0,
+            "-math.mod(q.anim_time, 2.4) * 1.8",
+            0
+          ],
+          "scale": [
+            1,
+            "1 + math.mod(q.anim_time, 2.4) * 0.6",
+            1
+          ]
+        }
+      }
+    }
+  }
+}

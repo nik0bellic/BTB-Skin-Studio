@@ -1,0 +1,26 @@
+{
+  "format": 1,
+  "id": "btb_face:talk",
+  "version": "1.0.0",
+  "name": {
+    "de": "Sprech-Mund",
+    "en": "Talking Mouth"
+  },
+  "description": {
+    "de": "Ein Mund, der sich wie beim Sprechen bewegt.",
+    "en": "A mouth that moves as if talking."
+  },
+  "author": "BTB Studios",
+  "type": "mustache",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_face.talk"
+  ],
+  "preview": "preview.png",
+  "tags": [
+    "character",
+    "face"
+  ]
+}

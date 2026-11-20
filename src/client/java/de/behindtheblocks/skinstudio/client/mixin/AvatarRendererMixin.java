@@ -39,6 +39,11 @@ public abstract class AvatarRendererMixin {
 		}
 		state.setData(CosmeticRenderData.PLAYER, player.getUUID());
 		state.setData(CosmeticRenderData.EMOTE, de.behindtheblocks.skinstudio.client.emote.ClientEmotes.pose(player.getUUID()));
+		var body = ClientCosmeticSync.bodyFor(player.getUUID());
+		state.setData(CosmeticRenderData.BODY, body == null ? null : new float[]{body.height(), body.head(), body.arms(), body.legs()});
+		if (body != null) {
+			state.scale *= body.height(); // visual only, the hitbox stays the same
+		}
 		state.setData(CosmeticRenderData.COSMETICS, list);
 		for (ActiveCosmetic c : list) {
 			for (String layer : c.asset().definition.hideLayers) {

@@ -637,5 +637,13 @@
 	"btb.ui.character.slot.shoes": "Schuhe",
 	"btb.ui.character.slot.jacket": "Jacke",
 	"btb.ui.character.wear": "Anziehen",
-	"btb.ui.emotes.hint_pad": "Segment mit dem Cursor ansteuern und mit Ⓐ wählen. Emote-Plätze lassen sich auch im Controlify-Radialmenü belegen."
+	"btb.ui.emotes.hint_pad": "Segment mit dem Cursor ansteuern und mit Ⓐ wählen. Emote-Plätze lassen sich auch im Controlify-Radialmenü belegen.",
+	"btb.ui.character.body": "Körper",
+	"btb.ui.character.height": "Größe",
+	"btb.ui.character.head": "Kopf",
+	"btb.ui.character.arms": "Arme",
+	"btb.ui.character.legs": "Beine",
+	"btb.ui.character.face": "Gesicht",
+	"btb.ui.character.eyes": "Augen",
+	"btb.ui.character.mouth": "Mund"
 }

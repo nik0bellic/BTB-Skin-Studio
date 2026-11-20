@@ -1,0 +1,22 @@
+{
+  "format": 1,
+  "id": "btb_face:smile",
+  "version": "1.0.0",
+  "name": {
+    "de": "Lächeln",
+    "en": "Smile"
+  },
+  "description": {
+    "de": "Ein freundliches Lächeln.",
+    "en": "A friendly smile."
+  },
+  "author": "BTB Studios",
+  "type": "mustache",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "tags": [
+    "character",
+    "face"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb_face.talk": {
+      "loop": true,
+      "bones": {
+        "mouth": {
+          "scale": [
+            1,
+            "0.35 + math.abs(math.sin(q.anim_time * 520)) * 0.65 * (math.mod(q.anim_time, 3) < 2 ? 1 : 0.2)",
+            1
+          ]
+        }
+      }
+    }
+  }
+}

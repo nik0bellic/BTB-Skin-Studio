@@ -1,0 +1,39 @@
+{
+  "format": 1,
+  "id": "btb_face:blink_eyes",
+  "version": "1.0.0",
+  "name": {
+    "de": "Blinzel-Augen",
+    "en": "Blinking Eyes"
+  },
+  "description": {
+    "de": "Augen in Skin-Größe mit Lidern, die blinzeln.",
+    "en": "Skin-sized eyes with lids that blink."
+  },
+  "author": "BTB Studios",
+  "type": "face_accessory",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_face.blink_eyes"
+  ],
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#C69C7A",
+    "palette": [
+      "#F2D2B4",
+      "#E0B08A",
+      "#C69C7A",
+      "#9A6A48",
+      "#6A4430",
+      "#4A2E20"
+    ]
+  },
+  "tags": [
+    "character",
+    "face"
+  ]
+}

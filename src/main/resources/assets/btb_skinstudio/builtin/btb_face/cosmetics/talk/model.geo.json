@@ -1,0 +1,72 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.btb_face.talk",
+        "texture_width": 32,
+        "texture_height": 32
+      },
+      "bones": [
+        {
+          "name": "mouth",
+          "pivot": [
+            0,
+            25.6,
+            -4.62
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -1.5,
+                24.6,
+                -4.72
+              ],
+              "size": [
+                3,
+                2,
+                0.1
+              ],
+              "uv": [
+                0,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -1,
+                24.7,
+                -4.77
+              ],
+              "size": [
+                2,
+                0.6,
+                0.05
+              ],
+              "uv": [
+                8,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -1.5,
+                26.2,
+                -4.77
+              ],
+              "size": [
+                3,
+                0.4,
+                0.05
+              ],
+              "uv": [
+                14,
+                0
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

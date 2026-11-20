@@ -15,11 +15,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class PlayerModelMixin {
 	@Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("TAIL"))
 	private void btbSkinStudio$emote(AvatarRenderState state, CallbackInfo ci) {
+		PlayerModel model = (PlayerModel) (Object) this;
+		float[] body = state.getData(CosmeticRenderData.BODY);
+		if (body != null) {
+			// head size and the thickness of arms and legs (length stays, so feet and hands keep their place)
+			model.head.xScale = model.head.yScale = model.head.zScale = body[1];
+			model.rightArm.xScale = model.rightArm.zScale = body[2];
+			model.leftArm.xScale = model.leftArm.zScale = body[2];
+			model.rightLeg.xScale = model.rightLeg.zScale = body[3];
+			model.leftLeg.xScale = model.leftLeg.zScale = body[3];
+		}
 		float[] pose = state.getData(CosmeticRenderData.EMOTE);
 		if (pose == null) {
 			return;
 		}
-		PlayerModel model = (PlayerModel) (Object) this;
 		float w = pose[Emotes.SIZE];
 		apply(model.head, pose, Emotes.HEAD, w);
 		apply(model.body, pose, Emotes.BODY, w);

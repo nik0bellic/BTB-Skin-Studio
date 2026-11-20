@@ -44,7 +44,7 @@ public final class CosmeticLibrary {
 		t.setDaemon(true);
 		return t;
 	});
-	private static final String[] BUILTIN_PACKS = {"btb_starter"};
+	private static final String[] BUILTIN_PACKS = {"btb_starter", "btb_face"};
 
 	private static CosmeticLibrary instance;
 

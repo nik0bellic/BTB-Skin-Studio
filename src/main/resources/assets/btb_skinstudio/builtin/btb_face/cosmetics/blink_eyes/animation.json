@@ -1,0 +1,24 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb_face.blink_eyes": {
+      "loop": true,
+      "bones": {
+        "left_lid": {
+          "scale": [
+            1,
+            "math.mod(q.anim_time, 4.2) < 0.16 ? 1 : 0.02",
+            1
+          ]
+        },
+        "right_lid": {
+          "scale": [
+            1,
+            "math.mod(q.anim_time, 4.2) < 0.16 ? 1 : 0.02",
+            1
+          ]
+        }
+      }
+    }
+  }
+}

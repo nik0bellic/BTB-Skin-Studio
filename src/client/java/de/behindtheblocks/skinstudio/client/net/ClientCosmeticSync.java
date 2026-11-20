@@ -56,6 +56,15 @@ public final class ClientCosmeticSync {
 	private ClientCosmeticSync() {
 	}
 
+	private static final java.util.Map<java.util.UUID, SkinStudioPayloads.Body> BODIES = new java.util.concurrent.ConcurrentHashMap<>();
+
+	/** Body proportions of a player (own from the wardrobe, others as received); null = normal. */
+	public static SkinStudioPayloads.Body bodyFor(java.util.UUID player) {
+		var mc = net.minecraft.client.Minecraft.getInstance();
+		SkinStudioPayloads.Body b = mc.player != null && mc.player.getUUID().equals(player) ? Wardrobe.get().body() : BODIES.get(player);
+		return b == null || b.isNormal() ? null : b;
+	}
+
 	public static void register() {
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			serverHasMod = false;
@@ -96,7 +105,17 @@ public final class ClientCosmeticSync {
 			}
 			revision++;
 		});
+		ClientPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.SyncBodies.TYPE, (sync, ctx) -> {
+			for (SkinStudioPayloads.PlayerBody b : sync.bodies()) {
+				if (b.body().isNormal()) {
+					BODIES.remove(b.player());
+				} else {
+					BODIES.put(b.player(), b.body().clamp());
+				}
+			}
+		});
 		ClientPlayNetworking.registerGlobalReceiver(RemovePlayer.TYPE, (rm, ctx) -> {
+			BODIES.remove(rm.player());
 			de.behindtheblocks.skinstudio.client.skin.ClientSkins.setRemote(rm.player(), null);
 			REMOTE.remove(rm.player());
 			RESOLVED.remove(rm.player());
@@ -122,6 +141,9 @@ public final class ClientCosmeticSync {
 				var skin = de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().find(Wardrobe.get().skin());
 				ClientPlayNetworking.send(new SkinStudioPayloads.SetSkin(skin == null ? new SkinStudioPayloads.SkinInfo("", "", false)
 						: new SkinStudioPayloads.SkinInfo(skin.id, skin.hash, skin.slim)));
+				if (ClientPlayNetworking.canSend(SkinStudioPayloads.SetBody.TYPE)) {
+					ClientPlayNetworking.send(new SkinStudioPayloads.SetBody(Wardrobe.get().body()));
+				}
 			}
 		});
 	}

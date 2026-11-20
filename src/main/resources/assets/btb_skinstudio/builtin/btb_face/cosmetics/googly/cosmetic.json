@@ -1,0 +1,26 @@
+{
+  "format": 1,
+  "id": "btb_face:googly",
+  "version": "1.0.0",
+  "name": {
+    "de": "Glubschaugen",
+    "en": "Googly Eyes"
+  },
+  "description": {
+    "de": "Große Wackelaugen, die Pupillen hüpfen bei jeder Bewegung.",
+    "en": "Big googly eyes with jiggling pupils."
+  },
+  "author": "BTB Studios",
+  "type": "face_accessory",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_face.googly"
+  ],
+  "preview": "preview.png",
+  "tags": [
+    "character",
+    "face"
+  ]
+}

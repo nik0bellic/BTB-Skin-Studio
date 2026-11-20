@@ -138,6 +138,9 @@ public final class SkinLibrary {
 	private static Map<String, ArchiveFiles> resourcePackSkinPacks() {
 		Map<String, ArchiveFiles> out = new LinkedHashMap<>();
 		var rm = Minecraft.getInstance().getResourceManager();
+		if (rm == null) {
+			return out; // very early start: the resource reload listener loads them a moment later
+		}
 		try {
 			for (var e : rm.listResources("skin_packs", id -> true).entrySet()) {
 				String path = e.getKey().getPath(); // skin_packs/<pack>/<file...>
