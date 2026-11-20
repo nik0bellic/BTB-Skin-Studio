@@ -131,6 +131,9 @@ final class AutoTest {
 					case "wardrobe" -> SkinStudioCommands.openWardrobe(mc);
 					case "editor" -> SkinStudioCommands.openEditor(mc, a.length > 2 ? a[2] : null);
 					case "packs" -> SkinStudioCommands.openPacks(mc);
+					case "pause" -> mc.gui.setScreen(new net.minecraft.client.gui.screens.PauseScreen(true));
+					case "title" -> mc.gui.setScreen(new net.minecraft.client.gui.screens.TitleScreen());
+					case "bedrock" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.BedrockScanScreen(mc.gui.screen()));
 					default -> mc.gui.setScreen(null);
 				}
 			}
@@ -165,6 +168,8 @@ final class AutoTest {
 				switch (a[1]) {
 					case "layers3d" -> st.skinLayers3d = v;
 					case "particles" -> st.particles = v;
+					case "theme" -> st.theme = a[2].equals("light") ? de.behindtheblocks.skinstudio.client.data.ClientSettings.Theme.LIGHT
+							: de.behindtheblocks.skinstudio.client.data.ClientSettings.Theme.DARK;
 					default -> LOG.warn("Unbekannte Einstellung {}", a[1]);
 				}
 			}

@@ -96,7 +96,7 @@ public class ImportScreen extends Screen {
 			int color = p.allowed ? t.success : t.danger;
 			ui.rounded(m + 9, y + 9, 7, 7, 3, color);
 			ui.text(ui.ellipsize(p.title, listW - 30), m + 21, y + 4, t.text);
-			ui.text(ui.ellipsize(p.kind.label + (p.summary.isEmpty() ? "" : " · " + p.summary), listW - 30), m + 21, y + 15, t.textMuted);
+			ui.text(ui.ellipsize(p.kind.label() + (p.summary.isEmpty() ? "" : " · " + p.summary), listW - 30), m + 21, y + 15, t.textMuted);
 			int idx = i;
 			ui.region(m + 4, y, listW - 8, 26, () -> {
 				selectedPlan = idx;

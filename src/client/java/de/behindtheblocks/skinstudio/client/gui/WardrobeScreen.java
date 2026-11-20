@@ -106,16 +106,9 @@ public class WardrobeScreen extends Screen {
 	}
 
 	/** Adds a "Wardrobe" button to the pause menu and the title screen. */
+	/** Main menu and pause menu: Bedrock-style character with a wardrobe button (see {@link MenuCharacter}). */
 	public static void registerMenuButtons() {
-		ScreenEvents.AFTER_INIT.register((client, screen, w, h) -> {
-			if (screen instanceof PauseScreen || screen instanceof TitleScreen) {
-				String label = Tr.t("btb.ui.wardrobe");
-				int bw = client.font.width(label) + 20;
-				Button b = Button.builder(Component.literal(label), btn -> client.gui.setScreen(new WardrobeScreen(screen)))
-						.bounds(w - bw - 6, 6, bw, 20).tooltip(Tooltip.create(Component.literal(Tr.t("btb.ui.wardrobe.tooltip")))).build();
-				Screens.getWidgets(screen).add(b);
-			}
-		});
+		MenuCharacter.register();
 	}
 
 	@Override
@@ -1070,7 +1063,7 @@ public class WardrobeScreen extends Screen {
 	private void drawSettings(int x, int y) {
 		Theme t = ui.t;
 		ClientSettings s = ClientSettings.get();
-		int w = 190, h = 146;
+		int w = 190, h = 180;
 		ui.rounded(x, y, w, h, 9, t.dark ? 0xF41C1F27 : 0xFCFFFFFF);
 		ui.roundedOutline(x, y, w, h, 9, t.glassBorder);
 		ui.title(Tr.t("btb.ui.settings"), x + 10, y + 9, t.text);
@@ -1078,6 +1071,14 @@ public class WardrobeScreen extends Screen {
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.show_others"), s.showOtherPlayers, () -> { s.showOtherPlayers = !s.showOtherPlayers; s.save(); });
 		cy += 17;
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.layers3d"), s.skinLayers3d, () -> { s.skinLayers3d = !s.skinLayers3d; s.save(); });
+		cy += 17;
+		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.bedrock_packs"), s.bedrockBuiltinPacks, () -> {
+			s.bedrockBuiltinPacks = !s.bedrockBuiltinPacks;
+			s.save();
+			SkinLibrary.get().reload();
+		});
+		cy += 17;
+		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.menu_character"), s.menuCharacter, () -> { s.menuCharacter = !s.menuCharacter; s.save(); });
 		cy += 17;
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.animations"), s.animations, () -> { s.animations = !s.animations; s.save(); });
 		cy += 17;

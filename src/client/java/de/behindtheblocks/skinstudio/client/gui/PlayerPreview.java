@@ -35,6 +35,10 @@ public final class PlayerPreview {
 
 	public float yaw = -25;
 	public float pitch = -6;
+	/** Extra size factor (e.g. larger figure next to the main menu). */
+	public float scale = 1f;
+	/** Moves the figure down inside its frame (in blocks), leaving room for tall hats and torches. */
+	public float lift = 0f;
 	public Focus focus = Focus.FULL;
 	private float zoom = 1;
 	private float shift;
@@ -91,11 +95,11 @@ public final class PlayerPreview {
 		}
 
 		int h = y1 - y0;
-		float size = h * 0.42f * zoom;
+		float size = h * 0.42f * zoom * scale;
 		Quaternionf rotation = new Quaternionf().rotateZ((float) Math.PI);
 		Quaternionf xRotation = new Quaternionf().rotateX((float) Math.toRadians(pitch));
 		rotation.mul(xRotation);
-		Vector3f translation = new Vector3f(0, state.boundingBoxHeight / 2 + 0.06f + shift * 1.8f, 0);
+		Vector3f translation = new Vector3f(0, state.boundingBoxHeight / 2 + 0.06f + shift * 1.8f + lift, 0);
 		g.entity(state, size, translation, rotation, xRotation, x0, y0, x1, y1);
 	}
 

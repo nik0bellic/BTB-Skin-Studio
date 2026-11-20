@@ -55,6 +55,61 @@ public final class BedrockLocator {
 		return new ArrayList<>(out);
 	}
 
+	/**
+	 * Folders holding the skin packs that ship with an installed Bedrock edition ({@code data/skin_packs} of the
+	 * game files, e.g. Villains, Story Mode or Battle &amp; Beasts). They are unencrypted game files of the user's
+	 * own installation; BTB Skin Studio only reads them and never copies or redistributes them.
+	 */
+	public static List<Path> builtInSkinPackDirs() {
+		Set<Path> out = new LinkedHashSet<>();
+		String os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
+		if (os.contains("win")) {
+			// GDK build (Microsoft Store / Xbox app), installed into <drive>:\XboxGames by default
+			for (java.io.File root : java.io.File.listRoots()) {
+				String r = root.getPath().toUpperCase(Locale.ROOT);
+				if (r.startsWith("A:") || r.startsWith("B:")) {
+					continue;
+				}
+				for (String edition : new String[]{"Minecraft for Windows", "Minecraft Preview for Windows"}) {
+					addIfDir(out, root.toPath().resolve("XboxGames").resolve(edition).resolve("Content").resolve("data").resolve("skin_packs"));
+				}
+			}
+			// older UWP build – WindowsApps is usually not listable, then this simply finds nothing
+			String pf = System.getenv("ProgramFiles");
+			if (pf != null) {
+				for (Path p : list(Path.of(pf, "WindowsApps"))) {
+					String n = p.getFileName().toString();
+					if (n.startsWith("Microsoft.MinecraftUWP_") || n.startsWith("Microsoft.MinecraftWindowsBeta_")) {
+						addIfDir(out, p.resolve("data").resolve("skin_packs"));
+					}
+				}
+			}
+		}
+		String home = System.getProperty("user.home", "");
+		if (!home.isEmpty()) {
+			// Linux launcher: every installed version keeps the extracted game assets
+			for (Path base : new Path[]{Path.of(home, ".local", "share", "mcpelauncher", "versions"),
+					Path.of(home, ".var", "app", "io.mrarm.mcpelauncher", "data", "mcpelauncher", "versions")}) {
+				for (Path v : list(base)) {
+					addIfDir(out, v.resolve("assets").resolve("skin_packs"));
+					addIfDir(out, v.resolve("assets").resolve("assets").resolve("skin_packs"));
+				}
+			}
+		}
+		return new ArrayList<>(out);
+	}
+
+	/** Pack folders (with skins.json) inside one {@link #builtInSkinPackDirs()} folder. */
+	public static List<Path> skinPackFolders(Path dir) {
+		List<Path> out = new ArrayList<>();
+		for (Path p : list(dir)) {
+			if (Files.isDirectory(p) && Files.exists(p.resolve("skins.json"))) {
+				out.add(p);
+			}
+		}
+		return out;
+	}
+
 	/** Scans one com.mojang folder (or any folder) for importable content. */
 	public static List<Found> scan(Path root) {
 		List<Found> out = new ArrayList<>();
@@ -68,9 +123,12 @@ public final class BedrockLocator {
 		if (Files.exists(root.resolve("skins.json"))) {
 			out.add(new Found(Kind.SKIN_PACK, root, label(root), encrypted(root)));
 		}
-		// Character Creator pieces and loose skin PNGs (limited depth, never follows into worlds)
+		// Character Creator pieces and loose skin PNGs (limited depth, never follows into worlds).
+		// Textures inside a skin pack that was already found belong to that pack and are not listed again.
+		List<Path> packs = out.stream().filter(f -> f.kind() == Kind.SKIN_PACK).map(Found::path).toList();
 		try (Stream<Path> walk = Files.walk(root, 7)) {
-			walk.filter(p -> !p.toString().contains("minecraftWorlds")).forEach(p -> {
+			walk.filter(p -> !p.toString().contains("minecraftWorlds"))
+					.filter(p -> packs.stream().noneMatch(p::startsWith)).forEach(p -> {
 				String n = p.getFileName().toString().toLowerCase(Locale.ROOT);
 				if (n.endsWith(".meta.json")) {
 					out.add(new Found(Kind.PERSONA, p.getParent(), label(p.getParent()), false));

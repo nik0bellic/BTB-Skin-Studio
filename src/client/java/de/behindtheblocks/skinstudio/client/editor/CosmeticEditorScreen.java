@@ -65,12 +65,16 @@ public class CosmeticEditorScreen extends Screen {
 	private static final int[] QUICK_COLORS = {0xFFFFFFFF, 0xFFFFB347, 0xFFFF6A5A, 0xFFFFE066, 0xFF7CFFB0, 0xFF7FD8FF, 0xFFB08CFF, 0xFFFF8FD0, 0xFF303030};
 
 	private enum Tab {
-		GENERAL(Tr.t("btb.t.allgemein")), MODEL(Tr.t("btb.t.modell")), COLOR(Tr.t("btb.t.farbe")), ANIMATION(Tr.t("btb.t.animation")), EFFECTS(Tr.t("btb.t.effekte"));
+		GENERAL("btb.t.allgemein"), MODEL("btb.t.modell"), COLOR("btb.t.farbe"), ANIMATION("btb.t.animation"), EFFECTS("btb.t.effekte");
 
-		final String label;
+		private final String labelKey;
+
+		String label() {
+			return Tr.t(labelKey);
+		}
 
 		Tab(String label) {
-			this.label = label;
+			this.labelKey = label;
 		}
 	}
 
@@ -268,16 +272,16 @@ public class CosmeticEditorScreen extends Screen {
 		int tx = m + 6;
 		int textSum = 0;
 		for (Tab tb : Tab.values()) {
-			textSum += font.width(tb.label);
+			textSum += font.width(tb.label());
 		}
 		// padding shrinks so that all tabs fit into the panel (German labels are longer)
 		int pad = Math.max(4, Math.min(12, (panelW - 12 - textSum - 2 * (Tab.values().length - 1)) / Tab.values().length));
 		for (Tab tb : Tab.values()) {
-			int w = font.width(tb.label) + pad;
+			int w = font.width(tb.label()) + pad;
 			boolean act = tb == tab;
 			boolean hov = ui.hover(tx, top + 6, w, 16);
 			ui.rounded(tx, top + 6, w, 16, 8, act ? t.accent : hov ? t.surfaceHover : 0);
-			ui.text(tb.label, tx + pad / 2, top + 10, act ? t.onAccent : t.textMuted);
+			ui.text(tb.label(), tx + pad / 2, top + 10, act ? t.onAccent : t.textMuted);
 			ui.region(tx, top + 6, w, 16, () -> tab = tb);
 			tx += w + 2;
 		}
@@ -567,7 +571,7 @@ public class CosmeticEditorScreen extends Screen {
 		}
 		for (CosmeticAnimation an : new ArrayList<>(animations.values())) {
 			AnimationPresets.Preset p = AnimationPresets.presetOf(an.name);
-			String label = p != null ? p.label + " (" + String.join(", ", an.bones.keySet()) + ")" : an.name;
+			String label = p != null ? p.label() + " (" + String.join(", ", an.bones.keySet()) + ")" : an.name;
 			ui.rounded(x, y, w, 15, 6, t.surface);
 			ui.text(ui.ellipsize(label, w - 24), x + 6, y + 4, t.text);
 			Icon.CLOSE.draw(ui.g, x + w - 12, y + 4, ui.hover(x + w - 16, y, 16, 15) ? t.danger : t.textMuted);
@@ -584,9 +588,9 @@ public class CosmeticEditorScreen extends Screen {
 		ui.text(Tr.t("btb.t.vorlage_hinzufuegen"), x + 2, y, t.textFaint);
 		y += 12;
 		AnimationPresets.Preset[] ps = AnimationPresets.Preset.values();
-		ui.cycle(x, y, w, Tr.t("btb.t.bewegung"), preset.label, () -> preset = ps[(preset.ordinal() + 1) % ps.length], () -> preset = ps[(preset.ordinal() + ps.length - 1) % ps.length]);
+		ui.cycle(x, y, w, Tr.t("btb.t.bewegung"), preset.label(), () -> preset = ps[(preset.ordinal() + 1) % ps.length], () -> preset = ps[(preset.ordinal() + ps.length - 1) % ps.length]);
 		y += 14;
-		ui.text(preset.description, x + 2, y + 2, t.textFaint);
+		ui.text(preset.description(), x + 2, y + 2, t.textFaint);
 		y += 14;
 		List<String> bones = model.bones.stream().map(b -> b.name).toList();
 		if (!bones.isEmpty()) {

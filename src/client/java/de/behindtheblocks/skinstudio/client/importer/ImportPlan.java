@@ -28,12 +28,17 @@ import java.util.Set;
  */
 public final class ImportPlan {
 	public enum Kind {
-		BTB_PACK(Tr.t("btb.t.btb_cosmetic_pack")), BTB_COSMETIC(Tr.t("btb.t.btb_cosmetic")), BEDROCK(Tr.t("btb.t.bedrock_ressourcen")), INVALID(Tr.t("btb.t.nicht_importierbar"));
+		BTB_PACK("btb.t.btb_cosmetic_pack"), BTB_COSMETIC("btb.t.btb_cosmetic"), BEDROCK("btb.t.bedrock_ressourcen"), INVALID("btb.t.nicht_importierbar");
 
-		public final String label;
+		private final String labelKey;
+
+		/** Translated on every call, so a language change in the options applies immediately. */
+		public String label() {
+			return Tr.t(labelKey);
+		}
 
 		Kind(String label) {
-			this.label = label;
+			this.labelKey = label;
 		}
 	}
 

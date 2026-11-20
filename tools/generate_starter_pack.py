@@ -495,8 +495,8 @@ def build():
     m = Model('geometry.btb.shoulder_bag', seed=35)
     b = m.bone('bag', [0, 18, 0])
     strap = solid('#5b3a1f', noise=0.05)
-    m.box(b, (-0.5, 11, -2.6), (1, 16, 1), strap, rotation=[0, 0, -38], pivot=[0, 18, -2.1], inflate=-0.1, tint=True)
-    m.box(b, (-0.5, 11, 1.6), (1, 16, 1), strap, rotation=[0, 0, -38], pivot=[0, 18, 2.1], inflate=-0.1, tint=True)
+    m.box(b, (-0.5, 11, -2.6), (1, 16, 1), strap, rotation=[0, 0, 38], pivot=[0, 18, -2.1], inflate=-0.1, tint=True)
+    m.box(b, (-0.5, 11, 1.6), (1, 16, 1), strap, rotation=[0, 0, 38], pivot=[0, 18, 2.1], inflate=-0.1, tint=True)
     m.box(b, (-7, 10, -2), (3, 5, 5), faces(bordered('#8a5a2b', '#5b3a1f'), right=bordered('#9a6a3b', '#5b3a1f')), tint=True)
     m.box(b, (-7.3, 13, -1), (1, 1, 3), solid('#d8b04a'), inflate=-0.1)
     cos.append(('shoulder_bag', meta('shoulder_bag', 'Schultertasche', 'Shoulder Bag', 'shoulder_accessory', 'body',

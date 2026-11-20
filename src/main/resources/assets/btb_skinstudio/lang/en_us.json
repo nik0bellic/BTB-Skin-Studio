@@ -490,6 +490,8 @@
 	"btb.ui.setting.animations": "Animations",
 	"btb.ui.setting.download": "Download others’ cosmetics",
 	"btb.ui.setting.glow": "Light glow",
+	"btb.ui.setting.bedrock_packs": "Bedrock skin packs from PC",
+	"btb.ui.setting.menu_character": "Character in main menu",
 	"btb.ui.setting.layers3d": "3D skin layers",
 	"btb.ui.setting.particles": "Particles",
 	"btb.ui.setting.share": "Share own cosmetics",

@@ -55,6 +55,10 @@ public final class BtbSkinStudioClient implements ClientModInitializer {
 			library.preloadCache();
 		});
 
+		// skins from resource packs (Bedrock Skins layout) follow resource pack changes
+		net.fabricmc.fabric.api.resource.v1.ResourceLoader.get(net.minecraft.server.packs.PackType.CLIENT_RESOURCES).registerReloadListener(
+				net.minecraft.resources.Identifier.fromNamespaceAndPath(de.behindtheblocks.skinstudio.BtbSkinStudio.MOD_ID, "skin_packs"),
+				(net.minecraft.server.packs.resources.ResourceManagerReloadListener) rm -> de.behindtheblocks.skinstudio.client.skin.SkinLibrary.get().reload());
 		ClientCosmeticSync.register();
 		SkinStudioCommands.register();
 		AutoTest.init();

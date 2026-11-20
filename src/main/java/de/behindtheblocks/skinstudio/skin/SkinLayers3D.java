@@ -72,6 +72,7 @@ public final class SkinLayers3D {
 					continue;
 				}
 				float[] o = cellOrigin(r, face, i, j, p, t);
+				closeEdges(o, r, face, i, j, gc, gr, t);
 				GeoCube c = new GeoCube();
 				c.origin = new float[]{o[0], o[1], o[2]};
 				c.size = new float[]{o[3], o[4], o[5]};
@@ -85,6 +86,46 @@ public final class SkinLayers3D {
 				addSide(c, r, face, i, j, i, j + 1, solid, p, t, uv);
 				bone.cubes.add(c);
 			}
+		}
+	}
+
+	/**
+	 * Lets edge voxels grow over the box edge so that corners are closed like in Bedrock / the 3D Skin Layers
+	 * mod. Front/back faces cover the vertical edges, front/back/side faces cover the top and bottom edges.
+	 * Where two body parts touch (body ↔ arms, legs ↔ legs, body ↔ legs) nothing is extended, so no two voxels
+	 * ever share a visible plane.
+	 */
+	private static void closeEdges(float[] o, Region r, int face, int i, int j, int gc, int gr, float t) {
+		if (face == 0 || face == 1) {
+			return;
+		}
+		boolean head = r.bone.equals("head"), body = r.bone.equals("body");
+		boolean arm = r.bone.endsWith("Arm"), leg = r.bone.endsWith("Leg");
+		boolean right = r.bone.startsWith("right");
+		// vertical edges (x direction), only on front and back
+		if (face == 3 || face == 5) {
+			boolean minSide = face == 3 ? i == 0 : i == gc - 1;      // edge at minX
+			boolean maxSide = face == 3 ? i == gc - 1 : i == 0;      // edge at maxX
+			boolean allowMin = head || ((arm || leg) && right);
+			boolean allowMax = head || ((arm || leg) && !right);
+			if (minSide && allowMin) {
+				o[0] -= t;
+				o[3] += t;
+			}
+			if (maxSide && allowMax) {
+				o[3] += t;
+			}
+		}
+		// top and bottom edges (y direction)
+		boolean top = j == 0, bottom = j == gr - 1;
+		boolean allowTop = head || arm || body;
+		boolean allowBottom = head || arm || leg;
+		if (top && allowTop) {
+			o[4] += t;
+		}
+		if (bottom && allowBottom) {
+			o[1] -= t;
+			o[4] += t;
 		}
 	}
 

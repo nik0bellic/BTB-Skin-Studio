@@ -12,20 +12,30 @@ import java.util.Locale;
  */
 public final class AnimationPresets {
 	public enum Preset {
-		BOB(Tr.t("btb.t.schweben"), Tr.t("btb.t.sanftes_auf_und_ab")),
-		SPIN(Tr.t("btb.t.drehen_2"), Tr.t("btb.t.dreht_sich_langsam_um_die_eigene_achse")),
-		SWAY(Tr.t("btb.t.wiegen"), Tr.t("btb.t.pendelt_leicht_hin_und_her")),
-		FLAP(Tr.t("btb.t.flattern"), Tr.t("btb.t.schlaegt_wie_fluegel_fuer_zwei_bones")),
-		PULSE(Tr.t("btb.t.pulsieren"), Tr.t("btb.t.wird_rhythmisch_groesser_und_kleiner")),
-		FLICKER(Tr.t("btb.t.flackern"), Tr.t("btb.t.unruhiges_flackern_wie_eine_flamme")),
-		WAG(Tr.t("btb.t.wedeln"), Tr.t("btb.t.schnelles_seitliches_wackeln"));
+		BOB("btb.t.schweben", "btb.t.sanftes_auf_und_ab"),
+		SPIN("btb.t.drehen_2", "btb.t.dreht_sich_langsam_um_die_eigene_achse"),
+		SWAY("btb.t.wiegen", "btb.t.pendelt_leicht_hin_und_her"),
+		FLAP("btb.t.flattern", "btb.t.schlaegt_wie_fluegel_fuer_zwei_bones"),
+		PULSE("btb.t.pulsieren", "btb.t.wird_rhythmisch_groesser_und_kleiner"),
+		FLICKER("btb.t.flackern", "btb.t.unruhiges_flackern_wie_eine_flamme"),
+		WAG("btb.t.wedeln", "btb.t.schnelles_seitliches_wackeln");
 
-		public final String label;
-		public final String description;
+		private final String labelKey;
+
+		/** Translated on every call, so a language change in the options applies immediately. */
+		public String label() {
+			return Tr.t(labelKey);
+		}
+		private final String descriptionKey;
+
+		/** Translated on every call, so a language change in the options applies immediately. */
+		public String description() {
+			return Tr.t(descriptionKey);
+		}
 
 		Preset(String label, String description) {
-			this.label = label;
-			this.description = description;
+			this.labelKey = label;
+			this.descriptionKey = description;
 		}
 
 		public String id() {

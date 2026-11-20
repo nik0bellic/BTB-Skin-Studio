@@ -29,6 +29,10 @@ public final class ClientSettings {
 	public boolean downloadOthers = true;
 	/** Render the outer skin layer as real 3D pixels. */
 	public boolean skinLayers3d = false;
+	/** Load the skin packs that come with an installed Bedrock edition (read-only, never copied). */
+	public boolean bedrockBuiltinPacks = true;
+	/** Show the own character next to the main menu and the pause menu. */
+	public boolean menuCharacter = true;
 	public Theme theme = Theme.DARK;
 
 	private static ClientSettings instance;
@@ -59,6 +63,8 @@ public final class ClientSettings {
 			s.shareOwnCosmetics = Json.bool(o, "share_own_cosmetics", true);
 			s.downloadOthers = Json.bool(o, "download_others", true);
 			s.skinLayers3d = Json.bool(o, "skin_layers_3d", false);
+			s.bedrockBuiltinPacks = Json.bool(o, "bedrock_builtin_packs", true);
+			s.menuCharacter = Json.bool(o, "menu_character", true);
 			s.theme = "light".equals(Json.string(o, "theme", "dark")) ? Theme.LIGHT : Theme.DARK;
 		} catch (Exception e) {
 			LOG.warn("settings.json ist fehlerhaft, Standardwerte werden verwendet: {}", e.getMessage());
@@ -75,6 +81,8 @@ public final class ClientSettings {
 		o.addProperty("share_own_cosmetics", shareOwnCosmetics);
 		o.addProperty("download_others", downloadOthers);
 		o.addProperty("skin_layers_3d", skinLayers3d);
+		o.addProperty("bedrock_builtin_packs", bedrockBuiltinPacks);
+		o.addProperty("menu_character", menuCharacter);
 		o.addProperty("theme", theme == Theme.LIGHT ? "light" : "dark");
 		String json = Json.PRETTY.toJson(o);
 		Path f = file();

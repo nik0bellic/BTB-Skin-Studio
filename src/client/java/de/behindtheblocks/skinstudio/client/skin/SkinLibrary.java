@@ -1,6 +1,8 @@
 package de.behindtheblocks.skinstudio.client.skin;
 
 import de.behindtheblocks.skinstudio.BtbSkinStudio;
+import de.behindtheblocks.skinstudio.bedrock.BedrockLocator;
+import de.behindtheblocks.skinstudio.client.data.ClientSettings;
 import de.behindtheblocks.skinstudio.client.library.CosmeticLibrary;
 import de.behindtheblocks.skinstudio.pack.ArchiveFiles;
 import de.behindtheblocks.skinstudio.pack.PackProblem;
@@ -104,7 +106,9 @@ public final class SkinLibrary {
 	}
 
 	public CompletableFuture<Void> reload() {
-		return CompletableFuture.supplyAsync(this::loadAll, CosmeticLibrary.IO).thenAcceptAsync(map -> {
+		// resource packs are read on the calling (client) thread, everything else on the IO thread
+		Map<String, ArchiveFiles> fromResourcePacks = resourcePackSkinPacks();
+		return CompletableFuture.supplyAsync(() -> loadAll(fromResourcePacks), CosmeticLibrary.IO).thenAcceptAsync(map -> {
 			byId = Collections.unmodifiableMap(map);
 			List<String> g = new ArrayList<>();
 			for (SkinData s : map.values()) {
@@ -127,7 +131,35 @@ public final class SkinLibrary {
 		};
 	}
 
-	private Map<String, SkinData> loadAll() {
+	/**
+	 * Skin packs inside resource packs, laid out like in the Bedrock Skins mod:
+	 * {@code assets/<namespace>/skin_packs/<pack>/skins.json} plus textures, geometry and {@code texts/*.lang}.
+	 */
+	private static Map<String, ArchiveFiles> resourcePackSkinPacks() {
+		Map<String, ArchiveFiles> out = new LinkedHashMap<>();
+		try {
+			var rm = Minecraft.getInstance().getResourceManager();
+			for (var e : rm.listResources("skin_packs", id -> true).entrySet()) {
+				String path = e.getKey().getPath(); // skin_packs/<pack>/<file...>
+				String[] parts = path.split("/", 3);
+				if (parts.length < 3) {
+					continue;
+				}
+				String key = e.getKey().getNamespace() + ":" + parts[1];
+				try (var in = e.getValue().open()) {
+					out.computeIfAbsent(key, k -> ArchiveFiles.empty()).put(parts[2], in.readAllBytes());
+				} catch (IOException | RuntimeException ex) {
+					LOG.warn("Skin-Pack-Datei {} nicht lesbar: {}", e.getKey(), ex.getMessage());
+				}
+			}
+		} catch (RuntimeException e) {
+			LOG.warn("Resource-Pack-Skins nicht lesbar: {}", e.getMessage());
+		}
+		out.values().removeIf(f -> !f.has("skins.json"));
+		return out;
+	}
+
+	private Map<String, SkinData> loadAll(Map<String, ArchiveFiles> fromResourcePacks) {
 		problems.clear();
 		Map<String, SkinData> map = new LinkedHashMap<>();
 		for (String name : DEFAULT_NAMES) {
@@ -162,6 +194,39 @@ public final class SkinLibrary {
 				} catch (Exception e) {
 					problems.add(PackProblem.error(p.getFileName().toString(), e.getMessage()));
 				}
+			}
+		}
+		for (var e : fromResourcePacks.entrySet()) {
+			try {
+				for (SkinData s : SkinIO.readBedrockPack(e.getValue(), e.getKey(), problems)) {
+					map.putIfAbsent(s.id, s);
+				}
+			} catch (Exception ex) {
+				problems.add(PackProblem.error(e.getKey(), ex.getMessage()));
+			}
+		}
+		if (ClientSettings.get().bedrockBuiltinPacks) {
+			int found = 0;
+			for (Path dir : BedrockLocator.builtInSkinPackDirs()) {
+				for (Path p : BedrockLocator.skinPackFolders(dir)) {
+					// the "vanilla" pack only repeats the default skins that Java already has
+					if (p.getFileName().toString().equalsIgnoreCase("vanilla")) {
+						continue;
+					}
+					try {
+						List<PackProblem> ignored = new ArrayList<>(); // encrypted Marketplace packs are skipped silently
+						for (SkinData s : SkinIO.readBedrockPack(ArchiveFiles.readDirectory(p), p.getFileName().toString(), ignored)) {
+							if (map.putIfAbsent(s.id, s) == null) {
+								found++;
+							}
+						}
+					} catch (Exception ex) {
+						LOG.debug("Bedrock-Pack {} übersprungen: {}", p, ex.getMessage());
+					}
+				}
+			}
+			if (found > 0) {
+				LOG.info("{} Skins aus der Bedrock-Installation geladen", found);
 			}
 		}
 		problems.forEach(pr -> LOG.warn("Skins: {}", pr));
