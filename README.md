@@ -13,7 +13,7 @@
 | Fabric API | ≥ 0.166.2+26.3 |
 | Java | 25 |
 | Mod-ID | `btb_skinstudio` |
-| Lizenz | MIT (Behind The Blocks contributors) |
+| Lizenz | LGPL-3.0-only |
 
 ## Was die Mod kann
 
@@ -121,7 +121,7 @@ Projektaufbau:
 
 ## Lizenz
 
-- **Code und eigene Assets:** [MIT](LICENSE), Copyright (c) 2026 Behind The Blocks contributors – dieselbe Lizenz wie BTB Cinematics. Alle Starter-Cosmetics sind selbst erzeugt (`tools/`).
+- **Code und eigene Assets:** [GNU Lesser General Public License v3.0 only (LGPL-3.0-only)](LICENSE) (siehe auch [NOTICE](NOTICE)), Copyright (c) 2026 Behind The Blocks contributors – wie BTB Cinematics. Alle Starter-Cosmetics sind selbst erzeugt (`tools/`).
 - Das Texturlayout für Persona-Kleidung folgt dem Open-Source-Projekt [Bedrock Skins](https://github.com/BrandonItaly/Bedrock-Skins) (MIT) – siehe [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
 
 Kein offizielles Minecraft-Produkt. Nicht von Mojang oder Microsoft genehmigt oder mit ihnen verbunden.

@@ -3,7 +3,7 @@
 ## BTB Skin Studio
 
 Code, Starter-Cosmetics (Modelle, Texturen, Animationen, Vorschaubilder) und Dokumentation:
-MIT-Lizenz, Copyright (c) 2026 Behind The Blocks contributors – siehe [LICENSE](../LICENSE).
+GNU LGPL v3.0 only (LGPL-3.0-only), Copyright (c) 2026 Behind The Blocks contributors – siehe [LICENSE](../LICENSE) und [NOTICE](../NOTICE).
 Die Starter-Cosmetics werden vollständig von `tools/generate_starter_pack.py` erzeugt; es sind keine
 fremden Texturen oder Modelle enthalten.
 

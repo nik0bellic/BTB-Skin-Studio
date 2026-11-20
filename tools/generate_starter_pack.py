@@ -67,6 +67,8 @@ def straps(m, b, color):
         m.box(b, (x, 23.6, -2.6), (1, 1, 5), s, inflate=-0.1)
 
 
+STRAP_SIGN = 1
+
 WOOD = palette_noise(['#8a5a2b', '#7a4e24', '#94622f', '#6e4520'], [4, 3, 2, 1])
 
 
@@ -101,55 +103,49 @@ def build():
                 m, {'animation.btb.torch_hat.flicker': anim(flame=FLICKER)}, HEAD))
 
     # ---------------------------------------------------------------- 2 Stirnband mit Fackel
-    # Durchgehendes Lederband über den Augen (y 29–31), Fackel steckt vorne mittig in einer Schlaufe am Band.
+    # Schmales, geschlossenes Lederband auf der Stirn (y 29–31, über den Augen), eng über der Hutebene.
+    # Die Fackel steht vorne mittig auf dem Band und wird von einer Lederschlaufe gehalten.
     m = Model('geometry.btb.headband_torch', seed=12)
     b = m.bone('band', [0, 28, 0])
     leather = lambda f_, x, y, w, h, r: ((rgb('#5a4330') + (255,)) if (y == 0 and f_ not in ('top', 'bottom')) else
-                                         (rgb('#241a14') + (255,)) if (y == h - 1 and f_ not in ('top', 'bottom')) else
-                                         shade(rgb('#3a2b20'), 0.88 + r.random() * 0.18) + (255,))
-    m.box(b, (-4, 29, -4), (8, 2, 8), leather, inflate=0.55)
-    loop = faces(bordered('#4a3828', '#241a14'), top=solid('#241a14'), bottom=solid('#241a14'))
-    m.box(b, (-1.5, 29, -5.6), (3, 2, 1), loop, inflate=0.1)
+                                         (rgb('#2a1f17') + (255,)) if (y == h - 1 and f_ not in ('top', 'bottom')) else
+                                         shade(rgb('#3d2d21'), 0.9 + r.random() * 0.15) + (255,))
+    O, T = 4.72, 0.22  # outer half size, thickness (hat layer ends at 4.5)
+    m.box(b, (-O, 29, -O), (2 * O, 2, T), leather)
+    m.box(b, (-O, 29, O - T), (2 * O, 2, T), leather)
+    m.box(b, (-O, 29, -O + T), (T, 2, 2 * O - 2 * T), leather)
+    m.box(b, (O - T, 29, -O + T), (T, 2, 2 * O - 2 * T), leather)
     stick = lambda f_, x, y, w, h, r: ((rgb('#c9a06a') + (255,)) if (f_ not in ('top', 'bottom') and x == 0) else
                                        shade(rgb('#6e4724'), 0.85 + r.random() * 0.25) + (255,))
-    m.box(b, (-1, 28, -6.1), (2, 6, 2), stick)
-    fb = m.bone('flame', [0, 34, -5.1], parent='band')
+    m.box(b, (-1, 29, -O - 1.5), (2, 5, 1.5), stick)
+    m.box(b, (-1.5, 30, -O - 1.75), (3, 1, 1.9), faces(solid('#2a1f17'), front=bordered('#4a3828', '#2a1f17')))
+    fb = m.bone('flame', [0, 34, -O - 0.75], parent='band')
     fl = lambda f_, x, y, w, h, r: ((rgb('#fffbe0') + (255,)) if (y == 0 and x == 0) else (rgb('#ffe14a') + (255,)) if y == 0 else (rgb('#ffc21a') + (255,)))
-    m.box(fb, (-1, 34, -6.1), (2, 2, 2), fl, emissive=fl)
+    m.box(fb, (-1, 34, -O - 1.5), (2, 2, 1.5), fl, emissive=fl)
     cos.append(('headband_torch', meta('headband_torch', 'Stirnband mit Fackel', 'Headband Torch', 'head_decoration',
-                desc_de='Breites Lederstirnband über den Augen, vorne mittig steckt eine Fackel in einer Schlaufe.',
-                desc_en='A wide leather headband above the eyes with a torch tucked into a loop at the front.',
+                desc_de='Schmales Lederstirnband, vorne mittig steckt eine Fackel in einer Schlaufe.',
+                desc_en='A slim leather headband with a torch tucked into a loop at the front.',
                 animations=['animation.btb.headband_torch.flicker'],
-                glow={'color': '#FFC94A', 'size': 6, 'intensity': 0.5, 'offset': [0, 3, -5], 'flicker': True},
-                particles={'type': 'minecraft:small_flame', 'rate': 0.8, 'offset': [0, 4.5, -5], 'spread': 0.4},
+                glow={'color': '#FFC94A', 'size': 6, 'intensity': 0.5, 'offset': [0, 7, -5.6], 'flicker': True},
+                particles={'type': 'minecraft:small_flame', 'rate': 0.8, 'offset': [0, 8.5, -5.6], 'spread': 0.4},
                 tags=['fackel', 'höhle', 'licht', 'stirnlampe', 'torch']),
                 m, {'animation.btb.headband_torch.flicker': anim(flame={'scale': [1, '1 + math.sin(q.anim_time * 900) * 0.06', 1]})}, HEAD))
 
     # ---------------------------------------------------------------- 3 Seerosenblatt (flach, rund, mit Kerbe)
     m = Model('geometry.btb.lily_pad', seed=13)
     b = m.bone('lily_pad', [0, 32, 0])
-    pad_rows = [
-        '...#####...',
-        '..#######..',
-        '.#########.',
-        '###########',
-        '#####.#####',
-        '####...####',
-        '###.....###',
-        '.#.......#.',
-    ]
-    # rows run back → front; the notch opens to the front like the Minecraft lily pad
-    pad_rows = ['...#####...', '..#######..', '.#########.', '###########', '###########', '#####v#####', '####...####', '.##.....##.', '..#.....#..']
+    # 9×9 Pixel, genau so breit wie Kopf + Hutebene, 0,5 px dünn; Kerbe zeigt nach vorne rechts.
+    pad_rows = ['..#####..', '.#######.', '#########', '#########', '#########', '#####.###', '#####..##', '.####...#', '..###....']
     def pad_paint(face, gx, gy, ch, rnd):
-        cx, cy = gx - 5, gy - 4
-        vein = ch == 'v' or (abs(cx) == abs(cy) and abs(cx) <= 3) or (cy < 0 and cx == 0)
-        base = rgb('#5f9e2b') if vein else rgb('#7cbf35') if (cx * cx + cy * cy) > 12 else rgb('#8fd13f')
+        cx, cy = gx - 4, gy - 4
+        vein = (cx == 0 and cy < 0) or (cy == 0 and cx < 0) or (cx == cy and cx < 0) or (cx == -cy and cx < 0 and cy > 0)
+        base = rgb('#5f9e2b') if vein else rgb('#7cbf35') if (cx * cx + cy * cy) > 10 else rgb('#8fd13f')
         f = 0.94 + rnd.random() * 0.1
         if face == 'bottom':
             base = rgb('#4f7d24')
         return shade(base, f) + (255,)
-    shape(m, b, [r.replace('v', '#') for r in pad_rows], (-5.5, 32, -4.5), plane='xz', depth=1, paint=pad_paint)
-    m.box(b, (-0.5, 32.6, 0.5), (1, 1, 1), faces(solid('#f7c6dc'), top=solid('#ffe38a')), inflate=-0.05)
+    shape(m, b, pad_rows, (-4.5, 32.5, -4.5), plane='xz', depth=0.5, paint=pad_paint)
+    m.box(b, (-2.5, 33, 0.5), (1, 1, 1), faces(solid('#f7c6dc'), top=solid('#ffe38a')))
     cos.append(('lily_pad', meta('lily_pad', 'Seerosenblatt', 'Lily Pad', 'flower',
                 desc_de='Ein rundes, flaches Seerosenblatt mit Blüte, das oben auf dem Kopf liegt.',
                 desc_en='A round, flat lily pad with a tiny blossom resting on top of your head.',
@@ -337,46 +333,48 @@ def build():
                 m, {'animation.btb.clover.sway': anim(clover={'rotation': ['math.sin(q.anim_time * 140) * 4', 'math.sin(q.anim_time * 50) * 20', 'math.sin(q.anim_time * 90) * 7']})}, HEAD))
 
     # ---------------------------------------------------------------- 13-15 Brillen
-    def temples(m, b, color):
+    # Alle Brillen liegen exakt auf dem Pixelraster des Gesichts (Augen: y 27–28), 0,5 px vor der Hutebene.
+    def temples(m, b, color, half=4.5):
         s_ = solid(color, noise=0.04)
-        m.box(b, (-4.6, 28, -4.6), (1, 1, 5), s_, inflate=-0.2)
-        m.box(b, (3.6, 28, -4.6), (1, 1, 5), s_, inflate=-0.2)
+        m.box(b, (-half - 0.5, 28, -5), (0.5, 1, 5), s_)
+        m.box(b, (half, 28, -5), (0.5, 1, 5), s_)
 
     m = Model('geometry.btb.round_glasses', seed=23)
     b = m.bone('glasses', [0, 28, -4])
     ring_rows = ['.##.', '#..#', '#..#', '.##.']
-    frame = ramp({'#': '#c9a23a'})
-    for x in (-4, 0.5):
-        shape(m, b, ring_rows, (x, 29.5, -5), plane='xy', depth=1, paint=frame)
-        m.box(b, (x + 1, 26.5, -4.9), (2, 2, 1), lambda f_, x_, y_, w, h, r: (255, 255, 255, 140) if (x_ == 0 and y_ == 0) else (210, 236, 255, 70), inflate=-0.4)
-    m.box(b, (-0.5, 28, -5), (1, 1, 1), solid('#c9a23a'))
-    temples(m, b, '#c9a23a')
+    gold = '#c9a23a'
+    for x in (-4, 0):
+        shape(m, b, ring_rows, (x, 30, -5), plane='xy', depth=0.5, paint=ramp({'#': gold}))
+        m.box(b, (x + 1, 27, -4.85), (2, 2, 0.2), lambda f_, x_, y_, w, h, r: (255, 255, 255, 150) if (x_ == 1 and y_ == 0) else (210, 236, 255, 60))
+    temples(m, b, gold)
     cos.append(('round_glasses', meta('round_glasses', 'Runde Brille', 'Round Glasses', 'glasses',
-                desc_de='Klassische runde Brille mit dünnem Holzrahmen.', desc_en='Classic round glasses with a thin wooden frame.', tags=['brille', 'glasses']), m, None, HEAD))
+                desc_de='Klassische runde Brille mit dünnem Goldrahmen.', desc_en='Classic round glasses with a thin golden frame.', tags=['brille', 'glasses']), m, None, HEAD))
 
     m = Model('geometry.btb.sunglasses', seed=24)
     b = m.bone('glasses', [0, 28, -4])
     sun_rows = ['########', '###..###', '###..###', '.##..##.']
     def sun(face, gx, gy, ch, rnd):
-        lens = gy >= 1 and gx not in (3, 4) and gx not in (0, 7)
+        lens = gy >= 1 and gx not in (0, 3, 4, 7)
         if lens and face == 'front':
             if (gx, gy) in ((1, 1), (5, 1)):
-                return (230, 240, 255, 255)
-            return (rgb('#1a1d26') if gy < 3 else rgb('#2a3142')) + (255,)
-        return shade(rgb('#0e0e10'), 0.95 + rnd.random() * 0.1) + (255,)
-    shape(m, b, sun_rows, (-4, 29.5, -5), plane='xy', depth=1, paint=sun)
-    temples(m, b, '#0e0e10')
+                return (200, 215, 240, 255)
+            return (rgb('#1c2030') if gy < 3 else rgb('#2b3348')) + (255,)
+        return shade(rgb('#101012'), 0.95 + rnd.random() * 0.1) + (255,)
+    shape(m, b, sun_rows, (-4, 30, -5), plane='xy', depth=0.5, paint=sun)
+    temples(m, b, '#101012')
     cos.append(('sunglasses', meta('sunglasses', 'Sonnenbrille', 'Sunglasses', 'glasses',
                 desc_de='Breite, dunkle Sonnenbrille mit Spiegelreflex.', desc_en='Wide dark sunglasses with a mirror glint.', tags=['brille', 'sommer', 'cool']), m, None, HEAD))
 
     m = Model('geometry.btb.star_glasses', seed=25)
     b = m.bone('glasses', [0, 28, -4])
-    star_rows = ['..#..', '#####', '.###.', '##.##']
-    pink = ramp({'#': '#ff5fb8'})
-    for x in (-4.5, 0.5):
-        shape(m, b, star_rows, (x, 30, -5), plane='xy', depth=1, paint=pink)
-    m.box(b, (-0.5, 28, -5), (1, 1, 1), solid('#ff5fb8'))
-    temples(m, b, '#ff5fb8')
+    star_rows = ['..#..', '#####', '.#o#.', '.###.', '.#.#.']
+    def star_paint(face, gx, gy, ch, rnd):
+        if ch == 'o':
+            return (255, 220, 240, 110)
+        return shade(rgb('#ff5fb8'), 0.95 + rnd.random() * 0.08) + (255,)
+    for x in (-5, 0):
+        shape(m, b, star_rows, (x, 31, -5), plane='xy', depth=0.5, paint=star_paint)
+    temples(m, b, '#ff5fb8', half=4.5)
     cos.append(('star_glasses', meta('star_glasses', 'Party-Sternbrille', 'Star Party Glasses', 'glasses',
                 desc_de='Pinke Sternbrille für jede Party.', desc_en='Pink star glasses for every party.', tags=['brille', 'party']), m, None, HEAD))
 
@@ -519,19 +517,19 @@ def build():
                                                                         'scale': ['1 + math.sin(q.anim_time * 320) * 0.04', '1 - math.sin(q.anim_time * 320) * 0.06', '1 + math.sin(q.anim_time * 320) * 0.04']})}, HEAD_BODY))
 
     # ---------------------------------------------------------------- 25 Schultertasche
-    # Gurt von der linken Schulter diagonal über Brust und Rücken zur rechten Hüfte (Pixeltreppe ohne Lücken), Tasche vorne an der Hüfte.
+    # Durchgehender, gerader Gurt von der linken Schulter diagonal über Brust und Rücken, Tasche vorne an der rechten Hüfte.
     m = Model('geometry.btb.shoulder_bag', seed=35)
     b = m.bone('body', [0, 24, 0])
     strap = solid('#5b3a1f', noise=0.06)
-    for i in range(12):
-        x = 3 - round(i * 7 / 11)
-        y = 23 - i
-        m.box(b, (x - 0.5, y, -2.6), (2, 1, 1), strap, inflate=-0.1, tint=True)
-        m.box(b, (x - 0.5, y, 1.6), (2, 1, 1), strap, inflate=-0.1, tint=True)
-    m.box(b, (2.5, 24, -2.6), (2, 1, 5.2), strap, inflate=-0.1, tint=True)
+    # from the left shoulder (x 3, y 24) to the top of the bag (x -2.5, y 13)
+    ang = math.degrees(math.atan2(5.5, 11))
+    length = math.hypot(5.5, 11) + 1
+    for z0, d in ((-2.6, 0.35), (2.25, 0.35)):
+        m.box(b, (-0.75 + 0.25, 18.5 - length / 2, z0), (1.5, length, d), strap, rotation=[0, 0, STRAP_SIGN * ang], pivot=[0.25, 18.5, 0], tint=True)
+    m.box(b, (2.25, 24, -2.6), (1.5, 0.35, 5.2), strap, tint=True)
     bag = faces(bordered('#8a5a2b', '#5b3a1f'), top=solid('#6e4520'), front=lambda f_, x, y, w, h, r: (
         (rgb('#d8b04a') + (255,)) if (y == 1 and x == w // 2) else (rgb('#6e4520') + (255,)) if y <= 1 else shade(rgb('#8a5a2b'), 0.9 + r.random() * 0.15) + (255,)))
-    m.box(b, (-4.5, 9, -3.6), (4, 4, 2), bag, tint=True)
+    m.box(b, (-4.5, 9, -3.85), (4, 4, 1.5), bag, tint=True)
     cos.append(('shoulder_bag', meta('shoulder_bag', 'Schultertasche', 'Shoulder Bag', 'shoulder_accessory', 'body',
                 desc_de='Umhängetasche aus Leder: Gurt quer über die Brust, Tasche vorne an der Hüfte.',
                 desc_en='A leather messenger bag: strap across the chest, bag at the front of the hip.',

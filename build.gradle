@@ -68,4 +68,7 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_$projectName" }
 	}
+	from("NOTICE") {
+		rename { "${it}_$projectName" }
+	}
 }

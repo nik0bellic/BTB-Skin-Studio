@@ -8,7 +8,7 @@
 	"contact": {
 		"sources": "https://github.com/nik0bellic/BTB-Skin-Studio"
 	},
-	"license": "MIT",
+	"license": "LGPL-3.0-only",
 	"icon": "assets/btb_skinstudio/icon.png",
 	"environment": "*",
 	"entrypoints": {
