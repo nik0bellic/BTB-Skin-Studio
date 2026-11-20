@@ -4,8 +4,9 @@
 
 Code, Starter-Cosmetics (Modelle, Texturen, Animationen, Vorschaubilder) und Dokumentation:
 GNU LGPL v3.0 only (LGPL-3.0-only), Copyright (c) 2026 Behind The Blocks contributors – siehe [LICENSE](../LICENSE) und [NOTICE](../NOTICE).
-Die Starter-Cosmetics werden vollständig von `tools/generate_starter_pack.py` erzeugt; es sind keine
-fremden Texturen oder Modelle enthalten.
+Starter-, Themen-, Gesichts- und Kleidungs-Pack sowie das Skin-Pack „BTB Skins“ werden vollständig von den
+Skripten in `tools/` erzeugt; es sind keine fremden Texturen oder Modelle enthalten. Der Holzfäller enthält nur
+das Outfit; das Gesicht kommt zur Laufzeit aus dem Steve-Skin des installierten Spiels.
 
 ## Verwendete Bibliotheken (zur Laufzeit vom Spiel bereitgestellt)
 
@@ -33,6 +34,10 @@ fremden Texturen oder Modelle enthalten.
   > IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
   > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
   > WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+- **Bedrock Skin Packs** (Ressourcenpaket auf Modrinth): Der Skin-Pack-Katalog liest dasselbe Index-Format
+  (`{"packs":[{id,name,description,downloadURI,imageUrl}]}`) und nutzt standardmäßig dieselbe Index-URL. Es wird
+  kein Inhalt daraus mitgeliefert; die Packs lädt der Nutzer selbst auf Klick.
+- **Controlify** (isXander): nur optionale Erkennung über die öffentliche API, keine Abhängigkeit.
 - Das Bedrock-Geometrie- und Animationsformat ist von Mojang öffentlich dokumentiert
   (https://learn.microsoft.com/minecraft/creator/).
 
@@ -41,6 +46,7 @@ fremden Texturen oder Modelle enthalten.
 Die Mod liefert keine Minecraft- oder Marketplace-Inhalte aus. Die Standard-Skins (Steve, Alex usw.)
 werden zur Laufzeit aus dem installierten Spiel geladen. Bedrock-Inhalte werden nur aus Dateien gelesen,
 die der Nutzer selbst besitzt; verschlüsselte Marketplace-Inhalte werden erkannt und nicht geöffnet.
-Screenshots in `docs/` zeigen nur die Standard-Skins und eigene Cosmetics.
+Screenshots in `docs/` zeigen Standard-Skins, eigene Skins und Cosmetics; der Katalog-Screenshot zeigt die
+Vorschaubilder aus dem Online-Katalog, wie sie in der Mod erscheinen.
 
 Kein offizielles Minecraft-Produkt. Nicht von Mojang oder Microsoft genehmigt oder mit ihnen verbunden.

@@ -486,7 +486,7 @@ public class WardrobeScreen extends Screen {
 		if (p.id().equals(PackStore.CUSTOM_PACK_ID)) {
 			return Tr.t("btb.ui.pack.custom");
 		}
-		if (p.id().startsWith("btb_builtin")) {
+		if (p.id().equals("btb_builtin_starter")) {
 			return Tr.t("btb.ui.pack.starter");
 		}
 		return p.manifest.name(lang());

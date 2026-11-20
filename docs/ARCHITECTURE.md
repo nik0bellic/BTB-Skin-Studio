@@ -12,6 +12,8 @@ src/main   (Client und Server, ohne Client-Klassen)
   skin/       .btbskin, PNG-Import, Bedrock-Skin-Packs, 3D-Hautebenen, Skin-Icons
   bedrock/    Importer (Persona, Skin-Pack-Accessoires, Blockbench), BedrockLocator (Suche auf dem PC)
   loadout/    was ein Spieler trägt: ID, Farbe, Inhalts-Hash, Verschiebung/Größe
+  emote/      Emotes: 20 Posen als Keyframes (18 Winkel + Gewicht), Gegenstand, Dauer
+  skin/       außerdem Clothing (Kleidung färben und auf den Skin legen), SkinPackWriter (.mcpack-Export)
   network/    Payloads + Protokollversion
   server/     ServerCosmeticSync: Prüfung, Verteilung, Blob-Cache
   util/       JSON, Farben, Übersetzungen (Tr)
@@ -20,8 +22,11 @@ src/client
   library/    CosmeticLibrary: Starter-Pack, installierte Packs, eigene Cosmetics, Cache
   render/     CosmeticLayer (Render-Layer am Spieler), CosmeticDrawer, Texturen, Lichtschein, Partikel
   skin/       SkinLibrary (Standard-Skins, eigene, Skin-Packs, Mitspieler), ClientSkins (Override)
-  mixin/      AvatarRendererMixin (Render-State), AbstractClientPlayerMixin (getSkin-Override)
-  gui/        Garderobe, Vorschau, Import, Pack-Verwaltung, Bedrock-Suche, Datei-Dialoge, UI-Bausteine
+  mixin/      AvatarRendererMixin (Render-State, Rüstung, Emote-Gegenstand, Körpergröße),
+              PlayerModelMixin (Emote-Posen, Körperproportionen), AbstractClientPlayerMixin (getSkin-Override)
+  emote/      ClientEmotes (Abspielen, Partikel, Abbruch beim Laufen), EmoteKeys (Direkttasten)
+  gui/        Garderobe (Kosmetik/Skins/Charakter/Emotes), Menüfigur, Emote-Rad, Skin-Pack-Katalog,
+              Java-Spielersuche, Skin-Pack-Builder, Import, Pack-Verwaltung, Bedrock-Suche, UI-Bausteine
   editor/     Cosmetic-Editor
   importer/   ImportPlan: Konflikte, Umbenennen, Installation
   net/        ClientCosmeticSync
@@ -44,7 +49,13 @@ Spiel testen (`src/test`), und der dedizierte Server nutzt dieselbe Prüfung wie
 5. Texturen sind nach Inhalts-Hash registriert. Gleiche Cosmetics teilen sich eine GPU-Textur, und ein
    Reload lädt nur geänderte Texturen neu.
 6. 3D-Hautebenen (`SkinLayers3D`): Jeder deckende Pixel der äußeren Hautebene wird zu einem Voxel,
-   verdeckte Seiten werden weggelassen. Das Ergebnis wird pro Skin einmal berechnet und gecacht.
+   verdeckte Seiten werden weggelassen, Randvoxel bis zur Kante verlängert (keine Lücken an den Ecken).
+   Das Ergebnis wird pro Skin einmal berechnet und gecacht.
+7. Rüstung (`ArmorFit`): Mit Helm bleiben nur Brillen (etwas größer, über dem Helm) und der Heiligenschein.
+   Brustpanzer schieben Rücken-Teile nach hinten, Elytren blenden Flügel/Umhang/Rucksack aus. Alles andere
+   wird gegen die Rüstungs-Hüllen geprüft: erst etwas vergrößern/verschieben, sonst ausblenden.
+8. Emotes: `PlayerModelMixin` überblendet nach `setupAnim` die Gliedmaßen mit der Emote-Pose (Gewicht für
+   weiches Ein- und Ausblenden); der Gegenstand kommt über `ItemModelResolver` in die rechte Hand.
 
 ## Skins
 
@@ -52,7 +63,16 @@ Spiel testen (`src/test`), und der dedizierte Server nutzt dieselbe Prüfung wie
 der gewählten Textur. Das gilt nur für Spieler, die einen BTB-Skin gewählt haben; sonst bleibt der
 Account-Skin. Accessoires eines Bedrock-Skins werden wie ein Cosmetic gerendert.
 
-## Multiplayer-Protokoll (Version 2)
+Quellen der Skin-Bibliothek: Standard-Skins des Spiels, eigene Skins, `skin_packs/` (Ordner, ZIP, mcpack,
+auch vom Katalog geladen), Skin-Packs aus Ressourcenpaketen (`assets/<ns>/skin_packs/<pack>/skins.json`,
+optional `btb_bases.json`: Outfit wird beim Laden auf einen Standard-Skin gelegt) und die Skin-Packs der
+Bedrock-Installation (`BedrockLocator.builtInSkinPackDirs`).
+
+Der Charakter (`ClothesLibrary`) ist ein eigener Skin `skin:my_character`: Grund-Skin, darüber pro Slot ein
+graues Kleidungs-Template, das eingefärbt wird (`Clothing.compose`), plus Detailebene. Gesichtsteile sind
+normale Cosmetics aus dem Pack `btb_face` mit Hautfarben-Tint.
+
+## Multiplayer-Protokoll (Version 4)
 
 | Richtung | Payload | Inhalt |
 |---|---|---|
@@ -60,6 +80,9 @@ Account-Skin. Accessoires eines Bedrock-Skins werden wie ein Cosmetic gerendert.
 | C→S | `SetLoadout` | bis zu 16 Einträge: ID, Farbe, Hash, Anpassung |
 | C→S | `SetSkin` | Skin-ID, Hash, Slim (oder leer) |
 | S→C | `SyncLoadouts` / `SyncSkins` | Zustand aller Spieler beim Beitreten, danach nur Änderungen |
+| C→S / S→C | `PlayEmote` / `EmotePlayed` | Emote-ID (Server: höchstens alle 250 ms) |
+| C→S | `SetBody` | Größe, Kopf, Arme, Beine (je 0,8–1,25) |
+| S→C | `PlayerBody` / `SyncBodies` | Körperproportionen eines / aller Spieler |
 | S→C | `RemovePlayer` | Spieler hat verlassen |
 | C→S / S→C | `RequestCosmetic` / `CosmeticChunk` | Archiv nach Hash anfordern / in 30-KB-Stücken übertragen |
 
@@ -79,6 +102,9 @@ Account-Skin. Accessoires eines Bedrock-Skins werden wie ein Cosmetic gerendert.
 - Partikel sind auf 20/s begrenzt, eigene Partikel in der Ego-Perspektive werden nicht erzeugt.
 - Fremde Cosmetics lassen sich ausblenden, Partikel und Lichtschein abschalten.
 - Vorschaubilder werden einmal erzeugt (PNG im Pack oder `PreviewRenderer`) und gecacht.
+- Kleidung wird nur beim Ändern neu zusammengesetzt, Rüstungsprüfung nur für Spieler mit Rüstung und Cosmetics.
+- Skin-Packs aus Installation und Katalog werden im Hintergrund geladen; Netzwerkzugriffe (Katalog,
+  Java-Spieler) gibt es nur auf Klick.
 
 ## Übersetzung
 

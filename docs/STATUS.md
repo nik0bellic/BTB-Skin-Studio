@@ -5,13 +5,14 @@ Stand: November 2026, Version 0.1.0, Minecraft 26.3, Fabric Loader 0.20.1, Fabri
 ## Build und Tests
 
 - `./gradlew build` läuft fehlerfrei durch (JDK 25).
-- 31 Unit-Tests in `src/test`, 30 bestanden, 1 übersprungen (`RealDataImportTest` braucht echte
+- 32 Unit-Tests in `src/test`, 31 bestanden, 1 übersprungen (`RealDataImportTest` braucht echte
   Bedrock-Dateien, Aufruf mit `-Pbtb.realdata=<ordner>`). Abgedeckt:
   - Geometrie (alt und neu, Box-/Per-Face-UV), Molang, Animationen
   - Pack lesen, schreiben und prüfen: doppelte IDs, Pfad-Ausbruch, defekte PNGs, Archivgrenzen
   - Bedrock-Importer: Persona, Skin-Pack-Accessoires, verschlüsselte Inhalte
   - Skins: `.btbskin`, PNG-Import, Slim-Erkennung, 64×32, Bedrock-Skin-Packs
   - Sync-Protokoll: Chunking, Grenzen, Server-Prüfung
+  - Skin-Pack-Export (`.mcpack` schreiben und wieder einlesen), Kleidung zusammensetzen
   - Vorschaubilder; beide Sprachdateien (gültiges JSON, gleiche Schlüssel und Platzhalter)
 - Spieltests liefen automatisiert im echten Client (`AutoTest`, Xvfb, Software-Rendering) mit Screenshots.
 
@@ -28,11 +29,25 @@ Stand: November 2026, Version 0.1.0, Minecraft 26.3, Fabric Loader 0.20.1, Fabri
 | Import | Demo-Pack installiert; Pack mit belegter ID wird blockiert, „Umbenennen“ installiert es mit neuer ID |
 | Bedrock-Import | Accessoires aus einem unverschlüsselten Skin-Pack |
 | Multiplayer | dedizierter Server und zwei Clients: Bob sieht Alices Starter-Cosmetics und ihre eigene Krone (per Hash übertragen) |
+| Menüfigur | Haupt- und Pausenmenü, Drehen mit der Maus, Button zur Garderobe |
+| Charakter | Grund-Skin, Kleidung pro Slot mit Farbe, Körperproportionen, Augen und Münder (Blinzeln, Spucke) |
+| Emotes | alle 20 in der Welt, mit Gegenständen und Partikeln; Rad, Tasten 1–5, Reiter „Emotes“ |
+| Skin-Packs | BTB Skins (Holzfäller auf Steve), Packs aus einer mcpelauncher-Installation und aus einem Ressourcenpaket |
+| Katalog | Index geladen, zwei Packs heruntergeladen und als Sammlung angezeigt |
+| Skin-Pack-Builder | `.mcpack` erstellt und wieder geladen |
+| Rüstung | Helm: nur Brille sichtbar; Brustpanzer: Rucksack sitzt dahinter; Elytren |
+| Themen-Packs | Winterzauber, Halloween, Piraten in der Welt |
 | Sprachen | Oberfläche komplett auf Deutsch und Englisch geprüft |
 
 ## Bekannte Einschränkungen
 
 - **Marketplace-Inhalte** sind verschlüsselt und werden nicht importiert. Die Mod erkennt sie und erklärt das.
+- **Java-Spieler suchen** braucht Zugriff auf die Mojang-Dienste; in der Testumgebung war das gesperrt, die
+  Funktion ist daher nur bis zur Anfrage geprüft (Fehlermeldung bei fehlendem Netz).
+- **Controlify:** Die Controller-Tasten im Emote-Rad werden über die öffentliche API per Reflection erkannt;
+  ohne Controller nicht im Spiel geprüft.
+- **Katalog-Packs** gehören den jeweiligen Rechteinhabern. Die Mod liefert sie nicht aus, sondern lädt sie
+  erst auf Klick von der im Katalog genannten Quelle.
 - **Bedrock-Suche auf dem PC:** Die Pfade für Windows (Store/GDK, Preview) entsprechen den bekannten
   Installationsorten, wurden aber nur unter Linux (mcpelauncher-Struktur) getestet, nicht auf einem echten Windows-PC.
 - **Character-Creator-Teile (Persona):** Der Import ist mit nachgebauten Testdaten geprüft. Echte
@@ -50,6 +65,6 @@ Stand: November 2026, Version 0.1.0, Minecraft 26.3, Fabric Loader 0.20.1, Fabri
 ## Offen / Ideen
 
 - Spieltest der Bedrock-Suche auf Windows
-- Skin-Sync mit zwei Clients im Spiel prüfen
-- Mehr Starter-Skins (eigene, statt nur Minecraft-Standard)
+- Skin-, Emote- und Körper-Sync mit zwei Clients im Spiel prüfen
+- Java-Spielersuche mit echtem Netz und Controlify mit Controller testen
 - Optional: Server-Konfiguration (Größenlimits, erlaubte Packs)

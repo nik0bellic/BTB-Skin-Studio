@@ -2,7 +2,7 @@
 
 **Cosmetics, Garderobe und Cosmetic-Editor für Minecraft 26.3 (Fabric)** – Teil der BTB-Studios-Mod-Familie (*Behind The Blocks*). Hüte, Kronen, Brillen, Rucksäcke, Flügel, Begleiter und Effekte, die man frei kombinieren, einfärben, selbst bauen, als Pack teilen und aus Bedrock-Ressourcen übernehmen kann. Im Multiplayer sehen alle Spieler mit der Mod die Cosmetics der anderen.
 
-*English: A Fabric mod for Minecraft 26.3 that adds wearable cosmetics, a wardrobe with live 3D preview, skins and Bedrock skin packs, 3D skin layers, a cosmetic editor, an own pack format (.btbcosmeticpack / .btbcosmetic / .btbskin), an importer for unencrypted Bedrock resources (Persona pieces, skin-pack accessories, Blockbench models) and multiplayer sync. The in-game UI is fully available in German and English (follows the game language); the docs are in German.*
+*English: A Fabric mod for Minecraft 26.3 that adds wearable cosmetics, a wardrobe with live 3D preview, a Bedrock-style character creator (clothes, body proportions, eyes and mouths), 20 emotes with an emote wheel, skins and Bedrock skin packs (from the Bedrock installation, resource packs or an online catalog), Java player skin lookup, a skin pack builder, 3D skin layers, a cosmetic editor, an own pack format (.btbcosmeticpack / .btbcosmetic / .btbskin), an importer for unencrypted Bedrock resources (Persona pieces, skin-pack accessories, Blockbench models) and multiplayer sync. The in-game UI is fully available in German and English (follows the game language); the docs are in German.*
 
 ![Garderobe](docs/screenshots/doc_wardrobe.png)
 
@@ -16,6 +16,11 @@
 | Lizenz | LGPL-3.0-only |
 
 ## Was die Mod kann
+
+**Menüfigur wie in Bedrock**
+- Im Haupt- und Pausenmenü steht die eigene Figur in 3D mit allen Cosmetics, schaut dem Mauszeiger nach und lässt sich mit der Maus drehen; darunter der Button „Garderobe“ (abschaltbar)
+
+![Hauptmenü](docs/modrinth/10_title_de.jpg)
 
 **Garderobe (Taste J, oder Button „Garderobe“ im Pausen- und Hauptmenü)**
 - Kategorien Kopf, Haare & Gesicht, Rücken, Oberkörper, Arme & Hände, Beine & Füße, Besonderes – mit 44 Untertypen
@@ -34,14 +39,43 @@
 - **Skin-Packs wie in Bedrock:** Bedrock-Skin-Packs (Ordner, `.zip`, `.mcpack` mit `skins.json`) in `skin_packs/` legen – alle Skins erscheinen als Sammlung, inklusive 3D-Zusatzteilen und übersetzten Namen
 - **Bedrock suchen:** findet Bedrock-Installationen auf dem PC (Windows Store/GDK, Preview, mcpelauncher unter Linux) und listet Skin-Packs, Character-Creator-Teile und Skins, die sich übernehmen lassen
 - Jederzeit zurück zum Account-Skin; Mitspieler mit der Mod sehen den gewählten Skin
-- **3D-Hautebenen** (Einstellung): Hut-, Jacken-, Ärmel- und Hosenebene werden als echte Voxel dargestellt, wie in Bedrock
+- **3D-Hautebenen** (Einstellung): Hut-, Jacken-, Ärmel- und Hosenebene werden als echte Voxel dargestellt, wie in Bedrock – mit geschlossenen Kanten
+- **Eigenes Skin-Pack „BTB Skins“:** Holzfäller (Steve mit Holzfäller-Outfit, zur Laufzeit aus dem Steve-Skin des Spiels zusammengesetzt), Abenteurerin, Gärtnerin, Bergarbeiter, Matrose, Astronautin
+- **Skin-Packs aus der Bedrock-Installation:** Die mit Bedrock installierten Standard-Skin-Packs werden direkt geladen (Windows GDK/Store, Preview, mcpelauncher), ebenso Skin-Packs in Ressourcenpaketen (`assets/<ns>/skin_packs/`)
+- **Skin-Pack-Katalog:** lädt auf Klick die klassischen Bedrock-Skin-Packs aus einem Online-Katalog (Format des Ressourcenpakets „Bedrock Skin Packs“, 50+ Packs); weitere Katalog-URLs einstellbar
+- **Java-Spieler suchen:** Spielername eingeben, Skin (mit Armmodell) übernehmen – lädt nur von `textures.minecraft.net`
+- **Skin-Pack erstellen:** eigene Skins auswählen, benennen und als Bedrock-`.mcpack` exportieren (auch in Bedrock nutzbar)
 
-![Skins](docs/screenshots/doc_skins.png)
+![Skins](docs/modrinth/16_skins_de.jpg)
 
-**38 eigene Starter-Cosmetics** – alle selbst modelliert, mit Texturen, Animationen und Effekten:
+**Charakter-Editor (Reiter „Charakter“) – wie der Bedrock Character Creator**
+- Grund-Skin wählen, darüber Kleidung einzeln: Oberteil, Hose, Schuhe, Jacke – 16 Teile (T-Shirt, Langarm, Hoodie, Holzfällerhemd, Ringelshirt, Tanktop, Jeans, Shorts, Jogginghose, Rock, Latzhose, Sneaker, Stiefel, Lederjacke, Weste, Mantel), jedes frei einfärbbar
+- Körper: Größe, Kopf-, Arm- und Beindicke (0,8–1,25×) – Mitspieler sehen die Proportionen
+- Gesicht: Glubschaugen, Kulleraugen, verschlafene Augen und Blinzel-Augen mit beweglichen Lidern in Hautfarbe; Lächeln, Sprech-Mund und „Zunge raus“ mit tropfender Spucke
+- Character-Creator-Teile aus der Bedrock-Installation erscheinen als eigene Sammlung (sofern unverschlüsselt)
+
+![Charakter](docs/modrinth/13_character_de.jpg)
+
+**Emotes (Taste B für das Emote-Rad)**
+- 20 Emotes nach echtem Minecraft: Winken, Jubeln, Klatschen, Zeigen, Facepalm, Nachdenken, Holz schlagen, Abbauen (mit Diamantspitzhacke und Block-Partikeln), Diamanten zeigen, Ghast-Tanz, Creeper-Schreck, Verbeugen, Achselzucken, Trank trinken, Keks essen, Banner schwenken, Fernrohr, Tanzen, Lachen, Herz
+- Echte Gegenstände in der Hand und passende Partikel; Laufen bricht das Emote ab
+- Rad mit 5 frei belegbaren Plätzen, Figur daneben zeigt das Emote; Tasten 1–5 im Rad, für jeden Platz eine eigene Direkttaste
+- Tasten werden als Tastaturkappen gezeigt, mit [Controlify](https://modrinth.com/mod/controlify) als Controller-Tasten
+- Reiter „Emotes“ in der Garderobe: alle Emotes mit Vorschau, welcher Platz und welche Taste belegt ist
+- Mitspieler mit der Mod sehen die Emotes
+
+![Emote-Rad](docs/modrinth/15_wheel_de.jpg)
+
+**38 eigene Starter-Cosmetics** – alle selbst modelliert, mit Texturen, Animationen (auch beim Laufen) und Effekten:
 Fackel auf dem Kopf (Flammenanimation, Lichtschein, Funken), Stirnband mit Fackel, Seerosenblatt, Glas-Terrarium, goldene und silberne Krone, Eis-Tiara, Heiligenschein, Feuer-Halo, Teufelshörner, Blumenkrone, Kleeblatt, drei Brillen, Kopfhörer, Partyhut, Ritterhelm, Fuchsmaske, Stachelfrisur, Vollbart, Schnurrbart, drei Rucksäcke, Flügel, Umhang, Mini-Schild, Schultertasche, Abenteurer-Weste, Gürtel, Armband, Handschuhe, Stiefel, Schleimi und Mini-Drache als Schulterbegleiter, schwebender Kristall, Glühwürmchen.
 
 ![Alle Starter-Cosmetics im Spiel](docs/screenshots/doc_all_cosmetics.png)
+
+**Drei Themen-Packs** (eigene Designs, animiert): *Winterzauber* (Bommelmütze, Schal, Ohrenschützer, Rentiergeweih, Schneeflocken-Partikel), *Halloween* (leuchtender Kürbiskopf, Hexenhut, Fledermausflügel, Geist), *Piraten* (Dreispitz, Augenklappe, Papagei, Entermesser).
+
+![Outfits](docs/modrinth/01_outfits.jpg)
+
+**Rüstung:** Mit Helm bleiben nur Brillen sichtbar (sie sitzen dann über dem Helm), alles andere am Kopf wird ausgeblendet. Brustpanzer schieben Rucksäcke nach hinten, Elytren blenden Flügel, Umhang und Rucksäcke aus; sonst wird nur ausgeblendet, was durch die Rüstung ragen würde.
 
 **Cosmetic-Editor**
 - 3D-Modell (Blockbench „Bedrock Model“ / Bedrock-Geometrie) und Textur importieren, Textur und Leuchttextur austauschen
@@ -83,6 +117,8 @@ Fackel auf dem Kopf (Flammenanimation, Lichtschein, Funken), Stirnband mit Facke
 | | |
 |---|---|
 | `J` | Garderobe öffnen (in den Steuerungs-Einstellungen änderbar) |
+| `B` | Emote-Rad; Tasten `1`–`5` spielen ein Emote, Laufen bricht ab |
+| Emote-Platz 1–5 | eigene Direkttasten, ab Werk nicht belegt |
 | Klick auf eine Karte | anprobieren; zweiter Klick oder `Enter` legt an/ab |
 | Rechtsklick auf eine Karte | Favorit |
 | Ziehen in der Vorschau | Spieler drehen |
@@ -93,7 +129,7 @@ Garderobe → „Anpassen“ öffnet das Verschiebe-Panel für das ausgewählte 
 
 Befehle (clientseitig): `/skinstudio`, `/skinstudio editor [id]`, `/skinstudio packs`, `/skinstudio equip <id> [#farbe]`, `/skinstudio unequip <id>`, `/skinstudio clear`, `/skinstudio list`, `/skinstudio reload`.
 
-Ordner im Spielverzeichnis: `btb_skinstudio/packs` (installierte Packs), `custom` (eigene Cosmetics, mit Blockbench bearbeitbar), `import` (Ablage für den Import), `exports`, `skins` (eigene Skins), `skin_packs` (Bedrock-Skin-Packs; auch `skin_packs/` direkt im Spielordner), `cache` (von Mitspielern empfangen). Einstellungen und Garderobe: `config/btb_skinstudio/`.
+Ordner im Spielverzeichnis: `btb_skinstudio/packs` (installierte Packs), `custom` (eigene Cosmetics, mit Blockbench bearbeitbar), `import` (Ablage für den Import), `exports`, `skins` (eigene Skins), `skin_packs` (Bedrock-Skin-Packs; auch `skin_packs/` direkt im Spielordner, dorthin lädt auch der Katalog), `cache` (von Mitspielern empfangen). Einstellungen und Garderobe: `config/btb_skinstudio/`.
 
 ## Dokumentation
 
@@ -102,6 +138,7 @@ Ordner im Spielverzeichnis: `btb_skinstudio/packs` (installierte Packs), `custom
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) – Aufbau, Rendering, Multiplayer-Protokoll, Performance
 - [docs/STATUS.md](docs/STATUS.md) – Teststand: was im Spiel geprüft ist, offene Punkte, bekannte Einschränkungen
 - [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) – Lizenzen und Quellen
+- [docs/MODRINTH.md](docs/MODRINTH.md) – Projektseite für Modrinth (Text und Galerie)
 
 ## Selbst bauen
 
@@ -111,17 +148,18 @@ cd BTB-Skin-Studio
 ./gradlew build          # JDK 25 nötig → build/libs/btb_skinstudio-<version>.jar
 ./gradlew runClient      # Entwicklungs-Client
 python3 tools/generate_starter_pack.py   # Starter-Pack neu erzeugen (Pillow nötig)
+python3 tools/generate_themes.py         # Themen-Packs; ebenso generate_face.py, generate_clothes.py, generate_skins.py
 ```
 
 Projektaufbau:
 - `src/main` – gemeinsamer Code ohne Client-Abhängigkeit: Datenmodell, Formate, Pack-System, Bedrock-Importer, Sync-Server
 - `src/client` – Rendering, Garderobe, Editor, Import-Oberfläche, Client-Sync
-- `tools/` – Python-Generator für Modelle, Texturen, Animationen und Vorschaubilder des Starter-Packs
+- `tools/` – Python-Generatoren für Modelle, Texturen, Animationen und Vorschaubilder (Starter-, Themen-, Gesichts- und Kleidungs-Pack, BTB-Skins)
 - `docs/` – Anleitungen und Screenshots
 
 ## Lizenz
 
-- **Code und eigene Assets:** [GNU Lesser General Public License v3.0 only (LGPL-3.0-only)](LICENSE) (siehe auch [NOTICE](NOTICE)), Copyright (c) 2026 Behind The Blocks contributors – wie BTB Cinematics. Alle Starter-Cosmetics sind selbst erzeugt (`tools/`).
+- **Code und eigene Assets:** [GNU Lesser General Public License v3.0 only (LGPL-3.0-only)](LICENSE) (siehe auch [NOTICE](NOTICE)), Copyright (c) 2026 Behind The Blocks contributors – wie BTB Cinematics. Alle Cosmetics, Kleidungsteile und BTB-Skins sind selbst erzeugt (`tools/`). Die Mod enthält keine Mojang- oder Marketplace-Inhalte: Standard-Skins und Bedrock-Packs kommen aus dem installierten Spiel, Katalog-Packs werden erst auf Klick des Nutzers von ihren Quellen geladen.
 - Das Texturlayout für Persona-Kleidung folgt dem Open-Source-Projekt [Bedrock Skins](https://github.com/BrandonItaly/Bedrock-Skins) (MIT) – siehe [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
 
 Kein offizielles Minecraft-Produkt. Nicht von Mojang oder Microsoft genehmigt oder mit ihnen verbunden.
