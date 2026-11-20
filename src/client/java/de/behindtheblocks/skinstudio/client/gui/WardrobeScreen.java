@@ -1559,7 +1559,7 @@ public class WardrobeScreen extends Screen {
 	private void drawSettings(int x, int y) {
 		Theme t = ui.t;
 		ClientSettings s = ClientSettings.get();
-		int w = 190, h = 197 + 34 + (s.skinLayers3d ? 16 : 0);
+		int w = 190, h = 197 + 51 + (s.skinLayers3d ? 16 : 0);
 		// catches clicks on empty parts of the panel; registered first so the toggles on top of it win
 		ui.region(x, y, w, h, () -> { });
 		ui.rounded(x, y, w, h, 9, t.dark ? 0xF41C1F27 : 0xFCFFFFFF);
@@ -1589,6 +1589,8 @@ public class WardrobeScreen extends Screen {
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.blinking"), s.blinking, () -> { s.blinking = !s.blinking; s.save(); });
 		cy += 17;
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.blink_self"), s.blinkSelf, () -> { s.blinkSelf = !s.blinkSelf; s.save(); });
+		cy += 17;
+		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.emote_camera"), s.emoteCamera, () -> { s.emoteCamera = !s.emoteCamera; s.save(); });
 		cy += 17;
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.bedrock_packs"), s.bedrockBuiltinPacks, () -> {
 			s.bedrockBuiltinPacks = !s.bedrockBuiltinPacks;

@@ -683,5 +683,6 @@
 	"btb.ui.character.slot.eyes": "Augen",
 	"btb.ui.character.slot.mouth": "Münder",
 	"btb.ui.character.slot.beard": "Gesichtsbehaarung",
-	"btb.ui.setting.blink_self": "Eigener Skin blinzelt"
+	"btb.ui.setting.blink_self": "Eigener Skin blinzelt",
+	"btb.ui.setting.emote_camera": "Emote von vorne zeigen"
 }

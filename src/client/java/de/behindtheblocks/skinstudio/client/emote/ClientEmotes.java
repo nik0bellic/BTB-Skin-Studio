@@ -55,7 +55,22 @@ public final class ClientEmotes {
 		PLAYING.put(mc.player.getUUID(), new Playing(id, System.nanoTime()));
 		startX = mc.player.getX();
 		startZ = mc.player.getZ();
+		// in first person the own emote cannot be seen: switch to the front view for its duration (like Bedrock)
+		if (de.behindtheblocks.skinstudio.client.data.ClientSettings.get().emoteCamera && mc.options.getCameraType().isFirstPerson()) {
+			cameraBefore = mc.options.getCameraType();
+			mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
+		}
 		send(id);
+	}
+
+	/** Camera view before an emote switched to third person (restored when the emote ends), or null. */
+	private static net.minecraft.client.CameraType cameraBefore;
+
+	private static void restoreCamera(Minecraft mc) {
+		if (cameraBefore != null) {
+			mc.options.setCameraType(cameraBefore);
+			cameraBefore = null;
+		}
 	}
 
 	public static void stopOwn() {
@@ -63,6 +78,7 @@ public final class ClientEmotes {
 		if (mc.player != null && PLAYING.remove(mc.player.getUUID()) != null) {
 			send("");
 		}
+		restoreCamera(mc);
 	}
 
 	private static void send(String id) {
@@ -88,6 +104,9 @@ public final class ClientEmotes {
 			}
 		}
 		PLAYING.entrySet().removeIf(e -> sample(e.getValue()) == null);
+		if (cameraBefore != null && (mc.player == null || !PLAYING.containsKey(mc.player.getUUID()))) {
+			restoreCamera(mc); // own emote is over
+		}
 		PUPPETS.entrySet().removeIf(e -> sample(e.getValue()) == null);
 		particles(mc);
 	}

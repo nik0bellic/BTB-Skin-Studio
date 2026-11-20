@@ -683,5 +683,6 @@
 	"btb.ui.character.slot.eyes": "Eyes",
 	"btb.ui.character.slot.mouth": "Mouths",
 	"btb.ui.character.slot.beard": "Facial hair",
-	"btb.ui.setting.blink_self": "Own skin blinks"
+	"btb.ui.setting.blink_self": "Own skin blinks",
+	"btb.ui.setting.emote_camera": "Show emote from the front"
 }

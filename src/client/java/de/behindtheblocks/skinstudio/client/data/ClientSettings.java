@@ -35,6 +35,8 @@ public final class ClientSettings {
 	public boolean blinking = true;
 	/** The own skin blinks too (others can still blink when this is off). */
 	public boolean blinkSelf = true;
+	/** Switch to the front view while the own emote plays (it cannot be seen in first person). */
+	public boolean emoteCamera = true;
 	/** Show the account cape in the previews. */
 	public boolean showCape = true;
 	/** Own cape shown in game: "" = the account's cape, "none" = no cape, otherwise a cape texture address. */
@@ -84,6 +86,7 @@ public final class ClientSettings {
 			s.layers3dParts = (int) Json.number(o, "skin_layers_3d_parts", 15) & 15;
 			s.blinking = Json.bool(o, "blinking", true);
 			s.blinkSelf = Json.bool(o, "blink_self", true);
+			s.emoteCamera = Json.bool(o, "emote_camera", true);
 			s.capeChoice = Json.string(o, "cape_choice", "");
 			s.bedrockBuiltinPacks = Json.bool(o, "bedrock_builtin_packs", true);
 			s.menuCharacter = Json.bool(o, "menu_character", true);
@@ -124,6 +127,7 @@ public final class ClientSettings {
 		o.addProperty("skin_layers_3d_parts", layers3dParts);
 		o.addProperty("blinking", blinking);
 		o.addProperty("blink_self", blinkSelf);
+		o.addProperty("emote_camera", emoteCamera);
 		o.addProperty("cape_choice", capeChoice);
 		o.addProperty("bedrock_builtin_packs", bedrockBuiltinPacks);
 		o.addProperty("menu_character", menuCharacter);

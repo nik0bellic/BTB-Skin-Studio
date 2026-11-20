@@ -22,7 +22,7 @@ import java.util.function.Supplier;
  */
 public final class PlayerPreview {
 	public enum Focus {
-		FULL(1.0f, 0f), HEAD(1.5f, 0.47f), UPPER(1.5f, 0.2f), LEGS(1.5f, -0.27f);
+		FULL(0.8f, 0.1f), HEAD(1.5f, 0.47f), UPPER(1.5f, 0.2f), LEGS(1.5f, -0.27f);
 
 		final float zoom;
 		final float shift;
