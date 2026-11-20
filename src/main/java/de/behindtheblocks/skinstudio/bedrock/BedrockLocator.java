@@ -110,6 +110,24 @@ public final class BedrockLocator {
 		return out;
 	}
 
+	/** Folders inside a {@link #builtInSkinPackDirs()} folder that hold Character Creator pieces (*.meta.json). */
+	public static List<Path> personaFolders(Path dir) {
+		List<Path> out = new ArrayList<>();
+		for (Path p : list(dir)) {
+			if (!Files.isDirectory(p) || Files.exists(p.resolve("skins.json"))) {
+				continue;
+			}
+			try (Stream<Path> walk = Files.walk(p, 4)) {
+				if (walk.anyMatch(f -> f.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".meta.json"))) {
+					out.add(p);
+				}
+			} catch (IOException | RuntimeException ignored) {
+				// unreadable folders are skipped
+			}
+		}
+		return out;
+	}
+
 	/** Scans one com.mojang folder (or any folder) for importable content. */
 	public static List<Found> scan(Path root) {
 		List<Found> out = new ArrayList<>();

@@ -55,51 +55,58 @@ public class EmoteScreen extends Screen {
 	public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
 		ui.begin(g, font, mouseX, mouseY);
 		Theme t = ui.t;
-		int radius = Math.min(84, height / 3 - 10);
-		int previewW = 120, gap = 40;
-		int total = radius * 2 + 120 + gap + previewW;
-		int cx = (width - total) / 2 + radius + 60, cy = height / 2;
-		// ring
-		ui.rounded(cx - radius - 56, cy - radius - 30, radius * 2 + 112, radius * 2 + 60, 24, t.dark ? 0xC81A1D24 : 0xD8FFFFFF);
-		String hover = null;
+		boolean pad = controllerActive();
+		int outer = Math.min(100, height / 2 - 30), inner = (int) (outer * 0.4);
+		int previewW = 120, gap = 28;
+		int total = outer * 2 + gap + previewW;
+		int cx = (width - total) / 2 + outer, cy = height / 2;
+		// ring with five segments; the hovered one lights up
+		int seg = de.behindtheblocks.skinstudio.client.gui.ui.WheelTexture.segmentAt(mouseX - cx, mouseY - cy, inner, outer);
+		g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, de.behindtheblocks.skinstudio.client.gui.ui.WheelTexture.ring(t),
+				cx - outer, cy - outer, 0, 0, outer * 2, outer * 2, outer * 2, outer * 2);
+		if (seg >= 0) {
+			g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, de.behindtheblocks.skinstudio.client.gui.ui.WheelTexture.highlight(seg, t),
+					cx - outer, cy - outer, 0, 0, outer * 2, outer * 2, outer * 2, outer * 2);
+		}
+		String hover = seg >= 0 ? EmoteKeys.slot(seg) : null;
 		for (int i = 0; i < 5; i++) {
 			double ang = Math.toRadians(-90 + i * 72);
-			int sx = cx + (int) Math.round(Math.cos(ang) * radius), sy = cy + (int) Math.round(Math.sin(ang) * radius);
+			int mid = (inner + outer) / 2;
+			int sx = cx + (int) Math.round(Math.cos(ang) * mid), sy = cy + (int) Math.round(Math.sin(ang) * mid);
 			String id = EmoteKeys.slot(i);
-			String name = id == null ? "–" : Tr.t("btb.emote." + id);
-			// full name, wrapped onto two lines if needed (never cut off)
-			var lines = font.split(Component.literal(name), 96);
-			int bw = 4;
+			boolean hov = i == seg;
+			int fg = hov ? t.onAccent : t.text;
+			// key cap (keyboard) or round button (controller) above the name
+			if (pad) {
+				padButton(sx, sy - 12, String.valueOf(i + 1), hov);
+			} else {
+				keyCap(sx, sy - 12, String.valueOf(i + 1), hov);
+			}
+			// the full name, wrapped onto up to three lines – never cut off
+			var lines = font.split(Component.literal(id == null ? "–" : Tr.t("btb.emote." + id)), (int) (outer * 0.62));
+			int ly = sy;
 			for (var l : lines) {
-				bw = Math.max(bw, font.width(l));
+				g.text(font, l, sx - font.width(l) / 2, ly, fg, false);
+				ly += 9;
 			}
-			bw += 26;
-			int bh = 10 * lines.size() + 10;
-			int bx = sx - bw / 2, by = sy - bh / 2;
-			boolean hov = ui.hover(bx, by, bw, bh);
-			if (hov) {
-				hover = id;
-			}
-			ui.rounded(bx, by, bw, bh, 9, hov ? t.accent : t.surface);
-			ui.rounded(bx + 4, by + bh / 2 - 6, 12, 12, 6, hov ? t.onAccent : t.field);
-			ui.text(String.valueOf(i + 1), bx + 7, by + bh / 2 - 4, hov ? t.accent : t.text);
-			int ly = by + 5;
-			for (var l : lines) {
-				g.text(font, l, bx + 20, ly, hov ? t.onAccent : t.text, false);
-				ly += 10;
-			}
-			final int slot = i;
-			ui.region(bx, by, bw, bh, () -> play(slot));
 		}
-		// centre: title and hint
+		// centre: hovered name or title
 		String title = hover != null ? Tr.t("btb.emote." + hover) : Tr.t("btb.ui.emotes.wheel");
-		ui.textCentered(title, cx, cy - 8, t.text);
-		for (var l : font.split(Component.literal(Tr.t("btb.ui.emotes.hint")), radius + 30)) {
-			g.text(font, l, cx - font.width(l) / 2, cy + 6, t.textFaint, false);
-			cy += 10;
+		var tl = font.split(Component.literal(title), inner * 2 - 8);
+		int ty = cy - tl.size() * 5;
+		for (var l : tl) {
+			g.text(font, l, cx - font.width(l) / 2, ty, t.text, false);
+			ty += 10;
 		}
-		cy = height / 2;
-		// figure next to the wheel
+		// hint below the wheel
+		String hint = Tr.t(pad ? "btb.ui.emotes.hint_pad" : "btb.ui.emotes.hint");
+		var hl = font.split(Component.literal(hint), outer * 2 + 40);
+		int hy = cy + outer + 8;
+		for (var l : hl) {
+			g.text(font, l, cx - font.width(l) / 2, hy, 0xFFE8E8EC, true);
+			hy += 10;
+		}
+		// figure next to the wheel showing the hovered emote
 		if (hover != null && !hover.equals(preview.emote)) {
 			preview.playEmote(hover);
 		}
@@ -107,11 +114,55 @@ public class EmoteScreen extends Screen {
 			preview.emote = null;
 		}
 		hovered = hover;
-		int px = cx + radius + 56 + gap - 10;
-		ui.rounded(px, cy - radius - 30, previewW, radius * 2 + 60, 16, t.dark ? 0xC81A1D24 : 0xD8FFFFFF);
-		preview.draw(g, px, cy - radius - 26, px + previewW, cy + radius + 26, cosmetics());
+		int px = cx + outer + gap;
+		ui.rounded(px, cy - outer, previewW, outer * 2, 16, t.dark ? 0xC81A1D24 : 0xD8FFFFFF);
+		preview.draw(g, px, cy - outer + 4, px + previewW, cy + outer - 4, cosmetics());
+		if (seg >= 0) {
+			final int slot = seg;
+			ui.region(cx - outer, cy - outer, outer * 2, outer * 2, () -> {
+				if (de.behindtheblocks.skinstudio.client.gui.ui.WheelTexture.segmentAt(ui.mouseX - cx, ui.mouseY - cy, inner, outer) == slot) {
+					play(slot);
+				}
+			});
+		}
 		super.extractRenderState(g, mouseX, mouseY, a);
 		ui.end();
+	}
+
+	/** A keyboard key: light top, darker rim at the bottom. */
+	private void keyCap(int x, int y, String label, boolean active) {
+		int w = Math.max(14, font.width(label) + 8), h = 14;
+		int x0 = x - w / 2;
+		ui.rounded(x0, y, w, h, 3, active ? 0xFF6A5420 : 0xFF2A2D36);
+		ui.rounded(x0, y, w, h - 2, 3, active ? 0xFFFFD27A : 0xFFE6E8EE);
+		ui.rounded(x0 + 1, y + 1, w - 2, h - 5, 2, active ? 0xFFFFE2A0 : 0xFFF8F9FB);
+		ui.g.text(font, label, x - font.width(label) / 2, y + 3, 0xFF22252C, false);
+	}
+
+	/** A controller face button (shown when Controlify reports controller input). */
+	private void padButton(int x, int y, String label, boolean active) {
+		int d = 14;
+		ui.rounded(x - d / 2, y, d, d, d / 2, active ? 0xFFFFD27A : 0xFF3A3F4C);
+		ui.rounded(x - d / 2 + 1, y + 1, d - 2, d - 2, (d - 2) / 2, active ? 0xFFFFE2A0 : 0xFF525867);
+		ui.g.text(font, label, x - font.width(label) / 2 + 1, y + 3, active ? 0xFF22252C : 0xFFFFFFFF, false);
+	}
+
+	/**
+	 * True when Controlify is installed and the last input came from a controller (checked by reflection through
+	 * its public API, so there is no hard dependency).
+	 */
+	static boolean controllerActive() {
+		if (!net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("controlify")) {
+			return false;
+		}
+		try {
+			Class<?> api = Class.forName("dev.isxander.controlify.api.ControlifyApi");
+			Object inst = api.getMethod("get").invoke(null);
+			Object mode = api.getMethod("currentInputMode").invoke(inst);
+			return mode != null && mode.toString().toUpperCase(java.util.Locale.ROOT).contains("CONTROLLER");
+		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+			return false;
+		}
 	}
 
 	private static List<ActiveCosmetic> cosmetics() {

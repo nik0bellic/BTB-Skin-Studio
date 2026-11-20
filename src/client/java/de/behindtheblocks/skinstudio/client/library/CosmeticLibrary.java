@@ -151,6 +151,10 @@ public final class CosmeticLibrary {
 				list.add(p);
 			}
 		}
+		LoadedPack persona = bedrockCharacterCreator();
+		if (persona != null) {
+			list.add(persona);
+		}
 		list.addAll(store.loadInstalled());
 		list.add(store.loadCustom());
 		Map<String, CosmeticAsset> ids = new LinkedHashMap<>();
@@ -171,6 +175,45 @@ public final class CosmeticLibrary {
 			p.cosmetics.retainAll(kept);
 		}
 		return new Snapshot(list, ids);
+	}
+
+	/**
+	 * Character Creator pieces (shirts, overalls, shoes …) that ship unencrypted with an installed Bedrock
+	 * edition, read-only from the game files, shown as one pack. Nothing is copied.
+	 */
+	private LoadedPack bedrockCharacterCreator() {
+		if (!de.behindtheblocks.skinstudio.client.data.ClientSettings.get().bedrockBuiltinPacks) {
+			return null;
+		}
+		List<CosmeticAsset> found = new ArrayList<>();
+		for (java.nio.file.Path dir : de.behindtheblocks.skinstudio.bedrock.BedrockLocator.builtInSkinPackDirs()) {
+			for (java.nio.file.Path p : de.behindtheblocks.skinstudio.bedrock.BedrockLocator.personaFolders(dir)) {
+				try {
+					var r = de.behindtheblocks.skinstudio.bedrock.BedrockImporter.importFiles(ArchiveFiles.readDirectory(p), p.getFileName().toString());
+					if (!r.protectedContent) {
+						found.addAll(r.cosmetics);
+					}
+				} catch (Exception e) {
+					LOG.debug("Character-Creator-Teile in {} übersprungen: {}", p, e.getMessage());
+				}
+			}
+		}
+		if (found.isEmpty()) {
+			return null;
+		}
+		com.google.gson.JsonObject o = new com.google.gson.JsonObject();
+		o.addProperty("format", 1);
+		o.addProperty("id", "bedrock_character_creator");
+		o.addProperty("version", "1.0.0");
+		com.google.gson.JsonObject n = new com.google.gson.JsonObject();
+		n.addProperty("de", "Bedrock Charakter-Editor");
+		n.addProperty("en", "Bedrock Character Creator");
+		o.add("name", n);
+		LoadedPack p = new LoadedPack(de.behindtheblocks.skinstudio.pack.PackManifest.read(o));
+		p.origin = LoadedPack.Origin.BUILTIN;
+		p.cosmetics.addAll(found);
+		LOG.info("{} Character-Creator-Teile aus der Bedrock-Installation geladen", found.size());
+		return p;
 	}
 
 	private LoadedPack loadBuiltin(String name) {

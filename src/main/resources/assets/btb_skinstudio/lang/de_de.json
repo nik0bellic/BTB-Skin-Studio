@@ -636,5 +636,6 @@
 	"btb.ui.character.slot.bottom": "Hose",
 	"btb.ui.character.slot.shoes": "Schuhe",
 	"btb.ui.character.slot.jacket": "Jacke",
-	"btb.ui.character.wear": "Anziehen"
+	"btb.ui.character.wear": "Anziehen",
+	"btb.ui.emotes.hint_pad": "Segment mit dem Cursor ansteuern und mit Ⓐ wählen. Emote-Plätze lassen sich auch im Controlify-Radialmenü belegen."
 }

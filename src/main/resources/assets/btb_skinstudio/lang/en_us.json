@@ -636,5 +636,6 @@
 	"btb.ui.character.slot.bottom": "Bottoms",
 	"btb.ui.character.slot.shoes": "Shoes",
 	"btb.ui.character.slot.jacket": "Jacket",
-	"btb.ui.character.wear": "Wear"
+	"btb.ui.character.wear": "Wear",
+	"btb.ui.emotes.hint_pad": "Point at a segment and press Ⓐ. The emote places can also be added to the Controlify radial menu."
 }
