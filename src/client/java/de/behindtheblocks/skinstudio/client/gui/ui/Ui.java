@@ -146,9 +146,21 @@ public final class Ui {
 	}
 
 	/** Bold-ish title by drawing twice (crisp at all GUI scales). */
+	/** Headings in the font's real bold style (the old double-drawn text looked squashed). */
 	public void title(String s, int x, int y, int color) {
-		g.text(font, s, x, y, color, false);
-		g.text(font, s, x + 1, y, color, false);
+		g.text(font, Component.literal(s).withStyle(net.minecraft.ChatFormatting.BOLD), x, y, color, false);
+	}
+
+	public int titleWidth(String s) {
+		return font.width(Component.literal(s).withStyle(net.minecraft.ChatFormatting.BOLD));
+	}
+
+	/** Small centred label (e.g. "drag to rotate") that is shortened to stay inside its container. */
+	public void hint(String s, int x0, int x1, int y) {
+		String txt = ellipsize(s, x1 - x0 - 20);
+		int w = font.width(txt) + 12, x = (x0 + x1 - w) / 2;
+		rounded(x, y, w, 13, 6, t.glass);
+		text(txt, x + 6, y + 3, t.textMuted);
 	}
 
 	// ------------------------------------------------------------------ controls

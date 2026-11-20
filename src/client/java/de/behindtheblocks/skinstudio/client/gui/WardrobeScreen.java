@@ -337,7 +337,7 @@ public class WardrobeScreen extends Screen {
 		Theme t = ui.t;
 		ui.title("BTB Skin Studio", m + 2, 12, t.text);
 		// tabs
-		int tx = m + 2 + font.width("BTB Skin Studio") + 16;
+		int tx = m + 2 + ui.titleWidth("BTB Skin Studio") + 16;
 		for (Tab tb : Tab.values()) {
 			String label = Tr.t(tb == Tab.COSMETICS ? "btb.ui.tab.cosmetics" : "btb.ui.tab.skins");
 			int w = font.width(label) + 20;
@@ -503,10 +503,7 @@ public class WardrobeScreen extends Screen {
 		preview.skinOverride = tab == Tab.SKINS ? SkinLibrary.get().find(selectedSkin) : null;
 		preview.draw(ui.g, previewX0, previewY0, previewX1, previewY1, previewCosmetics());
 		if (!rotatedOnce) {
-			String hint = Tr.t("btb.ui.drag_to_rotate");
-			int hw = font.width(hint) + 12, hx = (previewX0 + previewX1 - hw) / 2;
-			ui.rounded(hx, previewY1 - 18, hw, 13, 6, t.glass);
-			ui.text(hint, hx + 6, previewY1 - 15, t.textMuted);
+			ui.hint(Tr.t("btb.ui.drag_to_rotate"), previewX0, previewX1, previewY1 - 18);
 		}
 		int vx = previewX1 - 4;
 		PlayerPreview.Focus[] order = {PlayerPreview.Focus.LEGS, PlayerPreview.Focus.UPPER, PlayerPreview.Focus.HEAD, PlayerPreview.Focus.FULL};
@@ -848,6 +845,8 @@ public class WardrobeScreen extends Screen {
 		cy += 11;
 		navItem(ix, cy, iw, Tr.t("btb.ui.skin.import_png"), -1, false, Icon.IMPORT, this::importSkinPng);
 		cy += 16;
+		navItem(ix, cy, iw, Tr.t("btb.ui.player.nav"), -1, false, Icon.SEARCH, () -> minecraft.gui.setScreen(new PlayerSkinScreen(this)));
+		cy += 16;
 		navItem(ix, cy, iw, Tr.t("btb.ui.skin.packs_folder"), -1, false, Icon.FOLDER, () -> com.mojang.blaze3d.Blaze3D.openPath(SkinLibrary.get().skinPacksDir));
 		cy += 16;
 		navItem(ix, cy, iw, Tr.t("btb.ui.bedrock.scan"), -1, false, Icon.SEARCH, () -> minecraft.gui.setScreen(new BedrockScanScreen(this)));
@@ -1063,7 +1062,7 @@ public class WardrobeScreen extends Screen {
 	private void drawSettings(int x, int y) {
 		Theme t = ui.t;
 		ClientSettings s = ClientSettings.get();
-		int w = 190, h = 180;
+		int w = 190, h = 197;
 		ui.rounded(x, y, w, h, 9, t.dark ? 0xF41C1F27 : 0xFCFFFFFF);
 		ui.roundedOutline(x, y, w, h, 9, t.glassBorder);
 		ui.title(Tr.t("btb.ui.settings"), x + 10, y + 9, t.text);
@@ -1079,6 +1078,8 @@ public class WardrobeScreen extends Screen {
 		});
 		cy += 17;
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.menu_character"), s.menuCharacter, () -> { s.menuCharacter = !s.menuCharacter; s.save(); });
+		cy += 17;
+		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.hide_under_armor"), s.hideUnderArmor, () -> { s.hideUnderArmor = !s.hideUnderArmor; s.save(); });
 		cy += 17;
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.animations"), s.animations, () -> { s.animations = !s.animations; s.save(); });
 		cy += 17;

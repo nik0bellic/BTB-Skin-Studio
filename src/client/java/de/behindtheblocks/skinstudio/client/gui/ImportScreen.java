@@ -78,7 +78,7 @@ public class ImportScreen extends Screen {
 		int m = 8, top = 30;
 		ui.iconButton(m, 6, 18, Icon.BACK, false, this::onClose, Tr.t("btb.t.zurueck"));
 		ui.title(Tr.t("btb.t.import_vorschau"), m + 24, 11, t.text);
-		ui.text(Tr.t("btb.t.pruefen_ansehen_dann_uebernehmen"), m + 24 + font.width(Tr.t("btb.t.import_vorschau")) + 10, 11, t.textMuted);
+		ui.text(Tr.t("btb.t.pruefen_ansehen_dann_uebernehmen"), m + 24 + ui.titleWidth(Tr.t("btb.t.import_vorschau")) + 10, 11, t.textMuted);
 
 		int listW = Math.max(110, width / 5);
 		int stageW = Math.max(130, width / 4);
@@ -126,7 +126,7 @@ public class ImportScreen extends Screen {
 		}
 		preview.draw(g, sx + 4, top + 4, sx + stageW - 4, bottom - 8, previewCosmetic == null ? List.of() : List.of(previewCosmetic));
 		ui.region(sx + 4, top + 4, stageW - 8, bottom - top - 8, () -> dragging = true);
-		ui.text(Tr.t("btb.t.vorschau_ziehen_zum_drehen"), sx + 10, bottom - 20, t.textFaint);
+		ui.hint(Tr.t("btb.t.vorschau_ziehen_zum_drehen"), sx + 4, sx + stageW - 4, bottom - 24);
 
 		// details
 		int dx = sx + stageW + 6, dw = width - m - dx;

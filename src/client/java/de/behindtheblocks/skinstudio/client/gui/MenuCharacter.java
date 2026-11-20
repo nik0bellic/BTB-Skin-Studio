@@ -8,6 +8,7 @@ import de.behindtheblocks.skinstudio.client.skin.ClientSkins;
 import de.behindtheblocks.skinstudio.client.skin.SkinLibrary;
 import de.behindtheblocks.skinstudio.util.Tr;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -61,10 +62,30 @@ public final class MenuCharacter {
 		preview.pitch = -4;
 		preview.scale = 1.15f;
 		preview.lift = 0.22f;
-		ScreenEvents.afterExtract(screen).register((s, g, mouseX, mouseY, delta) -> draw(mc, g, preview, x0, y0, boxW, y1, mouseX, mouseY));
+		boolean[] dragging = {false};
+		long[] lastDrag = {0};
+		// drag on the figure turns it; afterwards it stays where it was put instead of following the mouse
+		ScreenMouseEvents.allowMouseClick(screen).register((s, e) -> {
+			dragging[0] = e.x() >= x0 && e.x() < x0 + boxW && e.y() >= y0 - 2 && e.y() < y1;
+			return true;
+		});
+		ScreenMouseEvents.afterMouseDrag(screen).register((s, e, dx, dy, consumed) -> {
+			if (dragging[0]) {
+				preview.drag(dx, dy);
+				lastDrag[0] = System.currentTimeMillis();
+				return true;
+			}
+			return consumed;
+		});
+		ScreenMouseEvents.afterMouseRelease(screen).register((s, e, consumed) -> {
+			dragging[0] = false;
+			return consumed;
+		});
+		ScreenEvents.afterExtract(screen).register((s, g, mouseX, mouseY, delta) ->
+				draw(mc, g, preview, x0, y0, boxW, y1, mouseX, mouseY, lastDrag[0] == 0));
 	}
 
-	private static void draw(Minecraft mc, GuiGraphicsExtractor g, PlayerPreview preview, int x0, int y0, int boxW, int y1, int mouseX, int mouseY) {
+	private static void draw(Minecraft mc, GuiGraphicsExtractor g, PlayerPreview preview, int x0, int y0, int boxW, int y1, int mouseX, int mouseY, boolean follow) {
 		// name tag above the figure
 		String name = mc.getUser().getName();
 		int cx = x0 + boxW / 2;
@@ -78,9 +99,11 @@ public final class MenuCharacter {
 			g.fill(cx - sw / 2 + i * 3, y1 - 6 + i, cx + sw / 2 - i * 3, y1 - 5 + i, a << 24);
 		}
 		// the figure turns a little towards the mouse, like in Bedrock
-		float target = Math.max(-45, Math.min(45, (mouseX - cx) * 0.35f));
-		preview.yaw += (target - preview.yaw) * 0.12f;
-		preview.pitch = Math.max(-20, Math.min(20, (mouseY - (y0 + (y1 - y0) / 4)) * 0.12f));
+		if (follow) {
+			float target = Math.max(-45, Math.min(45, (mouseX - cx) * 0.35f));
+			preview.yaw += (target - preview.yaw) * 0.12f;
+			preview.pitch = Math.max(-20, Math.min(20, (mouseY - (y0 + (y1 - y0) / 4)) * 0.12f));
+		}
 		try {
 			preview.draw(g, x0, y0 - 2, x0 + boxW, y1, cosmetics());
 		} catch (RuntimeException e) {

@@ -33,6 +33,8 @@ public final class ClientSettings {
 	public boolean bedrockBuiltinPacks = true;
 	/** Show the own character next to the main menu and the pause menu. */
 	public boolean menuCharacter = true;
+	/** Leave out cosmetics that would poke through worn armour. */
+	public boolean hideUnderArmor = true;
 	public Theme theme = Theme.DARK;
 
 	private static ClientSettings instance;
@@ -65,6 +67,7 @@ public final class ClientSettings {
 			s.skinLayers3d = Json.bool(o, "skin_layers_3d", false);
 			s.bedrockBuiltinPacks = Json.bool(o, "bedrock_builtin_packs", true);
 			s.menuCharacter = Json.bool(o, "menu_character", true);
+			s.hideUnderArmor = Json.bool(o, "hide_under_armor", true);
 			s.theme = "light".equals(Json.string(o, "theme", "dark")) ? Theme.LIGHT : Theme.DARK;
 		} catch (Exception e) {
 			LOG.warn("settings.json ist fehlerhaft, Standardwerte werden verwendet: {}", e.getMessage());
@@ -83,6 +86,7 @@ public final class ClientSettings {
 		o.addProperty("skin_layers_3d", skinLayers3d);
 		o.addProperty("bedrock_builtin_packs", bedrockBuiltinPacks);
 		o.addProperty("menu_character", menuCharacter);
+		o.addProperty("hide_under_armor", hideUnderArmor);
 		o.addProperty("theme", theme == Theme.LIGHT ? "light" : "dark");
 		String json = Json.PRETTY.toJson(o);
 		Path f = file();

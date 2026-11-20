@@ -133,6 +133,7 @@ final class AutoTest {
 					case "packs" -> SkinStudioCommands.openPacks(mc);
 					case "pause" -> mc.gui.setScreen(new net.minecraft.client.gui.screens.PauseScreen(true));
 					case "title" -> mc.gui.setScreen(new net.minecraft.client.gui.screens.TitleScreen());
+					case "player" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.PlayerSkinScreen(mc.gui.screen()));
 					case "bedrock" -> mc.gui.setScreen(new de.behindtheblocks.skinstudio.client.gui.BedrockScanScreen(mc.gui.screen()));
 					default -> mc.gui.setScreen(null);
 				}

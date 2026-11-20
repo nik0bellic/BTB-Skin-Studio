@@ -12,6 +12,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import de.behindtheblocks.skinstudio.client.data.ClientSettings;
+import de.behindtheblocks.skinstudio.cosmetic.CosmeticCategory;
+import de.behindtheblocks.skinstudio.cosmetic.CosmeticDefinition;
+import de.behindtheblocks.skinstudio.cosmetic.CosmeticType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,7 +35,7 @@ public abstract class AvatarRendererMixin {
 			state.setData(CosmeticRenderData.COSMETICS, null);
 			return;
 		}
-		List<ActiveCosmetic> list = ClientCosmeticSync.activeFor(player.getUUID());
+		List<ActiveCosmetic> list = hiddenByArmor(ClientCosmeticSync.activeFor(player.getUUID()), state);
 		state.setData(CosmeticRenderData.PLAYER, player.getUUID());
 		state.setData(CosmeticRenderData.COSMETICS, list);
 		for (ActiveCosmetic c : list) {
@@ -48,5 +56,42 @@ public abstract class AvatarRendererMixin {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Worn armour wins: cosmetics in the same body area would poke through it, so they are left out while
+	 * the armour piece is worn (helmet: head and face, chestplate: torso and arms, leggings: legs,
+	 * boots: feet, elytra: wings and cape). Halos float above the helmet and stay.
+	 */
+	private static List<ActiveCosmetic> hiddenByArmor(List<ActiveCosmetic> list, AvatarRenderState state) {
+		if (list.isEmpty() || !ClientSettings.get().hideUnderArmor) {
+			return list;
+		}
+		boolean head = worn(state.headEquipment), chest = worn(state.chestEquipment);
+		boolean legs = worn(state.legsEquipment), feet = worn(state.feetEquipment);
+		boolean elytra = chest && state.chestEquipment.has(DataComponents.GLIDER);
+		if (!head && !chest && !legs && !feet) {
+			return list;
+		}
+		List<ActiveCosmetic> out = new ArrayList<>(list.size());
+		for (ActiveCosmetic c : list) {
+			CosmeticDefinition d = c.asset().definition;
+			CosmeticCategory cat = d.category();
+			boolean hide = switch (cat) {
+				case HEAD, HAIR_FACE -> head && d.type != CosmeticType.HALO_TYPE;
+				case TORSO, ARMS -> chest && !elytra;
+				case LEGS -> d.type == CosmeticType.BOOTS ? feet : legs;
+				case BACK -> elytra && (d.type == CosmeticType.WINGS || d.type == CosmeticType.CAPE);
+				default -> false;
+			};
+			if (!hide) {
+				out.add(c);
+			}
+		}
+		return out;
+	}
+
+	private static boolean worn(ItemStack stack) {
+		return stack != null && !stack.isEmpty();
 	}
 }

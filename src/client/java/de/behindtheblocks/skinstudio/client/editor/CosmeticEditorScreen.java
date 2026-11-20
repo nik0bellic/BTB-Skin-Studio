@@ -264,7 +264,7 @@ public class CosmeticEditorScreen extends Screen {
 		int m = 8, top = 30, bottom = height - m;
 		ui.iconButton(m, 6, 18, Icon.BACK, false, this::onClose, unsaved ? Tr.t("btb.t.zurueck_ungespeicherte_aenderungen_gehen") : Tr.t("btb.t.zurueck"));
 		ui.title(Tr.t("btb.t.cosmetic_editor"), m + 24, 11, t.text);
-		ui.text(ui.ellipsize(def.name(Tr.german() ? "de" : "en") + (unsaved ? " •" : ""), 200), m + 24 + font.width(Tr.t("btb.t.cosmetic_editor")) + 10, 11, t.textMuted);
+		ui.text(ui.ellipsize(def.name(Tr.german() ? "de" : "en") + (unsaved ? " •" : ""), 200), m + 24 + ui.titleWidth(Tr.t("btb.t.cosmetic_editor")) + 10, 11, t.textMuted);
 
 		int panelW = Math.max(190, Math.min(250, width * 2 / 5));
 		ui.glass(m, top, panelW, bottom - top, 8);
@@ -323,7 +323,7 @@ public class CosmeticEditorScreen extends Screen {
 		preview.draw(g, sx + 4, top + 4, sx + sw - 4, py1, list);
 		ui.region(sx + 4, top + 22, sw - 8, py1 - top - 22, () -> dragging = true);
 		ui.toggle(sx + 10, top + 10, 112, Tr.t("btb.t.mit_meinem_outfit"), withOutfit, () -> withOutfit = !withOutfit);
-		ui.text(Tr.t("btb.t.ziehen_zum_drehen_live_vorschau"), sx + 10, py1 - 14, t.textFaint);
+		ui.hint(Tr.t("btb.t.ziehen_zum_drehen_live_vorschau"), sx, sx + sw, py1 - 17);
 		if (error != null) {
 			ui.rounded(sx + 10, top + 28, sw - 20, 28, 6, (t.danger & 0xFFFFFF) | 0xD0000000);
 			var lines = font.split(Component.literal(error), sw - 32);
