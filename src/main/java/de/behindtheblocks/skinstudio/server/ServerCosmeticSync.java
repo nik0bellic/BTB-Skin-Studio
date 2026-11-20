@@ -62,7 +62,15 @@ public final class ServerCosmeticSync {
 	private final Map<String, SkinStudioPayloads.Assembly> uploads = new HashMap<>();
 	private boolean transferAllowed = true;
 
+	private static ServerCosmeticSync instance;
+
+	public static ServerCosmeticSync get() {
+		return instance;
+	}
+
 	public void register() {
+		instance = this;
+		CinematicsCompat.registerCommand(this);
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			if (ServerPlayNetworking.canSend(handler.player, Hello.TYPE)) {
 				ServerPlayNetworking.send(handler.player, new Hello(SkinStudioPayloads.PROTOCOL, BtbSkinStudio.version(), transferAllowed));
@@ -223,6 +231,12 @@ public final class ServerCosmeticSync {
 		}
 		lastEmote.put(player.getUUID(), now);
 		broadcast(server, new SkinStudioPayloads.EmotePlayed(player.getUUID(), id), player.getUUID());
+		CinematicsCompat.logEmote(player.getUUID(), id);
+	}
+
+	/** Plays an emote on the replay puppets of {@code profile} for everyone with the mod (command, see {@link CinematicsCompat}). */
+	public void puppetEmote(MinecraftServer server, UUID profile, String id) {
+		broadcast(server, new SkinStudioPayloads.PuppetEmote(profile, id), null);
 	}
 
 	private void broadcast(MinecraftServer server, net.minecraft.network.protocol.common.custom.CustomPacketPayload payload, UUID except) {

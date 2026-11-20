@@ -17,6 +17,8 @@ public final class ClientEmotes {
 	}
 
 	private static final Map<UUID, Playing> PLAYING = new ConcurrentHashMap<>();
+	/** Emotes of replay puppets (mannequins), keyed by the profile they wear – separate from live players. */
+	private static final Map<UUID, Playing> PUPPETS = new ConcurrentHashMap<>();
 	private static double startX, startZ;
 
 	private ClientEmotes() {
@@ -30,7 +32,17 @@ public final class ClientEmotes {
 				PLAYING.put(p.player(), new Playing(p.id(), System.nanoTime()));
 			}
 		});
-		ClientPlayConnectionEvents.DISCONNECT.register((h, mc) -> PLAYING.clear());
+		ClientPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.PuppetEmote.TYPE, (p, ctx) -> {
+			if (p.id().isEmpty()) {
+				PUPPETS.remove(p.profile());
+			} else if (Emotes.exists(p.id())) {
+				PUPPETS.put(p.profile(), new Playing(p.id(), System.nanoTime()));
+			}
+		});
+		ClientPlayConnectionEvents.DISCONNECT.register((h, mc) -> {
+			PLAYING.clear();
+			PUPPETS.clear();
+		});
 		ClientTickEvents.END_CLIENT_TICK.register(ClientEmotes::tick);
 	}
 
@@ -71,6 +83,7 @@ public final class ClientEmotes {
 			}
 		}
 		PLAYING.entrySet().removeIf(e -> sample(e.getValue()) == null);
+		PUPPETS.entrySet().removeIf(e -> sample(e.getValue()) == null);
 		particles(mc);
 	}
 
@@ -78,6 +91,17 @@ public final class ClientEmotes {
 	public static float[] pose(UUID player) {
 		Playing p = player == null ? null : PLAYING.get(player);
 		return p == null ? null : sample(p);
+	}
+
+	/** Pose of a replay puppet wearing this profile (or null). */
+	public static float[] puppetPose(UUID profile) {
+		Playing p = profile == null ? null : PUPPETS.get(profile);
+		return p == null ? null : sample(p);
+	}
+
+	public static net.minecraft.world.item.ItemStack puppetItem(UUID profile) {
+		Playing p = profile == null ? null : PUPPETS.get(profile);
+		return itemOf(p == null ? null : p.id());
 	}
 
 	/** Game item held in the right hand while the player's emote plays (or null). */

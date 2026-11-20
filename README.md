@@ -30,6 +30,8 @@
 - Farben aus der Palette oder frei wählbar, Outfits speichern und mit einem Klick anlegen, helles und dunkles Design
 - **Anpassen:** Jedes getragene Cosmetic lässt sich verschieben (Seite/Höhe/Tiefe, ±16 px) und skalieren (0,25–3×); Mitspieler sehen die Anpassung
 - Oberfläche komplett auf Deutsch oder Englisch – folgt der Spielsprache
+- Passt bei jeder GUI-Größe: Ist das Fenster bei der gewählten GUI-Größe zu klein, nutzen die BTB-Menüs automatisch die nächstkleinere (die eigene Einstellung bleibt unverändert)
+- Info-Button (ⓘ) mit Version, Lizenz und Credits
 
 ![Anpassen](docs/screenshots/doc_adjust.png)
 
@@ -58,12 +60,12 @@
 ![Charakter](docs/modrinth/13_character_de.jpg)
 
 **Emotes (Taste B für das Emote-Rad)**
-- 20 Emotes nach echtem Minecraft: Winken, Jubeln, Klatschen, Zeigen, Facepalm, Nachdenken, Holz schlagen, Abbauen (mit Diamantspitzhacke und Block-Partikeln), Diamanten zeigen, Ghast-Tanz, Creeper-Schreck, Verbeugen, Achselzucken, Trank trinken, Keks essen, Banner schwenken, Fernrohr, Tanzen, Lachen, Herz
+- 20 Emotes mit fester Länge nach echtem Minecraft: Winken, Jubeln, Klatschen, Zeigen, Facepalm, Nachdenken, Holz schlagen, Abbauen (mit Diamantspitzhacke und Block-Partikeln), Diamanten zeigen, Ghast-Tanz, Creeper-Schreck, Verbeugen, Achselzucken, Trank trinken, Keks essen, Banner schwenken, Fernrohr, Tanzen, Lachen, Herz
 - Echte Gegenstände in der Hand und passende Partikel; Laufen bricht das Emote ab
 - Rad mit 5 frei belegbaren Plätzen, Figur daneben zeigt das Emote
 - Bedienung mit der Maus wie ein Radialmenü: Maus in eine Richtung bewegen und klicken – oder `B` halten, zeigen, loslassen; dazu Mausrad, Pfeiltasten und 1–5, für jeden Platz eine eigene Direkttaste
 - Tasten werden als Tastaturkappen gezeigt, mit [Controlify](https://modrinth.com/mod/controlify) als Controller-Tasten
-- Reiter „Emotes“ in der Garderobe: alle Emotes mit Vorschau, welcher Platz und welche Taste belegt ist
+- Reiter „Emotes“ in der Garderobe: Platz wählen, Emote anklicken – es liegt sofort dort; Maus über einem Emote zeigt es an der Figur
 - Mitspieler mit der Mod sehen die Emotes
 
 ![Emote-Rad](docs/modrinth/15_wheel_de.jpg)
@@ -107,6 +109,14 @@ Fackel auf dem Kopf (Flammenanimation, Lichtschein, Funken), Stirnband mit Facke
 - Fremde Cosmetics lassen sich in den Einstellungen ausblenden
 
 ![Multiplayer: Bob sieht Alice mit Fackel, Flügeln und ihrer eigenen Krone](docs/screenshots/doc_multiplayer.png)
+
+## Kompatibilität
+
+- **[Not Enough Animations](https://modrinth.com/mod/not-enough-animations):** Emotes laufen auch mit NEA (die Emote-Pose kommt nach NEA); die Vorschaufiguren in den Menüs werden nicht von NEA bewegt.
+- **[BTB Cinematics](https://github.com/nik0bellic/BTB-Cinematics):** Replay-Puppen tragen Cosmetics, BTB-Skin, Körperproportionen und blinzeln wie der aufgenommene Spieler. Emotes werden mit aufgenommen und im Replay an derselben Stelle abgespielt (Befehl `/btbskin puppetemote`, wird vom Replay ausgeführt).
+- **[Controlify](https://modrinth.com/mod/controlify):** Controller-Tasten im Emote-Rad.
+
+Alle drei sind optional – keine harte Abhängigkeit.
 
 ## Installation
 
@@ -162,5 +172,7 @@ Projektaufbau:
 
 - **Code und eigene Assets:** [GNU Lesser General Public License v3.0 only (LGPL-3.0-only)](LICENSE) (siehe auch [NOTICE](NOTICE)), Copyright (c) 2026 Behind The Blocks contributors – wie BTB Cinematics. Alle Cosmetics, Kleidungsteile und BTB-Skins sind selbst erzeugt (`tools/`). Die Mod enthält keine Mojang- oder Marketplace-Inhalte: Standard-Skins und Bedrock-Packs kommen aus dem installierten Spiel, Katalog-Packs werden erst auf Klick des Nutzers von ihren Quellen geladen.
 - Das Texturlayout für Persona-Kleidung folgt dem Open-Source-Projekt [Bedrock Skins](https://github.com/BrandonItaly/Bedrock-Skins) (MIT) – siehe [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
+
+Idee, Design und Entwicklung: **Nik2810**.
 
 Kein offizielles Minecraft-Produkt. Nicht von Mojang oder Microsoft genehmigt oder mit ihnen verbunden.

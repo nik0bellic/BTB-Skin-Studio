@@ -24,5 +24,10 @@
 		"minecraft": "~26.3",
 		"java": ">=25",
 		"fabric-api": "*"
+	},
+	"suggests": {
+		"notenoughanimations": "*",
+		"btb_cinematic": "*",
+		"controlify": "*"
 	}
 }

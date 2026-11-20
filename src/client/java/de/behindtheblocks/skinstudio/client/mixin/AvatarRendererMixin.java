@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import de.behindtheblocks.skinstudio.client.data.ClientSettings;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Attaches the player's resolved cosmetics to the render state during extraction, so the
@@ -25,21 +26,33 @@ import java.util.List;
 public abstract class AvatarRendererMixin {
 	@Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V", at = @At("TAIL"))
 	private void btbSkinStudio$extract(Avatar entity, AvatarRenderState state, float partialTicks, CallbackInfo ci) {
-		if (!(entity instanceof AbstractClientPlayer player)) {
+		UUID id;
+		boolean puppet = false;
+		if (entity instanceof AbstractClientPlayer p) {
+			id = p.getUUID();
+		} else if (entity instanceof net.minecraft.world.entity.decoration.Mannequin m && (id = profileId(m)) != null) {
+			// a mannequin wearing a player's profile (e.g. a BTB Cinematics replay puppet) shows that player's look
+			puppet = true;
+			var skin = de.behindtheblocks.skinstudio.client.skin.ClientSkins.skinOf(id);
+			if (skin != null) {
+				state.skin = de.behindtheblocks.skinstudio.client.skin.ClientSkins.toPlayerSkin(skin, state.skin, id.hashCode());
+			}
+		} else {
 			state.setData(CosmeticRenderData.COSMETICS, null);
 			return;
 		}
-		List<ActiveCosmetic> list = hiddenByArmor(ClientCosmeticSync.activeFor(player.getUUID()), state);
-		var held = de.behindtheblocks.skinstudio.client.emote.ClientEmotes.item(player.getUUID());
+		List<ActiveCosmetic> list = hiddenByArmor(ClientCosmeticSync.activeFor(id), state);
+		var held = puppet ? de.behindtheblocks.skinstudio.client.emote.ClientEmotes.puppetItem(id) : de.behindtheblocks.skinstudio.client.emote.ClientEmotes.item(id);
 		if (held != null) {
 			// the emote's item (pickaxe, cookie …) replaces the held item while it plays
 			state.rightHandItemStack = held;
 			net.minecraft.client.Minecraft.getInstance().getItemModelResolver().updateForLiving(state.rightHandItemState, held,
-					net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, player);
+					net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, entity);
 		}
-		state.setData(CosmeticRenderData.PLAYER, player.getUUID());
-		state.setData(CosmeticRenderData.EMOTE, de.behindtheblocks.skinstudio.client.emote.ClientEmotes.pose(player.getUUID()));
-		var body = ClientCosmeticSync.bodyFor(player.getUUID());
+		state.setData(CosmeticRenderData.PLAYER, id);
+		state.setData(CosmeticRenderData.EMOTE, puppet ? de.behindtheblocks.skinstudio.client.emote.ClientEmotes.puppetPose(id)
+				: de.behindtheblocks.skinstudio.client.emote.ClientEmotes.pose(id));
+		var body = ClientCosmeticSync.bodyFor(id);
 		state.setData(CosmeticRenderData.BODY, body == null ? null : new float[]{body.height(), body.head(), body.arms(), body.legs()});
 		if (body != null) {
 			state.scale *= body.height(); // visual only, the hitbox stays the same
@@ -62,6 +75,17 @@ public abstract class AvatarRendererMixin {
 					}
 				}
 			}
+		}
+	}
+
+	/** UUID of the player profile a mannequin wears, or null (default mannequin / no id). */
+	private static UUID profileId(net.minecraft.world.entity.decoration.Mannequin m) {
+		try {
+			var profile = m.getProfile();
+			UUID id = profile == null ? null : profile.partialProfile().id();
+			return id == null || (id.getMostSignificantBits() == 0 && id.getLeastSignificantBits() == 0) ? null : id;
+		} catch (RuntimeException e) {
+			return null;
 		}
 	}
 

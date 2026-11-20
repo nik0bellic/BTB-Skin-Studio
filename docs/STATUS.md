@@ -41,6 +41,11 @@ Stand: November 2026, Version 0.2.0, Minecraft 26.3, Fabric Loader 0.20.1, Fabri
 | 3D-Hautebenen | dezentere Tiefe, pro Körperteil an/aus in den Einstellungen |
 | Emote-Rad mit Maus | Richtung wählt das Segment (auch außerhalb des Rings), Klick spielt |
 | Vorschaubilder | Tiefenpuffer statt Flächen-Sortierung: keine Löcher mehr an Gürtel, Bart, Handschuhen, Augen usw. |
+| Echte Mausklicks | Tabs, Karten (anprobieren/anlegen), Einstellungs-Schalter, Emote-Rad per Klick (Minecraft 26 nutzt SDL3-Tastennummern) |
+| GUI-Größe „Auto“/4 | BTB-Menüs wechseln automatisch auf eine passende GUI-Größe, nichts überlappt |
+| Scrollen | Listen enden am letzten Eintrag, kein Springen beim Weiterscrollen |
+| Not Enough Animations 1.12.7 | Emotes in Welt, Rad und Garderobe |
+| BTB Cinematics | Replay aufgenommen und abgespielt: Puppe mit BTB-Skin, Cosmetics und dem aufgenommenen Emote |
 | Sprachen | Oberfläche komplett auf Deutsch und Englisch geprüft |
 
 ## Bekannte Einschränkungen

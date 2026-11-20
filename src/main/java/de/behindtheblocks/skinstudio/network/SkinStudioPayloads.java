@@ -247,11 +247,27 @@ public final class SkinStudioPayloads {
 		}
 	}
 
+	/**
+	 * An emote on replay puppets (BTB Cinematics): mannequins wearing the profile {@code profile} play it.
+	 * Kept apart from {@link EmotePlayed} so a player's live emotes never move a mannequin.
+	 */
+	public record PuppetEmote(UUID profile, String id) implements CustomPacketPayload {
+		public static final Type<PuppetEmote> TYPE = SkinStudioPayloads.payloadType("puppet_emote");
+		public static final StreamCodec<ByteBuf, PuppetEmote> CODEC = StreamCodec.composite(
+				UUIDUtil.STREAM_CODEC, PuppetEmote::profile, ByteBufCodecs.stringUtf8(32), PuppetEmote::id, PuppetEmote::new);
+
+		@Override
+		public Type<PuppetEmote> type() {
+			return TYPE;
+		}
+	}
+
 	public static void register() {
 		PayloadTypeRegistry.serverboundPlay().register(SetBody.TYPE, SetBody.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(SyncBodies.TYPE, SyncBodies.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(PlayEmote.TYPE, PlayEmote.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(EmotePlayed.TYPE, EmotePlayed.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(PuppetEmote.TYPE, PuppetEmote.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(Hello.TYPE, Hello.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(Hello.TYPE, Hello.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SetLoadout.TYPE, SetLoadout.CODEC);
