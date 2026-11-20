@@ -114,4 +114,23 @@ class SkinSystemTest {
 		assertEquals(2.5f, back.find("btb:halo").adjust().y(), 1e-4);
 		assertEquals(1.2f, back.find("btb:halo").adjust().scale(), 1e-4);
 	}
+
+	@Test
+	void ownSkinPackRoundTrip() throws Exception {
+		SkinData a = SkinIO.fromPng(Images.png(skin(64, 64, false)), "Held.png", null);
+		SkinData b = SkinIO.fromPng(Images.png(skin(64, 64, true)), "Held.png", null); // same name -> unique key
+		ArchiveFiles pack = de.behindtheblocks.skinstudio.skin.SkinPackWriter.write("Meine Skins", List.of(a, b));
+		assertTrue(pack.has("manifest.json"));
+		assertTrue(pack.has("texts/de_DE.lang"));
+		// works as .mcpack zip and is read back by the same loader as Bedrock packs
+		ArchiveFiles zipped = ArchiveFiles.readZip(pack.toZip());
+		List<PackProblem> problems = new ArrayList<>();
+		List<SkinData> back = SkinIO.readBedrockPack(zipped, "x", problems);
+		assertEquals(2, back.size(), problems.toString());
+		assertEquals("bedrock:meine_skins/held", back.get(0).id);
+		assertEquals("bedrock:meine_skins/held_2", back.get(1).id);
+		assertFalse(back.get(0).slim);
+		assertTrue(back.get(1).slim);
+		assertEquals("Meine Skins", back.get(0).group);
+	}
 }

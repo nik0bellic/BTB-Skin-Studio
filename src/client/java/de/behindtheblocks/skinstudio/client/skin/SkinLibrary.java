@@ -137,8 +137,8 @@ public final class SkinLibrary {
 	 */
 	private static Map<String, ArchiveFiles> resourcePackSkinPacks() {
 		Map<String, ArchiveFiles> out = new LinkedHashMap<>();
+		var rm = Minecraft.getInstance().getResourceManager();
 		try {
-			var rm = Minecraft.getInstance().getResourceManager();
 			for (var e : rm.listResources("skin_packs", id -> true).entrySet()) {
 				String path = e.getKey().getPath(); // skin_packs/<pack>/<file...>
 				String[] parts = path.split("/", 3);
@@ -156,6 +156,30 @@ public final class SkinLibrary {
 			LOG.warn("Resource-Pack-Skins nicht lesbar: {}", e.getMessage());
 		}
 		out.values().removeIf(f -> !f.has("skins.json"));
+		// outfit skins name a default skin of the game as their base; its texture is read from the game here
+		for (ArchiveFiles f : out.values()) {
+			if (!f.has("btb_bases.json")) {
+				continue;
+			}
+			try {
+				var bases = de.behindtheblocks.skinstudio.util.Json.parseObject(f.get("btb_bases.json"));
+				for (var b : bases.entrySet()) {
+					String vanilla = b.getValue().getAsString();
+					if (!vanilla.startsWith("vanilla:")) {
+						continue;
+					}
+					String rest = vanilla.substring("vanilla:".length());
+					boolean slim = rest.endsWith("_slim");
+					String name = rest.replaceAll("_(slim|wide)$", "");
+					var id = net.minecraft.resources.Identifier.withDefaultNamespace("textures/entity/player/" + (slim ? "slim" : "wide") + "/" + name + ".png");
+					try (var in = rm.getResourceOrThrow(id).open()) {
+						f.put("__base/" + b.getKey() + (slim ? ".slim" : ".wide") + ".png", in.readAllBytes());
+					}
+				}
+			} catch (Exception e) {
+				LOG.warn("Basis-Skins nicht lesbar: {}", e.getMessage());
+			}
+		}
 		return out;
 	}
 
@@ -199,7 +223,7 @@ public final class SkinLibrary {
 		for (var e : fromResourcePacks.entrySet()) {
 			try {
 				for (SkinData s : SkinIO.readBedrockPack(e.getValue(), e.getKey(), problems)) {
-					map.putIfAbsent(s.id, s);
+					map.putIfAbsent(s.id, withBase(s, e.getValue()));
 				}
 			} catch (Exception ex) {
 				problems.add(PackProblem.error(e.getKey(), ex.getMessage()));
@@ -231,6 +255,22 @@ public final class SkinLibrary {
 		}
 		problems.forEach(pr -> LOG.warn("Skins: {}", pr));
 		return map;
+	}
+
+	/** Outfit skin composed onto its default base skin, if the pack names one. */
+	private static SkinData withBase(SkinData s, ArchiveFiles files) {
+		String key = s.id.substring(s.id.lastIndexOf('/') + 1);
+		for (String variant : new String[]{".wide", ".slim"}) {
+			byte[] base = files.get("__base/" + key + variant + ".png");
+			if (base != null) {
+				try {
+					return SkinIO.withTexture(s, SkinIO.overlay(base, s.texture), variant.equals(".slim"));
+				} catch (RuntimeException e) {
+					LOG.warn("Outfit {} nicht kombinierbar: {}", s.id, e.getMessage());
+				}
+			}
+		}
+		return s;
 	}
 
 	private static List<Path> list(Path dir) {

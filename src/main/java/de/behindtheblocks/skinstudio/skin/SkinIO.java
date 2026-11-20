@@ -125,6 +125,32 @@ public final class SkinIO {
 	}
 
 	/** Slim skins leave the outer arm column (x 54–55, y 20–31 at 64 px) transparent. */
+	/** Draws {@code top} (an outfit with transparent parts) over {@code base}; both 64×64. */
+	public static byte[] overlay(byte[] base, byte[] top) {
+		BufferedImage b = Images.read(base, "base.png"), t = Images.read(top, "outfit.png");
+		BufferedImage out = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+		java.awt.Graphics2D g = out.createGraphics();
+		try {
+			g.drawImage(b, 0, 0, 64, 64, null);
+			// the outfit replaces the base's outer layers on body, arms and legs (jacket, sleeves, pants);
+			// the head with hair and hat layer stays the base's own
+			g.setComposite(java.awt.AlphaComposite.Clear);
+			for (int[] r : new int[][]{{16, 32, 24, 16}, {40, 32, 16, 16}, {48, 48, 16, 16}, {0, 32, 16, 16}, {0, 48, 16, 16}}) {
+				g.fillRect(r[0], r[1], r[2], r[3]);
+			}
+			g.setComposite(java.awt.AlphaComposite.SrcOver);
+			g.drawImage(t, 0, 0, 64, 64, null);
+		} finally {
+			g.dispose();
+		}
+		return Images.png(out);
+	}
+
+	/** Same skin with another texture (used for outfits composed onto a default skin). */
+	public static SkinData withTexture(SkinData s, byte[] png, boolean slim) {
+		return new SkinData(s.id, s.names, slim, png, s.accessories, s.source, s.group, write(s.id, s.names, slim, png, s.accessories));
+	}
+
 	public static boolean detectSlim(BufferedImage img) {
 		int s = img.getWidth() / 64;
 		for (int y = 20 * s; y < 32 * s; y++) {

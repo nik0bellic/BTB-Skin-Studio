@@ -1,0 +1,42 @@
+{
+  "serialize_name": "btb_skins",
+  "localization_name": "btb_skins",
+  "skins": [
+    {
+      "localization_name": "lumberjack",
+      "geometry": "geometry.humanoid.custom",
+      "texture": "lumberjack.png",
+      "type": "free"
+    },
+    {
+      "localization_name": "adventurer",
+      "geometry": "geometry.humanoid.custom",
+      "texture": "adventurer.png",
+      "type": "free"
+    },
+    {
+      "localization_name": "gardener",
+      "geometry": "geometry.humanoid.customSlim",
+      "texture": "gardener.png",
+      "type": "free"
+    },
+    {
+      "localization_name": "miner",
+      "geometry": "geometry.humanoid.custom",
+      "texture": "miner.png",
+      "type": "free"
+    },
+    {
+      "localization_name": "sailor",
+      "geometry": "geometry.humanoid.custom",
+      "texture": "sailor.png",
+      "type": "free"
+    },
+    {
+      "localization_name": "astronaut",
+      "geometry": "geometry.humanoid.customSlim",
+      "texture": "astronaut.png",
+      "type": "free"
+    }
+  ]
+}

@@ -70,15 +70,13 @@ public final class ArmorFit {
 			if (h && (d.category() == CosmeticCategory.HEAD || d.category() == CosmeticCategory.HAIR_FACE)) {
 				Loadout.Adjust j = a.adjust();
 				switch (d.type) {
-					// these hug the head or face and would poke through or vanish into the helmet
-					case HAIRSTYLE, MASK, HELMET, EYEBROWS_TYPE -> {
-					}
-					// face items are worn over the open face of the helmet, a little larger so they lie on top
-					case GLASSES, BEARD, MUSTACHE, FACE_ACCESSORY, HEADPHONES ->
-							out.add(new ActiveCosmetic(a.asset(), a.baked(), a.color(), new Loadout.Adjust(j.x(), j.y() + 0.4f, j.z(), j.scale() * 1.09f)));
+					// glasses are worn over the open face of the helmet, a little larger so they lie on top
+					case GLASSES -> out.add(new ActiveCosmetic(a.asset(), a.baked(), a.color(), new Loadout.Adjust(j.x(), j.y() + 0.4f, j.z(), j.scale() * 1.09f)));
+					// halos float freely above the helmet
 					case HALO_TYPE -> out.add(a);
-					// hats, crowns, horns, flowers, decorations: sit on top of the helmet
-					default -> out.add(new ActiveCosmetic(a.asset(), a.baked(), a.color(), new Loadout.Adjust(j.x(), j.y() + 1.25f, j.z(), j.scale() * 1.12f)));
+					// everything else on the head is hidden while a helmet is worn
+					default -> {
+					}
 				}
 				continue;
 			}

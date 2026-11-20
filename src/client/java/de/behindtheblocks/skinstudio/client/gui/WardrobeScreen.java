@@ -847,6 +847,8 @@ public class WardrobeScreen extends Screen {
 		cy += 16;
 		navItem(ix, cy, iw, Tr.t("btb.ui.player.nav"), -1, false, Icon.SEARCH, () -> minecraft.gui.setScreen(new PlayerSkinScreen(this)));
 		cy += 16;
+		navItem(ix, cy, iw, Tr.t("btb.ui.packbuilder.nav"), -1, false, Icon.SAVE, () -> minecraft.gui.setScreen(new SkinPackBuilderScreen(this)));
+		cy += 16;
 		navItem(ix, cy, iw, Tr.t("btb.ui.skin.packs_folder"), -1, false, Icon.FOLDER, () -> com.mojang.blaze3d.Blaze3D.openPath(SkinLibrary.get().skinPacksDir));
 		cy += 16;
 		navItem(ix, cy, iw, Tr.t("btb.ui.bedrock.scan"), -1, false, Icon.SEARCH, () -> minecraft.gui.setScreen(new BedrockScanScreen(this)));

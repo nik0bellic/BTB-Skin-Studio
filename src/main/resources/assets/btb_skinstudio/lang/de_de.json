@@ -556,5 +556,19 @@
 	"btb.err.player_name": "„%s“ ist kein gültiger Spielername (1–16 Zeichen: A–Z, 0–9, _).",
 	"btb.err.player_not_found": "Spieler „%s“ wurde nicht gefunden.",
 	"btb.err.player_no_skin": "%s hat keinen eigenen Skin.",
-	"btb.err.player_download": "Skin konnte nicht geladen werden (%s)."
+	"btb.err.player_download": "Skin konnte nicht geladen werden (%s).",
+	"btb.ui.packbuilder.nav": "Skin-Pack erstellen",
+	"btb.ui.packbuilder.title": "Eigenes Skin-Pack",
+	"btb.ui.packbuilder.info": "Wähle Skins aus allen Sammlungen aus und stelle daraus ein eigenes Pack zusammen. Es erscheint als Sammlung im Skins-Reiter und lässt sich als .mcpack auch in Bedrock nutzen.",
+	"btb.ui.packbuilder.name": "Name des Packs",
+	"btb.ui.packbuilder.default_name": "Meine Skins",
+	"btb.ui.packbuilder.count": "%s Skins ausgewählt",
+	"btb.ui.packbuilder.save": "Als Sammlung speichern",
+	"btb.ui.packbuilder.export": "Als .mcpack exportieren",
+	"btb.ui.packbuilder.export.tooltip": "Bedrock-Skin-Pack im exports-Ordner",
+	"btb.ui.packbuilder.open_exports": "Exports-Ordner öffnen",
+	"btb.ui.packbuilder.empty": "Bitte einen Namen eingeben und mindestens einen Skin auswählen.",
+	"btb.ui.packbuilder.saved": "„%s“ gespeichert (skin_packs/%s).",
+	"btb.ui.packbuilder.exported": "„%s“ exportiert: %s",
+	"btb.ui.packbuilder.none": "Noch keine Skins vorhanden – importiere Skins oder lade Skin-Packs."
 }
