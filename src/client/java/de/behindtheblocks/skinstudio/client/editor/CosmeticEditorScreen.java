@@ -134,7 +134,7 @@ public class CosmeticEditorScreen extends Screen {
 		if (src.packId.equals(PackStore.CUSTOM_PACK_ID)) {
 			original = src.id();
 		} else {
-			d.id = "custom:" + BedrockImporter.sanitize(d.path().replace('/', '_')) + "_kopie";
+			d.id = "custom:" + BedrockImporter.sanitize(d.path().replace('/', '_')) + "_copy";
 			d.names.replaceAll((k, v) -> v + (k.equals("de") ? " (Kopie)" : " (Copy)"));
 			d.author = Minecraft.getInstance().getUser().getName();
 		}
@@ -179,13 +179,15 @@ public class CosmeticEditorScreen extends Screen {
 
 	@Override
 	protected void init() {
-		String n = nameBox == null ? def.name("de") : nameBox.getValue();
+		// name and description are edited in the game language; the other language is only filled if empty
+		String lang = Tr.german() ? "de" : "en", other = Tr.german() ? "en" : "de";
+		String n = nameBox == null ? def.name(lang) : nameBox.getValue();
 		String i = idBox == null ? def.id : idBox.getValue();
-		String ds = descBox == null ? def.description("de") : descBox.getValue();
+		String ds = descBox == null ? def.description(lang) : descBox.getValue();
 		nameBox = box(n, 48, s -> {
-			def.names.put("de", s);
-			if (!def.names.containsKey("en") || def.names.get("en").isBlank()) {
-				def.names.put("en", s);
+			def.names.put(lang, s);
+			if (!def.names.containsKey(other) || def.names.get(other).isBlank()) {
+				def.names.put(other, s);
 			}
 			changed();
 		});
@@ -194,7 +196,7 @@ public class CosmeticEditorScreen extends Screen {
 			changed();
 		});
 		descBox = box(ds, 200, s -> {
-			def.descriptions.put("de", s);
+			def.descriptions.put(Tr.german() ? "de" : "en", s);
 			changed();
 		});
 	}
@@ -204,6 +206,7 @@ public class CosmeticEditorScreen extends Screen {
 		b.setBordered(false);
 		b.setMaxLength(max);
 		b.setValue(value);
+		b.moveCursorToStart(false); // show the beginning of long texts, not the end
 		b.setResponder(onChange);
 		addRenderableWidget(b);
 		return b;
@@ -257,18 +260,24 @@ public class CosmeticEditorScreen extends Screen {
 		int m = 8, top = 30, bottom = height - m;
 		ui.iconButton(m, 6, 18, Icon.BACK, false, this::onClose, unsaved ? Tr.t("btb.t.zurueck_ungespeicherte_aenderungen_gehen") : Tr.t("btb.t.zurueck"));
 		ui.title(Tr.t("btb.t.cosmetic_editor"), m + 24, 11, t.text);
-		ui.text(ui.ellipsize(def.name("de") + (unsaved ? " •" : ""), 200), m + 24 + font.width(Tr.t("btb.t.cosmetic_editor")) + 10, 11, t.textMuted);
+		ui.text(ui.ellipsize(def.name(Tr.german() ? "de" : "en") + (unsaved ? " •" : ""), 200), m + 24 + font.width(Tr.t("btb.t.cosmetic_editor")) + 10, 11, t.textMuted);
 
 		int panelW = Math.max(190, Math.min(250, width * 2 / 5));
 		ui.glass(m, top, panelW, bottom - top, 8);
 		// tabs
 		int tx = m + 6;
+		int textSum = 0;
 		for (Tab tb : Tab.values()) {
-			int w = font.width(tb.label) + 12;
+			textSum += font.width(tb.label);
+		}
+		// padding shrinks so that all tabs fit into the panel (German labels are longer)
+		int pad = Math.max(4, Math.min(12, (panelW - 12 - textSum - 2 * (Tab.values().length - 1)) / Tab.values().length));
+		for (Tab tb : Tab.values()) {
+			int w = font.width(tb.label) + pad;
 			boolean act = tb == tab;
 			boolean hov = ui.hover(tx, top + 6, w, 16);
 			ui.rounded(tx, top + 6, w, 16, 8, act ? t.accent : hov ? t.surfaceHover : 0);
-			ui.text(tb.label, tx + 6, top + 10, act ? t.onAccent : t.textMuted);
+			ui.text(tb.label, tx + pad / 2, top + 10, act ? t.onAccent : t.textMuted);
 			ui.region(tx, top + 6, w, 16, () -> tab = tb);
 			tx += w + 2;
 		}
@@ -323,10 +332,24 @@ public class CosmeticEditorScreen extends Screen {
 
 		// bottom actions
 		int by = bottom - 30;
-		int bw = Math.min(120, (sw - 32) / 3);
-		ui.button(sx + 8, by, bw, 20, Tr.t("btb.t.speichern"), Icon.SAVE, Ui.Style.PRIMARY, error == null, () -> save(false), Tr.t("btb.t.in_meine_cosmetics_speichern"));
-		ui.button(sx + 12 + bw, by, bw, 20, Tr.t("btb.t.speichern_anlegen"), Icon.HANGER, Ui.Style.SECONDARY, error == null, () -> save(true), null);
-		ui.button(sx + 16 + bw * 2, by, bw, 20, Tr.t("btb.t.exportieren"), Icon.EXPORT, Ui.Style.SECONDARY, error == null, this::export, Tr.t("btb.t.als_btbcosmetic_in_den_exports_ordner"));
+		// button widths follow their labels, scaled down together when space is short
+		String[] labels = {Tr.t("btb.t.speichern"), Tr.t("btb.t.speichern_anlegen"), Tr.t("btb.t.exportieren")};
+		int[] bws = new int[3];
+		int need = 0;
+		for (int k = 0; k < 3; k++) {
+			bws[k] = Math.max(70, font.width(labels[k]) + 34);
+			need += bws[k];
+		}
+		float scale = Math.min(1f, (sw - 24f) / need);
+		int bx = sx + 8;
+		for (int k = 0; k < 3; k++) {
+			bws[k] = (int) (bws[k] * scale);
+		}
+		ui.button(bx, by, bws[0], 20, labels[0], Icon.SAVE, Ui.Style.PRIMARY, error == null, () -> save(false), Tr.t("btb.t.in_meine_cosmetics_speichern"));
+		bx += bws[0] + 4;
+		ui.button(bx, by, bws[1], 20, labels[1], Icon.HANGER, Ui.Style.SECONDARY, error == null, () -> save(true), null);
+		bx += bws[1] + 4;
+		ui.button(bx, by, bws[2], 20, labels[2], Icon.EXPORT, Ui.Style.SECONDARY, error == null, this::export, Tr.t("btb.t.als_btbcosmetic_in_den_exports_ordner"));
 		if (status != null) {
 			ui.text(ui.ellipsize(status, sw - 20), sx + 10, by - 12, t.textMuted);
 		}
