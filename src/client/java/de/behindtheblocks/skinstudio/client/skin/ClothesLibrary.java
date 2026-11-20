@@ -103,18 +103,25 @@ public final class ClothesLibrary {
 			return null;
 		}
 		List<Clothing.Layer> layers = new ArrayList<>();
+		// with an own body the arm model follows the body choice, otherwise the base skin's
+		boolean slim = base.slim;
+		var body = worn.get(Clothing.Slot.SKIN.name());
+		if (body != null && items().containsKey(body.id())) {
+			slim = body.id().endsWith("_slim");
+		}
 		for (var e : worn.entrySet()) {
 			Item it = items().get(e.getValue().id());
 			if (it == null) {
 				continue;
 			}
-			layers.add(new Clothing.Layer(base.slim ? it.slim() : it.wide(), base.slim ? it.slimFixed() : it.wideFixed(), e.getValue().color(), it.order(), it.slot()));
+			layers.add(new Clothing.Layer(slim ? it.slim() : it.wide(), slim ? it.slimFixed() : it.wideFixed(), e.getValue().color(), it.order(), it.slot()));
 		}
 		Map<String, String> names = new LinkedHashMap<>();
 		names.put("de", "Mein Charakter");
 		names.put("en", "My character");
 		byte[] composed = layers.isEmpty() ? png : Clothing.compose(png, layers);
-		return new SkinData(CHARACTER_ID, names, base.slim, composed, base.accessories, SkinData.Source.CUSTOM, "",
-				SkinIO.write(CHARACTER_ID, names, base.slim, composed, base.accessories));
+		var acc = body != null ? null : base.accessories;
+		return new SkinData(CHARACTER_ID, names, slim, composed, acc, SkinData.Source.CUSTOM, "",
+				SkinIO.write(CHARACTER_ID, names, slim, composed, acc));
 	}
 }

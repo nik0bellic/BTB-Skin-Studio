@@ -14,8 +14,13 @@ import java.util.List;
  * A piece is a grey template that takes any colour plus a layer of fixed details (soles, buttons, zips).
  */
 public final class Clothing {
+	/** Body sections (like Bedrock's Character Creator "Body") and clothing ("Style"). */
 	public enum Slot {
-		TOP, BOTTOM, SHOES, JACKET
+		SKIN, HAIR, EYES, MOUTH, BEARD, TOP, BOTTOM, SHOES, JACKET;
+
+		public boolean isBody() {
+			return ordinal() <= BEARD.ordinal();
+		}
 	}
 
 	/** One worn piece: tint template, fixed details (may be null), colour and paint order. */
@@ -35,13 +40,16 @@ public final class Clothing {
 		BufferedImage out = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = out.createGraphics();
 		try {
-			g.drawImage(base, 0, 0, 64, 64, null);
+			// a body layer (own body in a skin tone) replaces the base skin completely
+			if (layers.stream().noneMatch(l -> l.slot() == Slot.SKIN)) {
+				g.drawImage(base, 0, 0, 64, 64, null);
+			}
 			g.setComposite(AlphaComposite.Clear);
 			for (Layer l : layers) {
 				for (int[] r : switch (l.slot()) {
 					case TOP -> concat(JACKET, SLEEVES);
 					case BOTTOM, SHOES -> PANTS;
-					case JACKET -> new int[0][];
+					default -> new int[0][];
 				}) {
 					g.fillRect(r[0], r[1], r[2], r[3]);
 				}

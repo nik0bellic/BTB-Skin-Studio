@@ -35,6 +35,13 @@ public final class CosmeticDrawer {
 
 	public static void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, int overlay, PlayerModel model,
 							  AvatarRenderState state, ActiveCosmetic active) {
+		submit(poseStack, collector, light, overlay, model, state, active, java.util.Set.of());
+	}
+
+	/** {@code covered}: skin layers hidden by other cosmetics or armour – the 3D voxels of those parts are left out. */
+	public static void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, int overlay, PlayerModel model,
+							  AvatarRenderState state, ActiveCosmetic active, java.util.Set<String> covered) {
+		boolean skinLayers = active.asset().id().startsWith("skinpart:layers3d");
 		Identifier tex = CosmeticTextures.get(active.asset(), active.color(), CosmeticTextures.Layer.BASE);
 		if (tex == null) {
 			return;
@@ -50,6 +57,14 @@ public final class CosmeticDrawer {
 		RenderType opaqueType = mask == null ? type : RenderTypes.entityCutout(tex);
 
 		for (BakedModel.Bone root : baked.roots) {
+			if (skinLayers && !covered.isEmpty() && covered.contains(switch (root.name) {
+				case "head" -> "hat";
+				case "body" -> "jacket";
+				case "rightArm", "leftArm" -> "sleeves";
+				default -> "pants";
+			})) {
+				continue;
+			}
 			AttachmentPoint.Part part = AttachmentPoint.Part.fromBoneName(root.name);
 			if (part == null) {
 				part = def.attachment.part;

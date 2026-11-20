@@ -255,6 +255,35 @@ public final class SkinLibrary {
 			if (found > 0) {
 				LOG.info("{} Skins aus der Bedrock-Installation geladen", found);
 			}
+			// the player's own Bedrock skins: imported custom skins and own skin packs in the user folders
+			int own = 0;
+			String group = Tr.t("btb.skins.group.bedrock_own");
+			for (Path root : BedrockLocator.installations()) {
+				for (BedrockLocator.Found f : BedrockLocator.scan(root)) {
+					try {
+						if (f.kind() == BedrockLocator.Kind.SKIN_PNG) {
+							byte[] png = java.nio.file.Files.readAllBytes(f.path());
+							SkinData base = SkinIO.fromPng(png, f.path().getFileName().toString(), null);
+							String id = "bedrock_own:" + Integer.toHexString(f.path().toString().hashCode());
+							SkinData s = new SkinData(id, base.names, base.slim, base.texture, null, SkinData.Source.BEDROCK_PACK, group, base.files);
+							if (map.putIfAbsent(s.id, s) == null) {
+								own++;
+							}
+						} else if (f.kind() == BedrockLocator.Kind.SKIN_PACK && !f.encrypted()) {
+							for (SkinData s : SkinIO.readBedrockPack(ArchiveFiles.readDirectory(f.path()), f.path().getFileName().toString(), new ArrayList<>())) {
+								if (map.putIfAbsent(s.id, s) == null) {
+									own++;
+								}
+							}
+						}
+					} catch (Exception ex) {
+						LOG.debug("Eigener Bedrock-Skin {} übersprungen: {}", f.path(), ex.getMessage());
+					}
+				}
+			}
+			if (own > 0) {
+				LOG.info("{} eigene Bedrock-Skins gefunden", own);
+			}
 		}
 		problems.forEach(pr -> LOG.warn("Skins: {}", pr));
 		return map;

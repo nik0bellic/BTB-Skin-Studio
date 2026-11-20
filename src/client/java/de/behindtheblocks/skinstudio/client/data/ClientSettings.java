@@ -33,8 +33,12 @@ public final class ClientSettings {
 	public int layers3dParts = 15;
 	/** Skins blink now and then (only skins whose image the mod knows). */
 	public boolean blinking = true;
+	/** The own skin blinks too (others can still blink when this is off). */
+	public boolean blinkSelf = true;
 	/** Show the account cape in the previews. */
 	public boolean showCape = true;
+	/** Own cape shown in game: "" = the account's cape, "none" = no cape, otherwise a cape texture address. */
+	public String capeChoice = "";
 	/** Load the skin packs that come with an installed Bedrock edition (read-only, never copied). */
 	public boolean bedrockBuiltinPacks = true;
 	/** Show the own character next to the main menu and the pause menu. */
@@ -79,6 +83,8 @@ public final class ClientSettings {
 			s.skinLayers3d = Json.bool(o, "skin_layers_3d", false);
 			s.layers3dParts = (int) Json.number(o, "skin_layers_3d_parts", 15) & 15;
 			s.blinking = Json.bool(o, "blinking", true);
+			s.blinkSelf = Json.bool(o, "blink_self", true);
+			s.capeChoice = Json.string(o, "cape_choice", "");
 			s.bedrockBuiltinPacks = Json.bool(o, "bedrock_builtin_packs", true);
 			s.menuCharacter = Json.bool(o, "menu_character", true);
 			s.hideUnderArmor = Json.bool(o, "hide_under_armor", true);
@@ -117,6 +123,8 @@ public final class ClientSettings {
 		o.addProperty("skin_layers_3d", skinLayers3d);
 		o.addProperty("skin_layers_3d_parts", layers3dParts);
 		o.addProperty("blinking", blinking);
+		o.addProperty("blink_self", blinkSelf);
+		o.addProperty("cape_choice", capeChoice);
 		o.addProperty("bedrock_builtin_packs", bedrockBuiltinPacks);
 		o.addProperty("menu_character", menuCharacter);
 		o.addProperty("hide_under_armor", hideUnderArmor);

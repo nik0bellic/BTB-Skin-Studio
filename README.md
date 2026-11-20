@@ -44,18 +44,20 @@
 - **Bedrock suchen:** findet Bedrock-Installationen auf dem PC (Windows Store/GDK, Preview, mcpelauncher unter Linux) und listet Skin-Packs, Character-Creator-Teile und Skins, die sich übernehmen lassen
 - Jederzeit zurück zum Account-Skin; Mitspieler mit der Mod sehen den gewählten Skin
 - **3D-Hautebenen** (Einstellung): Hut-, Jacken-, Ärmel- und Hosenebene als echte Voxel wie in Bedrock – dezent (Kopf ¾ Pixel, Körper ½ Pixel tief), mit geschlossenen Kanten, pro Körperteil (Kopf/Körper/Arme/Beine) oder ganz abschaltbar
-- **Blinzeln:** Skins blinzeln ab und zu; die Augen werden im Skin automatisch gefunden (abschaltbar)
+- **Blinzeln:** Skins blinzeln ab und zu; die Augen werden im Skin automatisch gefunden (auch mehrere Pixel hoch). Abschaltbar – insgesamt oder nur für den eigenen Skin
+- **Eigener Bedrock-Skin:** eigene Skins und Skin-Packs aus dem Bedrock-Benutzerordner erscheinen automatisch unter „Mein Bedrock-Skin“
 - **Eigenes Skin-Pack „BTB Skins“:** Holzfäller (Steve mit Holzfäller-Outfit, zur Laufzeit aus dem Steve-Skin des Spiels zusammengesetzt), Abenteurerin, Gärtnerin, Bergarbeiter, Matrose, Astronautin
 - **Skin-Packs aus der Bedrock-Installation:** Die mit Bedrock installierten Standard-Skin-Packs werden direkt geladen (Windows GDK/Store, Preview, mcpelauncher), ebenso Skin-Packs in Ressourcenpaketen (`assets/<ns>/skin_packs/`)
 - **Skin-Pack-Katalog:** lädt auf Klick die klassischen Bedrock-Skin-Packs aus einem Online-Katalog (Format des Ressourcenpakets „Bedrock Skin Packs“, 50+ Packs); weitere Katalog-URLs einstellbar
 - **Spieler suchen:** Java-Spielername oder Bedrock-Gamertag eingeben und den Skin übernehmen (Java über die Minecraft-Dienste, Bedrock über die GeyserMC-Datenbank)
-- **Cape wählen:** die Capes des eigenen Java-Accounts anzeigen, eines aktivieren oder „Kein Cape“ (offizielle Mojang-Profil-API, wie der Launcher)
+- **Cape wählen:** die Capes des eigenen Java-Accounts anzeigen, eines aktivieren oder „Kein Cape“ – gilt bei dir sofort und wird zusätzlich am Account gespeichert (offizielle Mojang-Profil-API, wie der Launcher)
 - **Skin-Pack erstellen:** eigene Skins auswählen, benennen und als Bedrock-`.mcpack` exportieren (auch in Bedrock nutzbar)
 
 ![Skins](docs/modrinth/16_skins_de.jpg)
 
 **Charakter-Editor (Reiter „Charakter“) – wie der Bedrock Character Creator**
-- Grund-Skin wählen, darüber Kleidung einzeln: Oberteil, Hose, Schuhe, Jacke – 16 Teile (T-Shirt, Langarm, Hoodie, Holzfällerhemd, Ringelshirt, Tanktop, Jeans, Shorts, Jogginghose, Rock, Latzhose, Sneaker, Stiefel, Lederjacke, Weste, Mantel), jedes frei einfärbbar
+- Wie im Bedrock Character Creator: **Körper** – Basis (Hautfarbe, breite/schmale Arme), Haare (6 Frisuren), Augen (4 Formen), Münder (5), Gesichtsbehaarung (5), jeweils in beliebiger Farbe; **Proportionen** – Größe, Kopf, Arme, Beine; **Stil** – Kleidung
+- Alternativ einen vorhandenen Skin als Grundlage nehmen, darüber Kleidung einzeln: Oberteil, Hose, Schuhe, Jacke – 16 Teile (T-Shirt, Langarm, Hoodie, Holzfällerhemd, Ringelshirt, Tanktop, Jeans, Shorts, Jogginghose, Rock, Latzhose, Sneaker, Stiefel, Lederjacke, Weste, Mantel), jedes frei einfärbbar
 - Körper: Größe, Kopf-, Arm- und Beindicke (0,8–1,25×) – Mitspieler sehen die Proportionen
 - Gesicht im Pixel-Stil: Glubschaugen, Kulleraugen, verschlafene Augen und Blinzel-Augen mit beweglichen Lidern in Hautfarbe; Lächeln, Sprech-Mund und „Zunge raus“ mit tropfender Spucke
 - Character-Creator-Teile aus der Bedrock-Installation erscheinen als eigene Sammlung (sofern unverschlüsselt)

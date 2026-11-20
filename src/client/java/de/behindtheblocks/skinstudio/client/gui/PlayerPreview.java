@@ -128,7 +128,8 @@ public final class PlayerPreview {
 		state.boundingBoxHeight = 1.8f;
 		state.scale = 1;
 		if (skinOverride != null) {
-			state.skin = de.behindtheblocks.skinstudio.client.skin.ClientSkins.toPlayerSkin(skinOverride, state.skin);
+			state.skin = de.behindtheblocks.skinstudio.client.skin.ClientSkins.toPlayerSkin(skinOverride, state.skin,
+					de.behindtheblocks.skinstudio.client.data.ClientSettings.get().blinkSelf ? 0 : -1);
 			java.util.List<ActiveCosmetic> all = new java.util.ArrayList<>(de.behindtheblocks.skinstudio.client.skin.ClientSkins.extrasFor(skinOverride));
 			for (ActiveCosmetic c : cosmetics) {
 				if (!c.asset().id().startsWith("skinpart:")) {
@@ -143,9 +144,18 @@ public final class PlayerPreview {
 		state.setData(CosmeticRenderData.FACE_Y, de.behindtheblocks.skinstudio.client.skin.ClientSkins.faceOffset(shownSkin));
 		state.setData(CosmeticRenderData.PREVIEW, true);
 		state.showHat = state.showJacket = state.showLeftSleeve = state.showRightSleeve = state.showLeftPants = state.showRightPants = true;
+		// the same overlay layers as in the world are hidden (3D voxels replace them, cosmetics may hide them);
+		// otherwise flat layer and 3D voxels overlap and flicker while turning
 		for (ActiveCosmetic c : cosmetics) {
-			if (c.asset().definition.hideLayers.contains("hat")) {
-				state.showHat = false;
+			for (String layer : c.asset().definition.hideLayers) {
+				switch (layer) {
+					case "hat" -> state.showHat = false;
+					case "jacket" -> state.showJacket = false;
+					case "sleeves" -> state.showLeftSleeve = state.showRightSleeve = false;
+					case "pants" -> state.showLeftPants = state.showRightPants = false;
+					default -> {
+					}
+				}
 			}
 		}
 

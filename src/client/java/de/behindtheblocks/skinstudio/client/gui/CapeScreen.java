@@ -77,6 +77,11 @@ public class CapeScreen extends Screen {
 	}
 
 	private void select(String id) {
+		// shown on the own figure right away; the account is updated in the background
+		var cape = capes.stream().filter(c -> c.id().equals(id)).findFirst().orElse(null);
+		de.behindtheblocks.skinstudio.client.data.ClientSettings st = de.behindtheblocks.skinstudio.client.data.ClientSettings.get();
+		st.capeChoice = id == null ? "none" : cape != null && cape.url() != null ? cape.url() : "";
+		st.save();
 		busy = true;
 		status = Tr.t("btb.ui.cape.saving");
 		statusError = false;
@@ -84,7 +89,7 @@ public class CapeScreen extends Screen {
 			busy = false;
 			if (err != null) {
 				Throwable c = err.getCause() != null ? err.getCause() : err;
-				status = c.getMessage() == null ? c.toString() : c.getMessage();
+				status = Tr.t("btb.ui.cape.local_only", c.getMessage() == null ? c.toString() : c.getMessage());
 				statusError = true;
 				return;
 			}
@@ -130,7 +135,9 @@ public class CapeScreen extends Screen {
 				break;
 			}
 			CapeService.Cape c = i == 0 ? null : capes.get(i - 1);
-			boolean on = c == null ? !anyActive && !capes.isEmpty() : c.active();
+			String choice = de.behindtheblocks.skinstudio.client.data.ClientSettings.get().capeChoice;
+			boolean on = c == null ? "none".equals(choice) || (choice.isEmpty() && !anyActive && !capes.isEmpty())
+					: (choice.isEmpty() ? c.active() : choice.equals(c.url()));
 			boolean hov = ui.hover(cx, cy, cw, ch);
 			ui.rounded(cx, cy, cw, ch, 8, on ? t.surfaceSelected : hov ? t.surfaceHover : t.surface);
 			if (on) {
@@ -152,7 +159,7 @@ public class CapeScreen extends Screen {
 				g.text(font, lines.get(k), cx + (cw - font.width(lines.get(k))) / 2, ly, t.text, false);
 				ly += 10;
 			}
-			if (!busy && !on && !(c == null && capes.isEmpty())) {
+			if (!busy && !on) {
 				ui.region(cx, cy, cw, ch, () -> select(c == null ? null : c.id()));
 			}
 		}

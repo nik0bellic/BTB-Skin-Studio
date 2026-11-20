@@ -2,6 +2,418 @@
   "format": 1,
   "items": [
     {
+      "id": "body_wide",
+      "slot": "skin",
+      "name": {
+        "de": "Körper (breit)",
+        "en": "Body (wide)"
+      },
+      "colors": [
+        "#F3D2B4",
+        "#E9B992",
+        "#D49C74",
+        "#B9805A",
+        "#8F5E3E",
+        "#6B4330",
+        "#4A2E22",
+        "#C69C7A"
+      ],
+      "order": 0
+    },
+    {
+      "id": "body_slim",
+      "slot": "skin",
+      "name": {
+        "de": "Körper (schmal)",
+        "en": "Body (slim)"
+      },
+      "colors": [
+        "#F3D2B4",
+        "#E9B992",
+        "#D49C74",
+        "#B9805A",
+        "#8F5E3E",
+        "#6B4330",
+        "#4A2E22",
+        "#C69C7A"
+      ],
+      "order": 0
+    },
+    {
+      "id": "hair_short",
+      "slot": "hair",
+      "name": {
+        "de": "Kurz",
+        "en": "Short"
+      },
+      "colors": [
+        "#2B1D14",
+        "#4A2E1C",
+        "#7A4A26",
+        "#C8A060",
+        "#E6CC86",
+        "#A83A1E",
+        "#8A8A8A",
+        "#EDEDED",
+        "#2E4FA8",
+        "#D8689A"
+      ],
+      "order": 6
+    },
+    {
+      "id": "hair_sidepart",
+      "slot": "hair",
+      "name": {
+        "de": "Seitenscheitel",
+        "en": "Side part"
+      },
+      "colors": [
+        "#2B1D14",
+        "#4A2E1C",
+        "#7A4A26",
+        "#C8A060",
+        "#E6CC86",
+        "#A83A1E",
+        "#8A8A8A",
+        "#EDEDED",
+        "#2E4FA8",
+        "#D8689A"
+      ],
+      "order": 6
+    },
+    {
+      "id": "hair_long",
+      "slot": "hair",
+      "name": {
+        "de": "Lang",
+        "en": "Long"
+      },
+      "colors": [
+        "#2B1D14",
+        "#4A2E1C",
+        "#7A4A26",
+        "#C8A060",
+        "#E6CC86",
+        "#A83A1E",
+        "#8A8A8A",
+        "#EDEDED",
+        "#2E4FA8",
+        "#D8689A"
+      ],
+      "order": 6
+    },
+    {
+      "id": "hair_buzz",
+      "slot": "hair",
+      "name": {
+        "de": "Raspelkurz",
+        "en": "Buzz cut"
+      },
+      "colors": [
+        "#2B1D14",
+        "#4A2E1C",
+        "#7A4A26",
+        "#C8A060",
+        "#E6CC86",
+        "#A83A1E",
+        "#8A8A8A",
+        "#EDEDED",
+        "#2E4FA8",
+        "#D8689A"
+      ],
+      "order": 6
+    },
+    {
+      "id": "hair_curly",
+      "slot": "hair",
+      "name": {
+        "de": "Lockig",
+        "en": "Curly"
+      },
+      "colors": [
+        "#2B1D14",
+        "#4A2E1C",
+        "#7A4A26",
+        "#C8A060",
+        "#E6CC86",
+        "#A83A1E",
+        "#8A8A8A",
+        "#EDEDED",
+        "#2E4FA8",
+        "#D8689A"
+      ],
+      "order": 6
+    },
+    {
+      "id": "hair_mohawk",
+      "slot": "hair",
+      "name": {
+        "de": "Irokese",
+        "en": "Mohawk"
+      },
+      "colors": [
+        "#2B1D14",
+        "#4A2E1C",
+        "#7A4A26",
+        "#C8A060",
+        "#E6CC86",
+        "#A83A1E",
+        "#8A8A8A",
+        "#EDEDED",
+        "#2E4FA8",
+        "#D8689A"
+      ],
+      "order": 6
+    },
+    {
+      "id": "eyes_classic",
+      "slot": "eyes",
+      "name": {
+        "de": "Klassisch",
+        "en": "Classic"
+      },
+      "colors": [
+        "#5A3A22",
+        "#3A7AC8",
+        "#3E8A4A",
+        "#6A7A88",
+        "#8A6A3A",
+        "#7A4AA8"
+      ],
+      "order": 5
+    },
+    {
+      "id": "eyes_big",
+      "slot": "eyes",
+      "name": {
+        "de": "Groß",
+        "en": "Big"
+      },
+      "colors": [
+        "#5A3A22",
+        "#3A7AC8",
+        "#3E8A4A",
+        "#6A7A88",
+        "#8A6A3A",
+        "#7A4AA8"
+      ],
+      "order": 5
+    },
+    {
+      "id": "eyes_round",
+      "slot": "eyes",
+      "name": {
+        "de": "Rund",
+        "en": "Round"
+      },
+      "colors": [
+        "#5A3A22",
+        "#3A7AC8",
+        "#3E8A4A",
+        "#6A7A88",
+        "#8A6A3A",
+        "#7A4AA8"
+      ],
+      "order": 5
+    },
+    {
+      "id": "eyes_narrow",
+      "slot": "eyes",
+      "name": {
+        "de": "Schmal",
+        "en": "Narrow"
+      },
+      "colors": [
+        "#5A3A22",
+        "#3A7AC8",
+        "#3E8A4A",
+        "#6A7A88",
+        "#8A6A3A",
+        "#7A4AA8"
+      ],
+      "order": 5
+    },
+    {
+      "id": "mouth_neutral",
+      "slot": "mouth",
+      "name": {
+        "de": "Neutral",
+        "en": "Neutral"
+      },
+      "colors": [
+        "#8A3A34",
+        "#B85A5A",
+        "#6A2E2A",
+        "#C88080"
+      ],
+      "order": 4
+    },
+    {
+      "id": "mouth_smile",
+      "slot": "mouth",
+      "name": {
+        "de": "Lächeln",
+        "en": "Smile"
+      },
+      "colors": [
+        "#8A3A34",
+        "#B85A5A",
+        "#6A2E2A",
+        "#C88080"
+      ],
+      "order": 4
+    },
+    {
+      "id": "mouth_grin",
+      "slot": "mouth",
+      "name": {
+        "de": "Grinsen",
+        "en": "Grin"
+      },
+      "colors": [
+        "#8A3A34",
+        "#B85A5A",
+        "#6A2E2A",
+        "#C88080"
+      ],
+      "order": 4
+    },
+    {
+      "id": "mouth_open",
+      "slot": "mouth",
+      "name": {
+        "de": "Offen",
+        "en": "Open"
+      },
+      "colors": [
+        "#8A3A34",
+        "#B85A5A",
+        "#6A2E2A",
+        "#C88080"
+      ],
+      "order": 4
+    },
+    {
+      "id": "mouth_smirk",
+      "slot": "mouth",
+      "name": {
+        "de": "Schmunzeln",
+        "en": "Smirk"
+      },
+      "colors": [
+        "#8A3A34",
+        "#B85A5A",
+        "#6A2E2A",
+        "#C88080"
+      ],
+      "order": 4
+    },
+    {
+      "id": "beard_stubble",
+      "slot": "beard",
+      "name": {
+        "de": "Dreitagebart",
+        "en": "Stubble"
+      },
+      "colors": [
+        "#2B1D14",
+        "#4A2E1C",
+        "#7A4A26",
+        "#C8A060",
+        "#E6CC86",
+        "#A83A1E",
+        "#8A8A8A",
+        "#EDEDED",
+        "#2E4FA8",
+        "#D8689A"
+      ],
+      "order": 3
+    },
+    {
+      "id": "beard_mustache",
+      "slot": "beard",
+      "name": {
+        "de": "Schnurrbart",
+        "en": "Mustache"
+      },
+      "colors": [
+        "#2B1D14",
+        "#4A2E1C",
+        "#7A4A26",
+        "#C8A060",
+        "#E6CC86",
+        "#A83A1E",
+        "#8A8A8A",
+        "#EDEDED",
+        "#2E4FA8",
+        "#D8689A"
+      ],
+      "order": 3
+    },
+    {
+      "id": "beard_goatee",
+      "slot": "beard",
+      "name": {
+        "de": "Kinnbart",
+        "en": "Goatee"
+      },
+      "colors": [
+        "#2B1D14",
+        "#4A2E1C",
+        "#7A4A26",
+        "#C8A060",
+        "#E6CC86",
+        "#A83A1E",
+        "#8A8A8A",
+        "#EDEDED",
+        "#2E4FA8",
+        "#D8689A"
+      ],
+      "order": 3
+    },
+    {
+      "id": "beard_full",
+      "slot": "beard",
+      "name": {
+        "de": "Vollbart",
+        "en": "Full beard"
+      },
+      "colors": [
+        "#2B1D14",
+        "#4A2E1C",
+        "#7A4A26",
+        "#C8A060",
+        "#E6CC86",
+        "#A83A1E",
+        "#8A8A8A",
+        "#EDEDED",
+        "#2E4FA8",
+        "#D8689A"
+      ],
+      "order": 3
+    },
+    {
+      "id": "beard_chinstrap",
+      "slot": "beard",
+      "name": {
+        "de": "Kinnbart-Rahmen",
+        "en": "Chinstrap"
+      },
+      "colors": [
+        "#2B1D14",
+        "#4A2E1C",
+        "#7A4A26",
+        "#C8A060",
+        "#E6CC86",
+        "#A83A1E",
+        "#8A8A8A",
+        "#EDEDED",
+        "#2E4FA8",
+        "#D8689A"
+      ],
+      "order": 3
+    },
+    {
       "id": "tshirt",
       "slot": "top",
       "name": {

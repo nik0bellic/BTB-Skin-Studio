@@ -103,10 +103,42 @@ public final class ClientSkins {
 	/** Replacement for {@code AbstractClientPlayer#getSkin()}; keeps cape and elytra of the original. */
 	public static PlayerSkin override(UUID player, PlayerSkin original) {
 		SkinData s = skinOf(player);
-		if (s == null) {
-			return original;
+		boolean self = isSelf(player);
+		// seed −1: no blinking (own skin with "own skin blinks" turned off)
+		PlayerSkin out = s == null ? original : toPlayerSkin(s, original, self && !ClientSettings.get().blinkSelf ? -1 : player.hashCode());
+		return self ? withCapeChoice(out) : out;
+	}
+
+	private static final Map<String, Identifier> CAPES = new HashMap<>();
+	private static final Set<String> CAPE_PENDING = new HashSet<>();
+
+	/** Applies the own cape choice from the cape screen: none, a picked cape, or the account's (unchanged). */
+	public static PlayerSkin withCapeChoice(PlayerSkin skin) {
+		String choice = ClientSettings.get().capeChoice;
+		if (skin == null || choice == null || choice.isEmpty()) {
+			return skin;
 		}
-		return toPlayerSkin(s, original, player.hashCode());
+		if (choice.equals("none")) {
+			return PlayerSkin.insecure(skin.body(), null, null, skin.model());
+		}
+		Identifier tex = CAPES.get(choice);
+		if (tex == null) {
+			if (CAPE_PENDING.add(choice)) {
+				CapeService.texture(choice).thenAcceptAsync(bytes -> {
+					try {
+						NativeImage img = NativeImage.read(bytes);
+						Identifier id = Identifier.fromNamespaceAndPath(BtbSkinStudio.MOD_ID, "own_cape/" + Integer.toHexString(choice.hashCode()));
+						Minecraft.getInstance().getTextureManager().register(id, new DynamicTexture(() -> "own cape", img));
+						CAPES.put(choice, id);
+					} catch (Exception ignored) {
+						// keep the account's cape
+					}
+				}, Minecraft.getInstance()).exceptionally(e -> null);
+			}
+			return skin;
+		}
+		ClientAsset.Texture cape = new ClientAsset.ResourceTexture(tex, tex);
+		return PlayerSkin.insecure(skin.body(), cape, cape, skin.model());
 	}
 
 	public static PlayerSkin toPlayerSkin(SkinData s, PlayerSkin original) {
@@ -119,6 +151,9 @@ public final class ClientSkins {
 	public static boolean blinking(int seed) {
 		if (forceBlink) {
 			return true;
+		}
+		if (seed == -1) {
+			return false;
 		}
 		if (!ClientSettings.get().blinking) {
 			return false;

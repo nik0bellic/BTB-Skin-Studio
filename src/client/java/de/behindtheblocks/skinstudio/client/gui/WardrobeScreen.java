@@ -330,11 +330,10 @@ public class WardrobeScreen extends Screen {
 
 		if (tab == Tab.EMOTES) {
 			preview.loopEmote = true;
-			if (selectedEmote == null) {
-				selectedEmote = de.behindtheblocks.skinstudio.client.emote.EmoteKeys.slot(emoteSlot);
-			}
 			String show = hoverEmote != null ? hoverEmote : selectedEmote;
-			if (show != null && !show.equals(preview.emote)) {
+			if (show == null) {
+				preview.emote = null; // nothing selected (X or click on an empty spot): the figure just stands
+			} else if (!show.equals(preview.emote)) {
 				preview.playEmote(show);
 			}
 		} else if (preview.emote != null) {
@@ -910,36 +909,29 @@ public class WardrobeScreen extends Screen {
 		search.visible = false;
 		ui.glass(x, y, w, h, 8);
 		Wardrobe wd = Wardrobe.get();
-		int ix = x + 4, iw = w - 8, cy = y + 8;
+		ui.g.enableScissor(x + 1, y + 4, x + w - 1, y + h - 4);
+		int ix = x + 4, iw = w - 8, cy = y + 8 - sideScroll;
+		int startY = cy;
+		// base skin (used when no own body is chosen under "Basis")
 		sectionLabel("btb.ui.character.base", ix + 4, cy);
 		cy += 12;
 		SkinData base = de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.base(wd.characterBase());
-		ui.text(ui.ellipsize(base == null ? "–" : base.name(lang()), iw - 8), ix + 4, cy, t.text);
-		cy += 12;
+		ui.text(ui.ellipsize(base == null ? "–" : base.name(lang()), iw - 8), ix + 4, cy, t.textMuted);
+		cy += 11;
 		String take = Tr.t("btb.ui.character.take_skin");
 		ui.button(ix, cy, iw, 16, ui.ellipsize(take, iw - 12), null, Ui.Style.SECONDARY, !wd.skin().isEmpty() && !wd.skin().equals(de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.CHARACTER_ID),
 				() -> wd.setCharacterBase(wd.skin()), Tr.t("btb.ui.character.take_skin.tooltip"));
-		cy += 24;
-		sectionLabel("btb.ui.character.clothes", ix + 4, cy);
+		cy += 22;
+		// body sections like Bedrock's Character Creator, then the clothes ("style")
+		sectionLabel("btb.ui.character.section_body", ix + 4, cy);
 		cy += 12;
 		for (var slot : de.behindtheblocks.skinstudio.skin.Clothing.Slot.values()) {
-			var worn = wd.clothes().get(slot.name());
-			var item = worn == null ? null : de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.items().get(worn.id());
-			boolean act = slot == clothSlot;
-			boolean hov = ui.hover(ix, cy, iw, 22);
-			ui.rounded(ix, cy, iw, 22, 7, act ? (t.accent & 0xFFFFFF) | 0x38000000 : hov ? t.surfaceHover : t.surface);
-			ui.text(Tr.t("btb.ui.character.slot." + slot.name().toLowerCase(Locale.ROOT)), ix + 6, cy + 2, t.textMuted);
-			ui.text(ui.ellipsize(item == null ? Tr.t("btb.ui.character.none") : item.name(lang()), iw - 26), ix + 6, cy + 12, t.text);
-			if (worn != null) {
-				ui.rounded(ix + iw - 16, cy + 6, 10, 10, 5, worn.color() | 0xFF000000);
+			if (!slot.isBody()) {
+				continue;
 			}
-			ui.region(ix, cy, iw, 22, () -> {
-				clothSlot = slot;
-				clothScroll = 0;
-			});
-			cy += 24;
+			cy = slotRow(slot, ix, cy, iw);
 		}
-		// body proportions
+		// proportions
 		cy += 4;
 		sectionLabel("btb.ui.character.body", ix + 4, cy);
 		cy += 11;
@@ -957,12 +949,48 @@ public class WardrobeScreen extends Screen {
 		ui.stepper(ix, cy, iw, Tr.t("btb.ui.character.legs"), b.legs(), 0.05f, min, max, "×",
 				v -> wd.setBody(new de.behindtheblocks.skinstudio.network.SkinStudioPayloads.Body(b.height(), b.head(), b.arms(), v)));
 		cy += 20;
-		// face: eyes and mouth (animated parts from the built-in face pack)
+		sectionLabel("btb.ui.character.clothes", ix + 4, cy);
+		cy += 12;
+		for (var slot : de.behindtheblocks.skinstudio.skin.Clothing.Slot.values()) {
+			if (!slot.isBody()) {
+				cy = slotRow(slot, ix, cy, iw);
+			}
+		}
+		// extras: the animated face parts (googly eyes, blinking lids, talking mouth …)
+		cy += 4;
 		sectionLabel("btb.ui.character.face", ix + 4, cy);
 		cy += 11;
 		faceCycle(ix, cy, iw, "btb.ui.character.eyes", new String[]{"googly", "big_eyes", "sleepy_eyes", "blink_eyes"});
 		cy += 16;
 		faceCycle(ix, cy, iw, "btb.ui.character.mouth", new String[]{"smile", "talk", "tongue"});
+		cy += 18;
+		ui.g.disableScissor();
+		sideMax = Math.max(0, cy - startY - h + 12);
+		sideScroll = Math.min(sideScroll, sideMax);
+	}
+
+	/** One section row: name on the left, the chosen part and its colour on the right. */
+	private int slotRow(de.behindtheblocks.skinstudio.skin.Clothing.Slot slot, int ix, int cy, int iw) {
+		Theme t = ui.t;
+		var worn = Wardrobe.get().clothes().get(slot.name());
+		var item = worn == null ? null : de.behindtheblocks.skinstudio.client.skin.ClothesLibrary.items().get(worn.id());
+		boolean act = slot == clothSlot;
+		boolean hov = ui.hover(ix, cy, iw, 18);
+		ui.rounded(ix, cy, iw, 18, 6, act ? (t.accent & 0xFFFFFF) | 0x38000000 : hov ? t.surfaceHover : t.surface);
+		String label = Tr.t("btb.ui.character.slot." + slot.name().toLowerCase(Locale.ROOT));
+		ui.text(ui.ellipsize(label, iw / 2), ix + 6, cy + 5, t.text);
+		String value = item == null ? Tr.t("btb.ui.character.none") : item.name(lang());
+		int vx = ix + iw - 8 - (worn != null ? 12 : 0);
+		String v = ui.ellipsize(value, iw / 2 - 16);
+		ui.text(v, vx - font.width(v), cy + 5, t.textMuted);
+		if (worn != null) {
+			ui.rounded(ix + iw - 14, cy + 5, 8, 8, 4, worn.color() | 0xFF000000);
+		}
+		ui.region(ix, cy, iw, 18, () -> {
+			clothSlot = slot;
+			clothScroll = 0;
+		});
+		return cy + 20;
 	}
 
 	/** Cycles through face parts of one kind (none → part → part …); equipped like cosmetics, lids tinted like the skin. */
@@ -1052,7 +1080,14 @@ public class WardrobeScreen extends Screen {
 				SkinData icon = it == null ? base : clothIcon(base, it.id(), col);
 				var tex = icon == null ? null : ClientSkins.icon(icon);
 				if (tex != null) {
-					ui.g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, tex, cx + 15, cy + 4, 0, 0, 40, 60, 40, 60);
+					boolean faceSlot = clothSlot == de.behindtheblocks.skinstudio.skin.Clothing.Slot.HAIR || clothSlot == de.behindtheblocks.skinstudio.skin.Clothing.Slot.EYES
+							|| clothSlot == de.behindtheblocks.skinstudio.skin.Clothing.Slot.MOUTH || clothSlot == de.behindtheblocks.skinstudio.skin.Clothing.Slot.BEARD;
+					if (faceSlot) {
+						// head close-up: hair, eyes, mouth and beard are small
+						ui.g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, tex, cx + 11, cy + 8, 10, 0, 48, 48, 20, 15, 40, 60);
+					} else {
+						ui.g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, tex, cx + 15, cy + 4, 0, 0, 40, 60, 40, 60);
+					}
 				}
 			}
 			var lines = font.split(Component.literal(it == null ? Tr.t("btb.ui.character.none") : it.name(lang())), cw - 6);
@@ -1524,7 +1559,7 @@ public class WardrobeScreen extends Screen {
 	private void drawSettings(int x, int y) {
 		Theme t = ui.t;
 		ClientSettings s = ClientSettings.get();
-		int w = 190, h = 197 + 17 + (s.skinLayers3d ? 16 : 0);
+		int w = 190, h = 197 + 34 + (s.skinLayers3d ? 16 : 0);
 		// catches clicks on empty parts of the panel; registered first so the toggles on top of it win
 		ui.region(x, y, w, h, () -> { });
 		ui.rounded(x, y, w, h, 9, t.dark ? 0xF41C1F27 : 0xFCFFFFFF);
@@ -1552,6 +1587,8 @@ public class WardrobeScreen extends Screen {
 			cy += 16;
 		}
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.blinking"), s.blinking, () -> { s.blinking = !s.blinking; s.save(); });
+		cy += 17;
+		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.blink_self"), s.blinkSelf, () -> { s.blinkSelf = !s.blinkSelf; s.save(); });
 		cy += 17;
 		ui.toggle(x + 10, cy, w - 20, Tr.t("btb.ui.setting.bedrock_packs"), s.bedrockBuiltinPacks, () -> {
 			s.bedrockBuiltinPacks = !s.bedrockBuiltinPacks;
@@ -1590,6 +1627,9 @@ public class WardrobeScreen extends Screen {
 			infoOpen = false;
 			return true;
 		}
+		if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && clearSelection()) {
+			return true; // click on an empty spot: nothing selected any more
+		}
 		return super.mouseClicked(event, doubleClick);
 	}
 
@@ -1618,6 +1658,10 @@ public class WardrobeScreen extends Screen {
 		if (ui.scroll(x, y, sy)) {
 			return true;
 		}
+		if (tab == Tab.CHARACTER && x >= sideX && x < sideX + sideW) {
+			sideScroll = Math.max(0, Math.min(sideMax, sideScroll - (int) Math.round(sy * 16)));
+			return true;
+		}
 		if (tab == Tab.CHARACTER && x > sideX + sideW + 200) {
 			clothScroll = Math.max(0, Math.min(clothMax, clothScroll - (int) Math.round(sy * 24)));
 			return true;
@@ -1637,8 +1681,31 @@ public class WardrobeScreen extends Screen {
 		return super.mouseScrolled(x, y, sx, sy);
 	}
 
+	/** Deselects the cosmetic, skin or emote of the current tab (detail panel closes, preview shows the outfit). */
+	private boolean clearSelection() {
+		boolean had = switch (tab) {
+			case COSMETICS -> selectedId != null;
+			case SKINS -> selectedSkin != null;
+			case EMOTES -> selectedEmote != null;
+			case CHARACTER -> false;
+		};
+		selectedId = null;
+		adjustMode = false;
+		if (tab == Tab.SKINS) {
+			selectedSkin = null;
+		}
+		if (tab == Tab.EMOTES) {
+			selectedEmote = null;
+			preview.emote = null;
+		}
+		return had;
+	}
+
 	@Override
 	public boolean keyPressed(KeyEvent event) {
+		if (event.key() == 88 && !search.isFocused() && clearSelection()) { // X
+			return true;
+		}
 		if (event.isConfirmation() && !search.isFocused()) {
 			if (tab == Tab.COSMETICS && selected() != null) {
 				toggleEquip(selected());

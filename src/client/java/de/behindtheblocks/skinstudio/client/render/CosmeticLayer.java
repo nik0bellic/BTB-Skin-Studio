@@ -29,9 +29,26 @@ public final class CosmeticLayer extends RenderLayer<AvatarRenderState, PlayerMo
 		}
 		int overlay = LivingEntityRenderer.getOverlayCoords(state, 0);
 		PlayerModel model = getParentModel();
+		// skin layers covered by a worn cosmetic (pumpkin, hood …) or by armour: their 3D voxels would poke through
+		java.util.Set<String> covered = new java.util.HashSet<>();
+		for (ActiveCosmetic c : list) {
+			if (!c.asset().id().startsWith("skinpart:")) {
+				covered.addAll(c.asset().definition.hideLayers);
+			}
+		}
+		if (!state.headEquipment.isEmpty()) {
+			covered.add("hat");
+		}
+		if (!state.chestEquipment.isEmpty()) {
+			covered.add("jacket");
+			covered.add("sleeves");
+		}
+		if (!state.legsEquipment.isEmpty()) {
+			covered.add("pants");
+		}
 		for (ActiveCosmetic c : list) {
 			try {
-				CosmeticDrawer.submit(poseStack, collector, light, overlay, model, state, c);
+				CosmeticDrawer.submit(poseStack, collector, light, overlay, model, state, c, covered);
 			} catch (RuntimeException e) {
 				// A broken cosmetic must never take the game down; report once.
 				if (!loggedError) {

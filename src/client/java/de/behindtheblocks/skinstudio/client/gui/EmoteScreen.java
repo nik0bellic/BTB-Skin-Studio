@@ -39,6 +39,39 @@ public class EmoteScreen extends Screen {
 		preview.loopEmote = true;
 	}
 
+	/** The wheel key was held when the wheel opened; true until it is let go once. */
+	private boolean keyHeld = true;
+
+	/**
+	 * Hold the key, point, let go: the key state is read directly every tick, because the release does not
+	 * always arrive as an event at a screen that was opened by that same key.
+	 */
+	@Override
+	public void tick() {
+		super.tick();
+		var km = de.behindtheblocks.skinstudio.client.BtbSkinStudioClient.emoteKeyMapping();
+		if (km == null || !keyHeld) {
+			return;
+		}
+		var key = net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper.getBoundKeyOf(km);
+		if (key.getType() != com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD) {
+			keyHeld = false;
+			return;
+		}
+		if (!com.mojang.blaze3d.platform.InputConstants.isKeyDown(key.getValue())) {
+			keyHeld = false;
+			if (System.currentTimeMillis() - openedAt > 300) {
+				// held long enough to aim: play what is selected (or just close)
+				if (sel >= 0) {
+					play(sel);
+				} else {
+					onClose();
+				}
+			}
+			// a short tap keeps the wheel open for clicking
+		}
+	}
+
 	@Override
 	public boolean isPauseScreen() {
 		return false;
@@ -63,6 +96,7 @@ public class EmoteScreen extends Screen {
 			mouseX = fakeMouse[0];
 			mouseY = fakeMouse[1];
 		}
+
 		ui.begin(g, font, mouseX, mouseY);
 		Theme t = ui.t;
 		boolean pad = controllerActive();
@@ -73,7 +107,12 @@ public class EmoteScreen extends Screen {
 		int outer = Math.max(40, Math.min(100, (height - hintH - 24) / 2)), inner = (int) (outer * 0.4);
 		int previewW = Math.min(120, Math.max(70, width - outer * 2 - 60)), gap = 24;
 		int total = outer * 2 + gap + previewW;
-		int cx = (width - total) / 2 + outer, cy = Math.max(outer + 6, (height - (outer * 2 + hintH)) / 2 + outer);
+		// the wheel sits exactly in the middle of the screen: that is where the cursor appears when it opens,
+		// so moving the mouse from there picks the segment in that direction
+		int cx = width / 2, cy = height / 2;
+		if (cy + outer + hintH > height - 4) {
+			cy = height - 4 - hintH - outer;
+		}
 		this.cx = cx;
 		this.cy = cy;
 		this.inner = inner;
@@ -203,10 +242,7 @@ public class EmoteScreen extends Screen {
 	@Override
 	public boolean keyPressed(KeyEvent event) {
 		int k = event.key();
-		if (k >= 49 && k <= 53) {
-			play(k - 49);
-			return true;
-		}
+
 		// arrow keys / Enter for keyboard-only use
 		if (k == 262 || k == 264) {
 			sel = sel < 0 ? 0 : (sel + 1) % 5;
@@ -221,8 +257,11 @@ public class EmoteScreen extends Screen {
 			return true;
 		}
 		var km = de.behindtheblocks.skinstudio.client.BtbSkinStudioClient.emoteKeyMapping();
-		if (km != null && km.matches(event) && System.currentTimeMillis() - openedAt > 300) {
-			onClose();
+		if (km != null && km.matches(event)) {
+			// held key repeats arrive as presses: ignore them; a new press after letting go closes the wheel
+			if (!keyHeld && System.currentTimeMillis() - openedAt > 300) {
+				onClose();
+			}
 			return true;
 		}
 		return super.keyPressed(event);
@@ -257,14 +296,19 @@ public class EmoteScreen extends Screen {
 	/** Hold the wheel key, point, release: plays the selected emote. A short tap keeps the wheel open. */
 	@Override
 	public boolean keyReleased(KeyEvent event) {
+
 		var km = de.behindtheblocks.skinstudio.client.BtbSkinStudioClient.emoteKeyMapping();
-		if (km != null && km.matches(event) && System.currentTimeMillis() - openedAt > 300) {
+		if (km != null && km.matches(event) && keyHeld && System.currentTimeMillis() - openedAt > 300) {
+			keyHeld = false;
 			if (sel >= 0) {
 				play(sel);
 			} else {
 				onClose();
 			}
 			return true;
+		}
+		if (km != null && km.matches(event)) {
+			keyHeld = false;
 		}
 		return super.keyReleased(event);
 	}
@@ -284,6 +328,12 @@ public class EmoteScreen extends Screen {
 	protected void init() {
 		de.behindtheblocks.skinstudio.client.gui.ui.GuiFit.fit(this);
 		super.init();
+		// opened by a key while playing: make sure the cursor is free (centred on the wheel), otherwise mouse
+		// movement keeps turning the camera instead of reaching the wheel
+		if (minecraft.mouseHandler.isMouseGrabbed()) {
+			minecraft.mouseHandler.releaseMouse();
+		}
+		minecraft.mouseHandler.resyncMousePosition();
 	}
 
 	@Override

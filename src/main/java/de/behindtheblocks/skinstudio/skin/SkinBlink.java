@@ -77,15 +77,21 @@ public final class SkinBlink {
 			}
 		}
 		if (top < 0) {
-			// no eye whites (dark or coloured eyes): first row with something non-skin on both sides of the face
+			// no eye whites (dark or coloured eyes): only a clearly mirrored pair counts as eyes
 			for (int y = 3; y <= 5 && top < 0; y++) {
-				if (eyeLike(face[y], faceTone, 0, 4) && eyeLike(face[y], faceTone, 4, 8)) {
+				if (eyeLike(face[y], faceTone, 1, 4) && eyeLike(face[y], faceTone, 4, 7) && mirrored(face[y], faceTone)) {
 					top = bottom = y;
 				}
 			}
 		}
 		if (top < 0) {
-			top = bottom = 4;
+			return null; // not sure where the eyes are: better no blink than a wrong one
+		}
+		// hair colour (top rows of the face) – hair strands next to the eyes are never closed
+		int hairTone = skinTone(face, 0, 1);
+		// eyes several pixels tall: an iris row above the whites (same columns, not hair) belongs to the eye
+		while (top > 2 && bottom - top < 2 && irisAbove(face[top - 1], face[top], faceTone, hairTone)) {
+			top--;
 		}
 		// eyes several pixels tall: iris or pupil rows below the whites belong to the eye too (at most 3 rows)
 		while (bottom < 6 && bottom - top < 2 && eyeLike(face[bottom + 1], faceTone, 0, 4) && eyeLike(face[bottom + 1], faceTone, 4, 8)
@@ -100,7 +106,8 @@ public final class SkinBlink {
 		// skin tone: the most common colour of the cheeks right below the eyes (above them is often hair)
 		int tone = skinTone(face, Math.min(7, bottom + 1), Math.min(7, bottom + 2));
 		boolean changed = false;
-		for (int x = 0; x < 8; x++) {
+		int changedPixels = 0;
+		for (int x = 1; x < 7; x++) { // the outer columns are usually hair or sideburns
 			int above = face[top - 1][x];
 			boolean aboveIsSkin = (above >>> 24) >= 200 && dist(above, tone) < 40;
 			// the pixel above keeps the shading when it is skin; under hair or eyebrows the plain skin tone is used
@@ -110,15 +117,20 @@ public final class SkinBlink {
 				if (dist(px, tone) < 60) {
 					continue; // skin between and beside the eyes
 				}
+				if (dist(px, hairTone) < 50 && !isWhite(px)) {
+					continue; // hair strand hanging next to the eye
+				}
 				if (!aboveIsSkin && dist(px, above) < 40 && !isWhite(px)) {
 					continue; // hair or fringe hanging down beside the eyes
 				}
 				int c = y == bottom && bottom > top ? shade(lid, 0.8f) : shade(lid, 0.93f);
 				set(out, s, (fromHat[y][x] ? HAT_X : FACE_X) + x, FACE_Y + y, c);
 				changed = true;
+				changedPixels++;
 			}
 		}
-		return changed ? out : null;
+		// eyes are a few pixels; a large change means a mask, visor or glasses – leave such skins alone
+		return changed && changedPixels <= 14 ? out : null;
 	}
 
 	private static int skinTone(int[][] face, int... rows) {
@@ -139,6 +151,43 @@ public final class SkinBlink {
 			}
 		}
 		return best;
+	}
+
+	/** Every eye-white column of {@code row} has a coloured, non-skin, non-hair pixel directly above it. */
+	private static boolean irisAbove(int[] above, int[] row, int tone, int hair) {
+		int found = 0;
+		for (int x = 1; x < 7; x++) {
+			if (!isWhite(row[x])) {
+				continue;
+			}
+			int a = above[x];
+			if ((a >>> 24) < 200 || dist(a, tone) < 60 || dist(a, hair) < 50) {
+				return false;
+			}
+			found++;
+		}
+		return found >= 2;
+	}
+
+	/** Left and right half of the row look alike (eyes are mirrored, a fringe or scar usually is not). */
+	private static boolean mirrored(int[] row, int tone) {
+		return pairMatch(row, tone, true) || pairMatch(row, tone, false);
+	}
+
+	/** Mirrored (x ↔ 7 − x) or copied (x ↔ x + 4) halves match on every non-skin pixel. */
+	private static boolean pairMatch(int[] row, int tone, boolean mirror) {
+		int pairs = 0, match = 0;
+		for (int x = 1; x < 4; x++) {
+			int l = row[x], r = mirror ? row[7 - x] : row[x + 4];
+			boolean le = dist(l, tone) >= 90, re = dist(r, tone) >= 90;
+			if (le || re) {
+				pairs++;
+				if (le && re && dist(l, r) < 60) {
+					match++;
+				}
+			}
+		}
+		return pairs > 0 && match == pairs;
 	}
 
 	/** True if the row has a pixel in [from, to) that clearly is not skin (eye white, iris, pupil). */

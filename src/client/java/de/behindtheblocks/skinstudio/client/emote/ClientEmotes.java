@@ -76,8 +76,13 @@ public final class ClientEmotes {
 		if (mc.player != null) {
 			Playing own = PLAYING.get(mc.player.getUUID());
 			if (own != null) {
+				// only real movement ends the emote: walking away, jumping or sneaking. Standing in the air
+				// (creative flight), on slabs or being pushed slightly does not.
 				double dx = mc.player.getX() - startX, dz = mc.player.getZ() - startZ;
-				if (dx * dx + dz * dz > 0.04 || mc.player.isShiftKeyDown() || !mc.player.onGround() || mc.player.isSwimming()) {
+				var keys = mc.options;
+				boolean input = keys.keyUp.isDown() || keys.keyDown.isDown() || keys.keyLeft.isDown() || keys.keyRight.isDown()
+						|| keys.keyJump.isDown() || keys.keyShift.isDown();
+				if (dx * dx + dz * dz > 0.25 || (input && mc.gui.screen() == null) || mc.player.isSwimming()) {
 					stopOwn();
 				}
 			}
