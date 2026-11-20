@@ -1,0 +1,22 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.mini_shield.idle": {
+      "loop": true,
+      "bones": {
+        "shield": {
+          "position": [
+            0,
+            "math.abs(math.sin(q.walk_distance * 32)) * 0.6 * math.min(q.modified_move_speed * 3, 1)",
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            "math.sin(q.walk_distance * 32) * 3 * math.min(q.modified_move_speed * 3, 1)"
+          ]
+        }
+      }
+    }
+  }
+}

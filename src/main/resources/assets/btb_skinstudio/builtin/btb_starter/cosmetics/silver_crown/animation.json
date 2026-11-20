@@ -1,0 +1,17 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.silver_crown.idle": {
+      "loop": true,
+      "bones": {
+        "crown": {
+          "rotation": [
+            0,
+            0,
+            "math.sin(q.walk_distance * 20) * 2 * math.min(q.modified_move_speed * 3, 1)"
+          ]
+        }
+      }
+    }
+  }
+}

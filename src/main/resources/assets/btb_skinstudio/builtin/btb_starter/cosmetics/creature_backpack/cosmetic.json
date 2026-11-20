@@ -16,6 +16,10 @@
   "texture": "texture.png",
   "emissive_texture": "emissive.png",
   "tint_mask": "tint_mask.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.creature_backpack.idle"
+  ],
   "preview": "preview.png",
   "tint": {
     "enabled": true,

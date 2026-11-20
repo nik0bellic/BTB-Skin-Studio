@@ -1,0 +1,17 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.mustache.idle": {
+      "loop": true,
+      "bones": {
+        "mustache": {
+          "rotation": [
+            0,
+            0,
+            "(math.mod(q.anim_time, 5) < 0.4) ? math.sin(q.anim_time * 1800) * 8 : 0"
+          ]
+        }
+      }
+    }
+  }
+}

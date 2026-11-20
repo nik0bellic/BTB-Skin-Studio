@@ -682,6 +682,33 @@ def build():
 
     # ---------------------------------------------------------------- write
     back = {'backpack_classic', 'adventure_backpack', 'creature_backpack', 'wings', 'cape', 'mini_shield', 'fire_halo'}
+    # subtle motion for cosmetics without their own animation (look unchanged)
+    walk = 'math.min(q.modified_move_speed * 3, 1)'
+    bounce = 'math.abs(math.sin(q.walk_distance * 32)) * 0.6 * ' + walk
+    extra = {
+        'adventure_backpack': {'backpack': {'position': [0, bounce, 0], 'rotation': ['math.sin(q.walk_distance * 32) * 2 * ' + walk, 0, 0]}},
+        'backpack_classic': {'backpack': {'position': [0, bounce, 0], 'rotation': ['math.sin(q.walk_distance * 32) * 2 * ' + walk, 0, 0]}},
+        'creature_backpack': {'backpack': {'position': [0, bounce, 0], 'rotation': ['math.sin(q.walk_distance * 32) * 2 * ' + walk, 0, 'math.sin(q.anim_time * 60) * 1.5']}},
+        'terrarium': {'terrarium': {'position': [0, bounce, 0], 'rotation': ['math.sin(q.walk_distance * 32) * 2 * ' + walk, 0, 0]}},
+        'mini_shield': {'shield': {'position': [0, bounce, 0], 'rotation': [0, 0, 'math.sin(q.walk_distance * 32) * 3 * ' + walk]}},
+        'shoulder_bag': {'bag': {'rotation': [0, 0, 'math.sin(q.walk_distance * 24) * 6 * ' + walk + ' + math.sin(q.anim_time * 50) * 1']}},
+        'party_hat': {'hat': {'rotation': ['math.sin(q.anim_time * 70) * 3', 0, 'math.sin(q.anim_time * 55) * 5']}},
+        'flower_crown': {'wreath': {'rotation': [0, 0, 'math.sin(q.anim_time * 45) * 1.5']}},
+        'lily_pad': {'lily_pad': {'rotation': ['math.sin(q.anim_time * 50) * 3', 0, 'math.cos(q.anim_time * 40) * 3']}},
+        'gold_crown': {'crown': {'rotation': [0, 0, 'math.sin(q.walk_distance * 20) * 2 * ' + walk]}},
+        'silver_crown': {'crown': {'rotation': [0, 0, 'math.sin(q.walk_distance * 20) * 2 * ' + walk]}},
+        'headphones': {'headphones': {'scale': ['1 + math.abs(math.sin(q.anim_time * 240)) * 0.035', '1 + math.abs(math.sin(q.anim_time * 240)) * 0.035', 1]}},
+        'spiky_hair': {'hair': {'rotation': ['math.sin(q.walk_distance * 30) * 2 * ' + walk, 0, 'math.sin(q.anim_time * 80) * 1.5']}},
+        'mustache': {'mustache': {'rotation': [0, 0, '(math.mod(q.anim_time, 5) < 0.4) ? math.sin(q.anim_time * 1800) * 8 : 0']}},
+    }
+    fixed = []
+    for folder, mt, model, anims_, mannequin in cos:
+        if anims_ is None and folder in extra:
+            name = 'animation.btb.%s.idle' % folder
+            anims_ = {name: anim(**extra[folder])}
+            mt['animations'] = [name]
+        fixed.append((folder, mt, model, anims_, mannequin))
+    cos = fixed
     for folder, mt, model, anims_, mannequin in cos:
         view = 'back' if folder in back else 'right' if folder in ('mini_dragon',) else 'front'
         write_cosmetic(ROOT, folder, mt, model, anims_, mannequin, view=view)

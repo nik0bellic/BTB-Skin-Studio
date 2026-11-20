@@ -1,0 +1,17 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.party_hat.idle": {
+      "loop": true,
+      "bones": {
+        "hat": {
+          "rotation": [
+            "math.sin(q.anim_time * 70) * 3",
+            0,
+            "math.sin(q.anim_time * 55) * 5"
+          ]
+        }
+      }
+    }
+  }
+}

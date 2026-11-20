@@ -1,0 +1,17 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.spiky_hair.idle": {
+      "loop": true,
+      "bones": {
+        "hair": {
+          "rotation": [
+            "math.sin(q.walk_distance * 30) * 2 * math.min(q.modified_move_speed * 3, 1)",
+            0,
+            "math.sin(q.anim_time * 80) * 1.5"
+          ]
+        }
+      }
+    }
+  }
+}

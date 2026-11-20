@@ -15,6 +15,10 @@
   "model": "model.geo.json",
   "texture": "texture.png",
   "tint_mask": "tint_mask.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.mustache.idle"
+  ],
   "preview": "preview.png",
   "tint": {
     "enabled": true,

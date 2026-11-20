@@ -1,0 +1,17 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.lily_pad.idle": {
+      "loop": true,
+      "bones": {
+        "lily_pad": {
+          "rotation": [
+            "math.sin(q.anim_time * 50) * 3",
+            0,
+            "math.cos(q.anim_time * 40) * 3"
+          ]
+        }
+      }
+    }
+  }
+}

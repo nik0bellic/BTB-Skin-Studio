@@ -14,6 +14,10 @@
   "type": "backpack",
   "model": "model.geo.json",
   "texture": "texture.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.adventure_backpack.idle"
+  ],
   "preview": "preview.png",
   "tags": [
     "rucksack",

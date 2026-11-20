@@ -14,6 +14,10 @@
   "type": "flower",
   "model": "model.geo.json",
   "texture": "texture.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb.flower_crown.idle"
+  ],
   "preview": "preview.png",
   "particles": {
     "type": "minecraft:cherry_leaves",

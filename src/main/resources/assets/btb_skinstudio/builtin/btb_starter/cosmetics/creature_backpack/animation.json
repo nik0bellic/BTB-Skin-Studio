@@ -1,0 +1,22 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.creature_backpack.idle": {
+      "loop": true,
+      "bones": {
+        "backpack": {
+          "position": [
+            0,
+            "math.abs(math.sin(q.walk_distance * 32)) * 0.6 * math.min(q.modified_move_speed * 3, 1)",
+            0
+          ],
+          "rotation": [
+            "math.sin(q.walk_distance * 32) * 2 * math.min(q.modified_move_speed * 3, 1)",
+            0,
+            "math.sin(q.anim_time * 60) * 1.5"
+          ]
+        }
+      }
+    }
+  }
+}

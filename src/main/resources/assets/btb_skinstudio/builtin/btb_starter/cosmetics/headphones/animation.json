@@ -1,0 +1,17 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb.headphones.idle": {
+      "loop": true,
+      "bones": {
+        "headphones": {
+          "scale": [
+            "1 + math.abs(math.sin(q.anim_time * 240)) * 0.035",
+            "1 + math.abs(math.sin(q.anim_time * 240)) * 0.035",
+            1
+          ]
+        }
+      }
+    }
+  }
+}
