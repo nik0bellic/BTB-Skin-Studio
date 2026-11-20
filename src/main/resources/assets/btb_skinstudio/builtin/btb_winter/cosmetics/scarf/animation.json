@@ -1,0 +1,17 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb_winter.scarf": {
+      "loop": true,
+      "bones": {
+        "scarf_end": {
+          "rotation": [
+            "-math.abs(math.sin(q.walk_distance * 28)) * 18 * math.min(q.modified_move_speed * 3, 1) - 3",
+            0,
+            "math.sin(q.anim_time * 90) * 3"
+          ]
+        }
+      }
+    }
+  }
+}

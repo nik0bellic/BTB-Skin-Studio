@@ -1,0 +1,41 @@
+{
+  "format": 1,
+  "id": "btb_halloween:pumpkin_head",
+  "version": "1.0.0",
+  "name": {
+    "de": "Kürbiskopf",
+    "en": "Pumpkin Head"
+  },
+  "description": {
+    "de": "Ein geschnitzter Kürbis – das Gesicht flackert wie Kerzenlicht.",
+    "en": "A carved pumpkin – the face flickers like candlelight."
+  },
+  "author": "BTB Studios",
+  "type": "helmet",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "emissive_texture": "emissive.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_halloween.pumpkin"
+  ],
+  "preview": "preview.png",
+  "glow": {
+    "color": "#FFB040",
+    "size": 6,
+    "intensity": 0.35,
+    "offset": [
+      0,
+      4,
+      -5
+    ],
+    "flicker": true
+  },
+  "hide_layers": [
+    "hat"
+  ],
+  "tags": [
+    "halloween",
+    "kürbis"
+  ]
+}

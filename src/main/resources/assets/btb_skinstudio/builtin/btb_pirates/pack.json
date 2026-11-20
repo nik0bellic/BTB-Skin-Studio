@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "id": "btb_builtin_pirates",
+  "version": "1.0.0",
+  "name": {
+    "de": "Piraten",
+    "en": "Pirates"
+  },
+  "description": {
+    "de": "Dreispitz, Augenklappe, Papagei und Säbel.",
+    "en": "Tricorne, eyepatch, parrot and cutlass."
+  },
+  "author": "BTB Studios",
+  "icon": "pack.png",
+  "categories": [
+    "BTB",
+    "Themen"
+  ]
+}

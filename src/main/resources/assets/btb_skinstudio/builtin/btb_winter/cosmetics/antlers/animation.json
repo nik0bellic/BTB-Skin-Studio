@@ -1,0 +1,31 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb_winter.antlers": {
+      "loop": true,
+      "bones": {
+        "bell": {
+          "rotation": [
+            0,
+            0,
+            "math.sin(q.anim_time * 400) * 10 * (math.mod(q.anim_time, 3) < 1 ? 1 : 0.2)"
+          ]
+        },
+        "left_antler": {
+          "rotation": [
+            0,
+            0,
+            "math.sin(q.anim_time * 60) * 1.5"
+          ]
+        },
+        "right_antler": {
+          "rotation": [
+            0,
+            0,
+            "-math.sin(q.anim_time * 60) * 1.5"
+          ]
+        }
+      }
+    }
+  }
+}

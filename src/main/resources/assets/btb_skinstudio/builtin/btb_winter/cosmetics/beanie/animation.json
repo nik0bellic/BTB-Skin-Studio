@@ -1,0 +1,17 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb_winter.beanie": {
+      "loop": true,
+      "bones": {
+        "pompom": {
+          "rotation": [
+            "math.sin(q.anim_time * 160) * 10 + math.sin(q.walk_distance * 30) * 14 * math.min(q.modified_move_speed * 3, 1)",
+            0,
+            "math.cos(q.anim_time * 130) * 8"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "format": 1,
+  "id": "btb_winter:earmuffs",
+  "version": "1.0.0",
+  "name": {
+    "de": "Ohrenschützer",
+    "en": "Earmuffs"
+  },
+  "description": {
+    "de": "Flauschige Ohrenschützer gegen die Kälte.",
+    "en": "Fluffy earmuffs against the cold."
+  },
+  "author": "BTB Studios",
+  "type": "headphones",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#FFB0D0",
+      "#B0D0FF"
+    ]
+  },
+  "tags": [
+    "winter"
+  ]
+}

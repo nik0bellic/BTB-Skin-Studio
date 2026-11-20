@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "id": "btb_pirates:parrot",
+  "version": "1.0.0",
+  "name": {
+    "de": "Papagei",
+    "en": "Parrot"
+  },
+  "description": {
+    "de": "Ein bunter Papagei auf der Schulter – er nickt und schaut sich um.",
+    "en": "A colourful parrot on your shoulder – it nods and looks around."
+  },
+  "author": "BTB Studios",
+  "type": "companion",
+  "attachment": "right_shoulder",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_pirates.parrot"
+  ],
+  "preview": "preview.png",
+  "tags": [
+    "pirat",
+    "begleiter"
+  ]
+}

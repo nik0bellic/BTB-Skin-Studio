@@ -1,0 +1,27 @@
+{
+  "format": 1,
+  "id": "btb_winter:antlers",
+  "version": "1.0.0",
+  "name": {
+    "de": "Rentiergeweih",
+    "en": "Reindeer Antlers"
+  },
+  "description": {
+    "de": "Ein Geweih mit klingelndem Glöckchen.",
+    "en": "Antlers with a jingling bell."
+  },
+  "author": "BTB Studios",
+  "type": "horns",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "emissive_texture": "emissive.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_winter.antlers"
+  ],
+  "preview": "preview.png",
+  "tags": [
+    "winter",
+    "weihnachten"
+  ]
+}

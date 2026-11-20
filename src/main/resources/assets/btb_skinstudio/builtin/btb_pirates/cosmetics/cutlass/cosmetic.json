@@ -1,0 +1,21 @@
+{
+  "format": 1,
+  "id": "btb_pirates:cutlass",
+  "version": "1.0.0",
+  "name": {
+    "de": "Säbel",
+    "en": "Cutlass"
+  },
+  "description": {
+    "de": "Ein Piratensäbel am Gürtel.",
+    "en": "A pirate cutlass on the belt."
+  },
+  "author": "BTB Studios",
+  "type": "belt",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "tags": [
+    "pirat"
+  ]
+}

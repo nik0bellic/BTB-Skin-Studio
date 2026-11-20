@@ -1,0 +1,37 @@
+{
+  "format": 1,
+  "id": "btb_winter:scarf",
+  "version": "1.0.0",
+  "name": {
+    "de": "Schal",
+    "en": "Scarf"
+  },
+  "description": {
+    "de": "Geringelter Wollschal, das Ende schwingt beim Laufen.",
+    "en": "Striped wool scarf, the end swings while walking."
+  },
+  "author": "BTB Studios",
+  "type": "armor_decoration",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_winter.scarf"
+  ],
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#FF8A8A",
+      "#8AFF8A",
+      "#FFE08A"
+    ]
+  },
+  "tags": [
+    "winter",
+    "schal"
+  ]
+}

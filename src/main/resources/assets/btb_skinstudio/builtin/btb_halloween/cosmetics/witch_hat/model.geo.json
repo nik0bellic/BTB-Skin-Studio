@@ -1,0 +1,158 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.btb_halloween.witch_hat",
+        "texture_width": 64,
+        "texture_height": 64
+      },
+      "bones": [
+        {
+          "name": "hat",
+          "pivot": [
+            0,
+            32,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -6.5,
+                32,
+                -6.5
+              ],
+              "size": [
+                13,
+                1,
+                13
+              ],
+              "uv": [
+                0,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -4,
+                33,
+                -4
+              ],
+              "size": [
+                8,
+                3,
+                8
+              ],
+              "uv": [
+                0,
+                14
+              ]
+            },
+            {
+              "origin": [
+                -4.1,
+                33,
+                -4.1
+              ],
+              "size": [
+                8.2,
+                1,
+                8.2
+              ],
+              "uv": [
+                0,
+                25
+              ]
+            },
+            {
+              "origin": [
+                -1,
+                33,
+                -4.3
+              ],
+              "size": [
+                2,
+                1,
+                0.3
+              ],
+              "uv": [
+                24,
+                35
+              ]
+            },
+            {
+              "origin": [
+                -3,
+                36,
+                -3
+              ],
+              "size": [
+                6,
+                3,
+                6
+              ],
+              "uv": [
+                36,
+                25
+              ]
+            }
+          ]
+        },
+        {
+          "name": "tip",
+          "pivot": [
+            0,
+            39,
+            0
+          ],
+          "parent": "hat",
+          "cubes": [
+            {
+              "origin": [
+                -2,
+                39,
+                -2
+              ],
+              "size": [
+                4,
+                2.5,
+                4
+              ],
+              "uv": [
+                0,
+                35
+              ]
+            }
+          ]
+        },
+        {
+          "name": "tip2",
+          "pivot": [
+            0,
+            41.5,
+            1
+          ],
+          "parent": "tip",
+          "cubes": [
+            {
+              "origin": [
+                -1,
+                41.5,
+                0
+              ],
+              "size": [
+                2,
+                2.5,
+                2
+              ],
+              "uv": [
+                16,
+                35
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

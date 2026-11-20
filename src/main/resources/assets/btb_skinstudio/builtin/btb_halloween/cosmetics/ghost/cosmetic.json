@@ -1,0 +1,26 @@
+{
+  "format": 1,
+  "id": "btb_halloween:ghost",
+  "version": "1.0.0",
+  "name": {
+    "de": "Geister-Begleiter",
+    "en": "Ghost Buddy"
+  },
+  "description": {
+    "de": "Ein kleiner Geist, der neben dir schwebt.",
+    "en": "A little ghost floating next to you."
+  },
+  "author": "BTB Studios",
+  "type": "floating",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_halloween.ghost"
+  ],
+  "preview": "preview.png",
+  "tags": [
+    "halloween",
+    "geist"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.btb_halloween.witch_hat": {
+      "loop": true,
+      "bones": {
+        "tip": {
+          "rotation": [
+            "-12 + math.sin(q.anim_time * 90) * 4",
+            0,
+            "math.sin(q.anim_time * 70) * 3"
+          ]
+        },
+        "tip2": {
+          "rotation": [
+            "-18 + math.sin(q.anim_time * 90 - 30) * 6",
+            0,
+            0
+          ]
+        }
+      }
+    }
+  }
+}

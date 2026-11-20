@@ -1,0 +1,36 @@
+{
+  "format": 1,
+  "id": "btb_halloween:bat_wings",
+  "version": "1.0.0",
+  "name": {
+    "de": "Fledermausflügel",
+    "en": "Bat Wings"
+  },
+  "description": {
+    "de": "Ledrige Flügel, die schnell flattern.",
+    "en": "Leathery wings that flap quickly."
+  },
+  "author": "BTB Studios",
+  "type": "wings",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "tint_mask": "tint_mask.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_halloween.bat_wings"
+  ],
+  "preview": "preview.png",
+  "tint": {
+    "enabled": true,
+    "default": "#FFFFFF",
+    "palette": [
+      "#FFFFFF",
+      "#FF8080",
+      "#80A0FF"
+    ]
+  },
+  "tags": [
+    "halloween",
+    "flügel"
+  ]
+}

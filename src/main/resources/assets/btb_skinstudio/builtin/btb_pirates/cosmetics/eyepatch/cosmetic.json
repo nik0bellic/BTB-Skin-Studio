@@ -1,0 +1,21 @@
+{
+  "format": 1,
+  "id": "btb_pirates:eyepatch",
+  "version": "1.0.0",
+  "name": {
+    "de": "Augenklappe",
+    "en": "Eyepatch"
+  },
+  "description": {
+    "de": "Arrr! Eine schwarze Augenklappe.",
+    "en": "Arrr! A black eyepatch."
+  },
+  "author": "BTB Studios",
+  "type": "face_accessory",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "preview": "preview.png",
+  "tags": [
+    "pirat"
+  ]
+}

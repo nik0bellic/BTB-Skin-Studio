@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "id": "btb_builtin_winter",
+  "version": "1.0.0",
+  "name": {
+    "de": "Winterzauber",
+    "en": "Winter Magic"
+  },
+  "description": {
+    "de": "Mütze, Schal, Ohrenschützer, Geweih und Schneeflocke.",
+    "en": "Hat, scarf, earmuffs, antlers and snowflake."
+  },
+  "author": "BTB Studios",
+  "icon": "pack.png",
+  "categories": [
+    "BTB",
+    "Themen"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "id": "btb_builtin_halloween",
+  "version": "1.0.0",
+  "name": {
+    "de": "Halloween",
+    "en": "Halloween"
+  },
+  "description": {
+    "de": "Kürbiskopf, Hexenhut, Fledermausflügel und ein Geist.",
+    "en": "Pumpkin head, witch hat, bat wings and a ghost."
+  },
+  "author": "BTB Studios",
+  "icon": "pack.png",
+  "categories": [
+    "BTB",
+    "Themen"
+  ]
+}

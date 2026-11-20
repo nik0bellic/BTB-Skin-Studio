@@ -1,0 +1,26 @@
+{
+  "format": 1,
+  "id": "btb_pirates:tricorne",
+  "version": "1.0.0",
+  "name": {
+    "de": "Dreispitz",
+    "en": "Tricorne"
+  },
+  "description": {
+    "de": "Der klassische Piratenhut mit Goldrand.",
+    "en": "The classic pirate hat with a golden trim."
+  },
+  "author": "BTB Studios",
+  "type": "hat",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_pirates.tricorne"
+  ],
+  "preview": "preview.png",
+  "tags": [
+    "pirat",
+    "hut"
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.btb_pirates.parrot",
+        "texture_width": 32,
+        "texture_height": 32
+      },
+      "bones": [
+        {
+          "name": "parrot",
+          "pivot": [
+            -6,
+            24,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -7,
+                24.5,
+                -1
+              ],
+              "size": [
+                2,
+                3,
+                2
+              ],
+              "uv": [
+                0,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -7.5,
+                23.5,
+                -0.5
+              ],
+              "size": [
+                1,
+                2,
+                2
+              ],
+              "uv": [
+                8,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -5,
+                23.5,
+                -0.5
+              ],
+              "size": [
+                1,
+                2,
+                2
+              ],
+              "uv": [
+                14,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -6.5,
+                22,
+                0.8
+              ],
+              "size": [
+                1,
+                2.5,
+                1
+              ],
+              "uv": [
+                20,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "name": "parrot_head",
+          "pivot": [
+            -6,
+            27.5,
+            0
+          ],
+          "parent": "parrot",
+          "cubes": [
+            {
+              "origin": [
+                -6.9,
+                27.5,
+                -1.2
+              ],
+              "size": [
+                1.8,
+                1.8,
+                1.8
+              ],
+              "uv": [
+                24,
+                0
+              ]
+            },
+            {
+              "origin": [
+                -6.4,
+                27.7,
+                -1.9
+              ],
+              "size": [
+                0.8,
+                0.9,
+                0.8
+              ],
+              "uv": [
+                0,
+                5
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

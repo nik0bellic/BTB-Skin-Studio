@@ -1,0 +1,83 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.btb_winter.scarf",
+        "texture_width": 32,
+        "texture_height": 32
+      },
+      "bones": [
+        {
+          "name": "body",
+          "pivot": [
+            0,
+            24,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -4.5,
+                22,
+                -2.6
+              ],
+              "size": [
+                9,
+                2.5,
+                5.2
+              ],
+              "uv": [
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "name": "scarf_end",
+          "pivot": [
+            2,
+            22,
+            -2.8
+          ],
+          "parent": "body",
+          "cubes": [
+            {
+              "origin": [
+                1,
+                14.5,
+                -3.2
+              ],
+              "size": [
+                2.5,
+                7.5,
+                0.6
+              ],
+              "uv": [
+                0,
+                9
+              ]
+            },
+            {
+              "origin": [
+                1,
+                13.8,
+                -3.2
+              ],
+              "size": [
+                2.5,
+                0.7,
+                0.6
+              ],
+              "uv": [
+                8,
+                9
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

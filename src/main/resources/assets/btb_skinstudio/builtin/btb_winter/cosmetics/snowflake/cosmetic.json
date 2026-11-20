@@ -1,0 +1,48 @@
+{
+  "format": 1,
+  "id": "btb_winter:snowflake",
+  "version": "1.0.0",
+  "name": {
+    "de": "Schneeflocke",
+    "en": "Snowflake"
+  },
+  "description": {
+    "de": "Eine schwebende Schneeflocke – um dich herum schneit es.",
+    "en": "A floating snowflake – it snows around you."
+  },
+  "author": "BTB Studios",
+  "type": "floating",
+  "model": "model.geo.json",
+  "texture": "texture.png",
+  "emissive_texture": "emissive.png",
+  "animation": "animation.json",
+  "animations": [
+    "animation.btb_winter.snowflake"
+  ],
+  "preview": "preview.png",
+  "glow": {
+    "color": "#CDEFFF",
+    "size": 5,
+    "intensity": 0.3,
+    "offset": [
+      0,
+      6,
+      0
+    ],
+    "flicker": false
+  },
+  "particles": {
+    "type": "minecraft:snowflake",
+    "rate": 4,
+    "offset": [
+      0,
+      6,
+      0
+    ],
+    "spread": 10
+  },
+  "tags": [
+    "winter",
+    "schnee"
+  ]
+}
