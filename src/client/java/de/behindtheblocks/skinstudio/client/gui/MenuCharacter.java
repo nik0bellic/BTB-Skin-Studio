@@ -60,8 +60,8 @@ public final class MenuCharacter {
 
 		PlayerPreview preview = new PlayerPreview();
 		preview.pitch = -4;
-		preview.scale = 1.15f;
-		preview.lift = 0.22f;
+		preview.scale = 1.0f;
+		preview.lift = 0f;
 		boolean[] dragging = {false};
 		long[] lastDrag = {0};
 		// drag on the figure turns it; afterwards it stays where it was put instead of following the mouse

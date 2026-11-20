@@ -13,3 +13,4 @@ replay_*.log
 __pycache__/
 logs/
 dist/
+docs/MODRINTH.md

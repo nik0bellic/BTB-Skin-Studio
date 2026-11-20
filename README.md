@@ -140,7 +140,6 @@ Ordner im Spielverzeichnis: `btb_skinstudio/packs` (installierte Packs), `custom
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) – Aufbau, Rendering, Multiplayer-Protokoll, Performance
 - [docs/STATUS.md](docs/STATUS.md) – Teststand: was im Spiel geprüft ist, offene Punkte, bekannte Einschränkungen
 - [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) – Lizenzen und Quellen
-- [docs/MODRINTH.md](docs/MODRINTH.md) – Projektseite für Modrinth (Text und Galerie)
 
 ## Selbst bauen
 
