@@ -402,7 +402,7 @@ public class WardrobeScreen extends Screen {
 		bx -= 22;
 		ui.iconButton(bx, 7, 18, Icon.GEAR, settingsOpen, () -> { settingsOpen = !settingsOpen; infoOpen = false; }, Tr.t("btb.ui.settings"));
 		bx -= 22;
-		ui.iconButton(bx, 7, 18, Icon.INFO, infoOpen, () -> { infoOpen = !infoOpen; settingsOpen = false; }, Tr.t("btb.ui.info"));
+		ui.iconButton(bx, 7, 18, Icon.INFO, infoOpen, () -> { infoOpen = !infoOpen; settingsOpen = false; }, Tr.t("btb.ui.info") + " · v" + de.behindtheblocks.skinstudio.BtbSkinStudio.version());
 		bx -= 22;
 		ui.iconButton(bx, 7, 18, t.dark ? Icon.SUN : Icon.MOON, false, () -> {
 			ClientSettings s = ClientSettings.get();

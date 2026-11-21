@@ -1,6 +1,6 @@
 # Status
 
-Stand: November 2026, Version 0.2.0, Minecraft 26.3, Fabric Loader 0.20.1, Fabric API 0.166.2+26.3.
+Stand: November 2026, Version 1.0.0, Minecraft 26.3, Fabric Loader 0.20.1, Fabric API 0.166.2+26.3.
 
 ## Build und Tests
 
