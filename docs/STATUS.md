@@ -31,7 +31,7 @@ Stand: November 2026, Version 0.2.0, Minecraft 26.3, Fabric Loader 0.20.1, Fabri
 | Multiplayer | dedizierter Server und zwei Clients: Bob sieht Alices Starter-Cosmetics und ihre eigene Krone (per Hash übertragen) |
 | Menüfigur | Haupt- und Pausenmenü, Drehen mit der Maus, Button zur Garderobe |
 | Charakter | Grund-Skin, Kleidung pro Slot mit Farbe, Körperproportionen, Augen und Münder (Blinzeln, Spucke) |
-| Emotes | alle 20 in der Welt, mit Gegenständen und Partikeln; Rad, Tasten 1–5, Reiter „Emotes“ |
+| Emotes | alle 20 als Keyframe-Animationen (Körper trägt Kopf und Arme, Sprünge, Hüftschwung), mit Gegenständen und Partikeln, Fernrohr am Auge, Rüstung folgt; Rad, Direkttasten, Reiter „Emotes“ mit Abspielen an der Figur |
 | Skin-Packs | BTB Skins (Holzfäller auf Steve), Packs aus einer mcpelauncher-Installation und aus einem Ressourcenpaket |
 | Katalog | Index geladen, zwei Packs heruntergeladen und als Sammlung angezeigt |
 | Skin-Pack-Builder | `.mcpack` erstellt und wieder geladen |

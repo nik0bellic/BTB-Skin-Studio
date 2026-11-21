@@ -65,12 +65,12 @@
 ![Charakter](docs/modrinth/13_character_de.jpg)
 
 **Emotes (Taste B für das Emote-Rad)**
-- 20 Emotes mit fester Länge nach echtem Minecraft: Winken, Jubeln, Klatschen, Zeigen, Facepalm, Nachdenken, Holz schlagen, Abbauen (mit Diamantspitzhacke und Block-Partikeln), Diamanten zeigen, Ghast-Tanz, Creeper-Schreck, Verbeugen, Achselzucken, Trank trinken, Keks essen, Banner schwenken, Fernrohr, Tanzen, Lachen, Herz
+- 20 Emotes mit fester Länge nach echtem Minecraft, animiert wie Bedrock-Emotes (der Körper beugt sich und trägt Kopf und Arme mit, Sprünge, Hüftschwung, Schritte; Rüstung macht mit): Winken, Jubeln, Klatschen, Zeigen, Facepalm, Nachdenken, Holz schlagen, Abbauen (mit Diamantspitzhacke und Block-Partikeln), Diamanten zeigen, Ghast-Tanz, Creeper-Schreck, Verbeugen, Achselzucken, Trank trinken, Keks essen, Banner schwenken, Fernrohr, Tanzen, Lachen, Herz
 - Echte Gegenstände in der Hand und passende Partikel; Laufen bricht das Emote ab
 - Rad mit 5 frei belegbaren Plätzen, Figur daneben zeigt das Emote
-- Bedienung mit der Maus wie ein Radialmenü: Maus in eine Richtung bewegen und klicken – oder `B` halten, zeigen, loslassen; dazu Mausrad, Pfeiltasten und 1–5, für jeden Platz eine eigene Direkttaste
+- Bedienung mit der Maus wie ein Radialmenü: Maus in eine Richtung bewegen und klicken – oder `B` halten, zeigen, loslassen; dazu Mausrad und Pfeiltasten; für jeden Platz eine eigene Direkttaste (ab Werk frei, damit die Schnellleiste 1–9 bleibt)
 - Tasten werden als Tastaturkappen gezeigt, mit [Controlify](https://modrinth.com/mod/controlify) als Controller-Tasten
-- Reiter „Emotes“ in der Garderobe: Platz wählen, Emote anklicken – es liegt sofort dort; Maus über einem Emote zeigt es an der Figur
+- Reiter „Emotes“ in der Garderobe: Platz wählen, Emote anklicken – es liegt sofort dort; Maus über einem Emote zeigt es an der Figur, „Abspielen“ spielt es direkt an der Figur im Menü
 - Mitspieler mit der Mod sehen die Emotes
 
 ![Emote-Rad](docs/modrinth/15_wheel_de.jpg)
