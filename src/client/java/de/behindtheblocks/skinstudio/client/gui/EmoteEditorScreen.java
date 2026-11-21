@@ -359,7 +359,8 @@ public class EmoteEditorScreen extends Screen {
 			cy += 12;
 			// track: centre = 0
 			float f = (v[axis] + limit) / (2 * limit);
-			ui.rounded(ix, cy + 2, iw, 5, 2, t.surface);
+			ui.rounded(ix, cy + 2, iw, 5, 2, t.field);
+			ui.roundedOutline(ix, cy + 2, iw, 5, 2, t.divider);
 			int mid = ix + iw / 2;
 			int kx = ix + Math.round(iw * f);
 			ui.g.fill(Math.min(mid, kx), cy + 2, Math.max(mid, kx), cy + 7, t.accent | 0xFF000000);
