@@ -5,6 +5,7 @@
 	"client": [
 		"AvatarRendererMixin",
 		"AbstractClientPlayerMixin",
+		"HumanoidModelMixin",
 		"PlayerModelMixin"
 	],
 	"injectors": {

@@ -1575,11 +1575,11 @@ public class WardrobeScreen extends Screen {
 		if (s.skinLayers3d) {
 			// which body parts get 3D layers
 			String[] keys = {"btb.ui.setting.layers3d.head", "btb.ui.setting.layers3d.body", "btb.ui.setting.layers3d.arms", "btb.ui.setting.layers3d.legs"};
-			int cw = (w - 20 - 3 * 3) / 4;
+			int cw = (w - 20 - 3 * 5) / 4;
 			for (int i = 0; i < 4; i++) {
 				int bit = 1 << i;
 				boolean on = (s.layers3dParts & bit) != 0;
-				int bx = x + 10 + i * (cw + 3);
+				int bx = x + 10 + i * (cw + 5);
 				boolean hov = ui.hover(bx, cy, cw, 13);
 				ui.rounded(bx, cy, cw, 13, 6, on ? t.accent | 0xFF000000 : hov ? t.surfaceHover : t.surface);
 				String label = ui.ellipsize(Tr.t(keys[i]), cw - 4);

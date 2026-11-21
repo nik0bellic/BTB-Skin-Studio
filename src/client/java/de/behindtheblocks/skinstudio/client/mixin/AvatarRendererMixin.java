@@ -53,9 +53,7 @@ public abstract class AvatarRendererMixin {
 		var held = puppet ? de.behindtheblocks.skinstudio.client.emote.ClientEmotes.puppetItem(id) : de.behindtheblocks.skinstudio.client.emote.ClientEmotes.item(id);
 		if (held != null) {
 			// the emote's item (pickaxe, cookie …) replaces the held item while it plays
-			state.rightHandItemStack = held;
-			net.minecraft.client.Minecraft.getInstance().getItemModelResolver().updateForLiving(state.rightHandItemState, held,
-					net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, entity);
+			de.behindtheblocks.skinstudio.client.emote.ClientEmotes.hold(state, held, entity);
 		}
 		state.setData(CosmeticRenderData.PLAYER, id);
 		state.setData(CosmeticRenderData.FACE_Y, de.behindtheblocks.skinstudio.client.skin.ClientSkins.faceOffset(

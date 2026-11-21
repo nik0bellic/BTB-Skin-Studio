@@ -84,12 +84,6 @@ public final class PlayerPreview {
 				emote = null;
 			}
 			state.setData(de.behindtheblocks.skinstudio.client.render.CosmeticRenderData.EMOTE, pose);
-			var held = de.behindtheblocks.skinstudio.client.emote.ClientEmotes.itemOf(emote);
-			var mc = net.minecraft.client.Minecraft.getInstance();
-			if (held != null && mc.player != null) {
-				state.rightHandItemStack = held;
-				mc.getItemModelResolver().updateForLiving(state.rightHandItemState, held, net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, mc.player);
-			}
 		}
 		de.behindtheblocks.skinstudio.client.compat.NotEnoughAnimationsCompat.detach(state);
 		state.shadowPieces.clear();
@@ -127,6 +121,11 @@ public final class PlayerPreview {
 		state.boundingBoxWidth = 0.6f;
 		state.boundingBoxHeight = 1.8f;
 		state.scale = 1;
+		// the emote's item (after the reset above: a spyglass needs the "using" flag)
+		var held = de.behindtheblocks.skinstudio.client.emote.ClientEmotes.itemOf(emote);
+		if (held != null && net.minecraft.client.Minecraft.getInstance().player != null) {
+			de.behindtheblocks.skinstudio.client.emote.ClientEmotes.hold(state, held, net.minecraft.client.Minecraft.getInstance().player);
+		}
 		if (skinOverride != null) {
 			state.skin = de.behindtheblocks.skinstudio.client.skin.ClientSkins.toPlayerSkin(skinOverride, state.skin,
 					de.behindtheblocks.skinstudio.client.data.ClientSettings.get().blinkSelf ? 0 : -1);

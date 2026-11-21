@@ -143,6 +143,24 @@ public final class ClientEmotes {
 		return item == null ? null : new net.minecraft.world.item.ItemStack(item);
 	}
 
+	/**
+	 * Puts the emote's item into the right hand of a render state. A spyglass is held to the eye like
+	 * vanilla does it while looking through one (rendered at the head, not in the hand).
+	 */
+	public static void hold(net.minecraft.client.renderer.entity.state.AvatarRenderState state, net.minecraft.world.item.ItemStack held,
+			net.minecraft.world.entity.LivingEntity entity) {
+		var resolver = Minecraft.getInstance().getItemModelResolver();
+		state.rightHandItemStack = held;
+		resolver.updateForLiving(state.rightHandItemState, held, net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, entity);
+		if (held.is(net.minecraft.world.item.Items.SPYGLASS)) {
+			state.isUsingItem = true;
+			state.useItemHand = state.mainArm == net.minecraft.world.entity.HumanoidArm.RIGHT
+					? net.minecraft.world.InteractionHand.MAIN_HAND : net.minecraft.world.InteractionHand.OFF_HAND;
+			state.swingAnimation = 0;
+			resolver.updateForLiving(state.heldOnHead, held, net.minecraft.world.item.ItemDisplayContext.HEAD, entity);
+		}
+	}
+
 	/** Small particle effects for some emotes (chips while mining, crumbs, sparkles, hearts …). */
 	private static void particles(Minecraft mc) {
 		if (mc.level == null || !de.behindtheblocks.skinstudio.client.data.ClientSettings.get().particles) {

@@ -1,8 +1,6 @@
 package de.behindtheblocks.skinstudio.client.mixin;
 
 import de.behindtheblocks.skinstudio.client.render.CosmeticRenderData;
-import de.behindtheblocks.skinstudio.emote.Emotes;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -44,22 +42,6 @@ public abstract class PlayerModelMixin {
 			}
 			return;
 		}
-		float w = pose[Emotes.SIZE];
-		apply(model.head, pose, Emotes.HEAD, w);
-		apply(model.body, pose, Emotes.BODY, w);
-		apply(model.rightArm, pose, Emotes.RIGHT_ARM, w);
-		apply(model.leftArm, pose, Emotes.LEFT_ARM, w);
-		apply(model.rightLeg, pose, Emotes.RIGHT_LEG, w);
-		apply(model.leftLeg, pose, Emotes.LEFT_LEG, w);
-	}
-
-	private static void apply(ModelPart part, float[] pose, int i, float w) {
-		part.xRot = mix(part.xRot, pose[i], w);
-		part.yRot = mix(part.yRot, pose[i + 1], w);
-		part.zRot = mix(part.zRot, pose[i + 2], w);
-	}
-
-	private static float mix(float vanilla, float deg, float w) {
-		return Float.isNaN(deg) ? vanilla : vanilla + ((float) Math.toRadians(deg) - vanilla) * w;
+		de.behindtheblocks.skinstudio.client.emote.EmotePoser.apply(model, pose);
 	}
 }
