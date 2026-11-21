@@ -612,7 +612,7 @@
 	"btb.ui.emotes.unbound": "—",
 	"btb.ui.emotes.wheel": "Emote-Rad",
 	"btb.ui.emotes.slot": "Platz %s",
-	"btb.ui.emotes.wheel_key": "Rad öffnen: %s, dann 1–5",
+	"btb.ui.emotes.wheel_key": "Rad öffnen: %s (halten, zeigen, loslassen)",
 	"btb.ui.emotes.direct_key": "Taste: %s",
 	"btb.ui.emotes.change_keys": "Tasten ändern",
 	"btb.ui.emotes.assign": "Auf Platz %s legen",
@@ -682,7 +682,7 @@
 	"btb.ui.character.slot.hair": "Haare",
 	"btb.ui.character.slot.eyes": "Augen",
 	"btb.ui.character.slot.mouth": "Münder",
-	"btb.ui.character.slot.beard": "Gesichtsbehaarung",
+	"btb.ui.character.slot.beard": "Bart",
 	"btb.ui.setting.blink_self": "Eigener Skin blinzelt",
 	"btb.ui.setting.emote_camera": "Emote von vorne zeigen"
 }

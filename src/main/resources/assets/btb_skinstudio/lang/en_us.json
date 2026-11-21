@@ -612,7 +612,7 @@
 	"btb.ui.emotes.unbound": "—",
 	"btb.ui.emotes.wheel": "Emote wheel",
 	"btb.ui.emotes.slot": "Place %s",
-	"btb.ui.emotes.wheel_key": "Open wheel: %s, then 1–5",
+	"btb.ui.emotes.wheel_key": "Open wheel: %s (hold, point, release)",
 	"btb.ui.emotes.direct_key": "Key: %s",
 	"btb.ui.emotes.change_keys": "Change keys",
 	"btb.ui.emotes.assign": "Put on place %s",
@@ -682,7 +682,7 @@
 	"btb.ui.character.slot.hair": "Hair",
 	"btb.ui.character.slot.eyes": "Eyes",
 	"btb.ui.character.slot.mouth": "Mouths",
-	"btb.ui.character.slot.beard": "Facial hair",
+	"btb.ui.character.slot.beard": "Beard",
 	"btb.ui.setting.blink_self": "Own skin blinks",
 	"btb.ui.setting.emote_camera": "Show emote from the front"
 }

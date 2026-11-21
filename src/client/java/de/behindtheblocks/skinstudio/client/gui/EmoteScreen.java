@@ -30,6 +30,8 @@ public class EmoteScreen extends Screen {
 	/** Selected segment: follows the mouse direction (anywhere on screen) and the scroll wheel. */
 	private int sel = -1;
 	private double lastMx = Double.NaN, lastMy = Double.NaN;
+	/** Mouse position when the wheel opened: flicks are measured from here. */
+	private double anchorX = Double.NaN, anchorY = Double.NaN;
 	private int cx, cy, inner, outer;
 	private int[] fakeMouse;
 	private final long openedAt = System.currentTimeMillis();
@@ -107,26 +109,36 @@ public class EmoteScreen extends Screen {
 		int outer = Math.max(40, Math.min(100, (height - hintH - 24) / 2)), inner = (int) (outer * 0.4);
 		int previewW = Math.min(120, Math.max(70, width - outer * 2 - 60)), gap = 24;
 		int total = outer * 2 + gap + previewW;
-		// the wheel sits exactly in the middle of the screen: that is where the cursor appears when it opens,
-		// so moving the mouse from there picks the segment in that direction
-		int cx = width / 2, cy = height / 2;
-		if (cy + outer + hintH > height - 4) {
-			cy = height - 4 - hintH - outer;
-		}
+		// wheel and figure together in the middle of the screen
+		int cx = (width - total) / 2 + outer, cy = Math.max(outer + 6, (height - (outer * 2 + hintH)) / 2 + outer);
 		this.cx = cx;
 		this.cy = cy;
 		this.inner = inner;
 		this.outer = outer;
 		// the mouse direction from the centre picks the segment – anywhere on the screen, like a radial menu;
 		// in the middle nothing is selected. Only updated when the mouse moves, so the scroll wheel can pick too.
+		// selection: pointing at a segment picks it; anywhere else the direction the mouse moved since the
+		// wheel opened counts (hold the key, flick the mouse, let go). Nothing is picked before the mouse moves.
+		if (Double.isNaN(anchorX)) {
+			anchorX = mouseX;
+			anchorY = mouseY;
+		}
 		if (mouseX != lastMx || mouseY != lastMy) {
+			boolean first = Double.isNaN(lastMx);
 			lastMx = mouseX;
 			lastMy = mouseY;
 			double dx = mouseX - cx, dy = mouseY - cy;
+			double d = Math.sqrt(dx * dx + dy * dy);
+			double ax = mouseX - anchorX, ay = mouseY - anchorY;
 			boolean overPreview = mouseX > cx + outer + 8;
-			if (!overPreview) {
-				sel = Math.sqrt(dx * dx + dy * dy) < inner * 0.6 ? -1
-						: de.behindtheblocks.skinstudio.client.gui.ui.WheelTexture.segmentAt(dx, dy, 0, Double.MAX_VALUE);
+			if (!first && !overPreview) {
+				if (d >= inner * 0.6 && d <= outer) {
+					sel = de.behindtheblocks.skinstudio.client.gui.ui.WheelTexture.segmentAt(dx, dy, 0, Double.MAX_VALUE);
+				} else if (d < inner * 0.6) {
+					sel = -1;
+				} else if (ax * ax + ay * ay > 15 * 15) {
+					sel = de.behindtheblocks.skinstudio.client.gui.ui.WheelTexture.segmentAt(ax, ay, 0, Double.MAX_VALUE);
+				}
 			}
 		}
 		int seg = sel;
@@ -317,6 +329,9 @@ public class EmoteScreen extends Screen {
 		if (args[0].equals("play")) {
 			play(Integer.parseInt(args[1]));
 		} else if (args[0].equals("mouse")) {
+			if (fakeMouse == null) {
+				lastMx = lastMy = -1; // counts as moved
+			}
 			fakeMouse = new int[]{Integer.parseInt(args[1]), Integer.parseInt(args[2])};
 		} else if (args[0].equals("hover")) {
 			sel = Integer.parseInt(args[1]);

@@ -1090,11 +1090,12 @@ public class WardrobeScreen extends Screen {
 					}
 				}
 			}
-			var lines = font.split(Component.literal(it == null ? Tr.t("btb.ui.character.none") : it.name(lang())), cw - 6);
-			int ly = cy + 68;
-			for (int k = 0; k < Math.min(2, lines.size()); k++) {
-				ui.g.text(font, lines.get(k), cx + 3, ly, t.text, false);
-				ly += 10;
+			// one line, never broken in the middle of a word; the full name shows on hover
+			String cname = it == null ? Tr.t("btb.ui.character.none") : it.name(lang());
+			String shown = ui.ellipsize(cname, cw - 6);
+			ui.g.text(font, shown, cx + (cw - font.width(shown)) / 2, cy + 72, t.text, false);
+			if (hov && !shown.equals(cname)) {
+				ui.tooltip(cname);
 			}
 			ui.region(cx, cy, cw, ch, () -> wd.setCloth(clothSlot.name(), it == null ? null
 					: new Wardrobe.Cloth(it.id(), worn != null && worn.id().equals(it.id()) ? worn.color() : it.colors()[0])));
@@ -1250,9 +1251,10 @@ public class WardrobeScreen extends Screen {
 			ui.text(ui.ellipsize(info, w - 30), x + 14, dy + 18, t.textMuted);
 			String play = Tr.t("btb.ui.emotes.play");
 			int pw = Math.min(font.width(play) + 30, w - 28);
-			ui.button(x + 14, dy + 28, pw, 16, play, Icon.PLAY, Ui.Style.PRIMARY, minecraft.player != null, () -> {
-				de.behindtheblocks.skinstudio.client.emote.ClientEmotes.play(selectedEmote);
-				onClose();
+			ui.button(x + 14, dy + 28, pw, 16, play, Icon.PLAY, Ui.Style.PRIMARY, true, () -> {
+				// plays right here on the figure in the menu, from the start
+				hoverEmote = null;
+				preview.playEmote(selectedEmote);
 			}, null);
 		} else {
 			ui.text(ui.ellipsize(Tr.t("btb.ui.emotes.click_to_assign", emoteSlot + 1), w - 30), x + 14, dy + 18, t.textMuted);
@@ -1760,6 +1762,7 @@ public class WardrobeScreen extends Screen {
 			case "charbase" -> Wardrobe.get().setCharacterBase(args[1]);
 			case "wearchar" -> wearCharacter();
 			case "emote" -> selectedEmote = args[1];
+			case "playemote" -> preview.playEmote(selectedEmote);
 			case "adjust" -> adjustMode = true;
 			case "adjustset" -> {
 				CosmeticAsset a = selected();

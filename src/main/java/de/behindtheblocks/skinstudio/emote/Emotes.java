@@ -7,7 +7,8 @@ import java.util.Map;
 /**
  * Built-in emotes. An emote is a pose over time for head, body, arms and legs (degrees, Java model space);
  * {@link Float#NaN} keeps the game's own animation for that value. Pure data, shared by client and server
- * (the server only checks ids).
+ * (the server only checks ids). Raised arms (x below -90) tilt outward with a negative z on the right arm and a
+ * positive z on the left arm; a positive z there would push the hands into the head.
  */
 public final class Emotes {
 	public static final int HEAD = 0, BODY = 3, RIGHT_ARM = 6, LEFT_ARM = 9, RIGHT_LEG = 12, LEFT_LEG = 15, SIZE = 18;
@@ -27,13 +28,13 @@ public final class Emotes {
 
 	static {
 		add("wave", 2.6f, false, (t, o) -> {
-			set(o, RIGHT_ARM, -165, 0, 15 + sin(t * 720) * 22);
+			set(o, RIGHT_ARM, -165, 0, -20 - sin(t * 720) * 18);
 			set(o, HEAD, N, -10 + sin(t * 180) * 4, N);
 		});
 		add("cheer", 2.0f, true, (t, o) -> {
 			float bob = sin(t * 540) * 12;
-			set(o, RIGHT_ARM, -170 + bob, 0, 18);
-			set(o, LEFT_ARM, -170 - bob, 0, -18);
+			set(o, RIGHT_ARM, -170 + bob, 0, -22);
+			set(o, LEFT_ARM, -170 - bob, 0, 22);
 			set(o, HEAD, -15, N, N);
 		});
 		add("clap", 2.4f, false, (t, o) -> {
@@ -48,12 +49,12 @@ public final class Emotes {
 			set(o, HEAD, 0, -6, 0);
 		});
 		add("facepalm", 2.6f, false, (t, o) -> {
-			set(o, RIGHT_ARM, -128, -38, 0);
+			set(o, RIGHT_ARM, -128, -6, 0);
 			set(o, HEAD, 22 + sin(t * 360) * 3, sin(t * 240) * 8, 0);
 		});
 		add("think", 3.0f, false, (t, o) -> {
-			set(o, RIGHT_ARM, -96, -42, 0);
-			set(o, LEFT_ARM, -38, 52, 0);
+			set(o, RIGHT_ARM, -90, -45, 0);
+			set(o, LEFT_ARM, -40, 40, 0);
 			set(o, HEAD, 12, sin(t * 120) * 10, 0);
 		});
 		// punching a tree like on day one
@@ -84,8 +85,8 @@ public final class Emotes {
 		// startled by a creeper: arms up, shaking
 		add("creeper_scare", 2.0f, false, (t, o) -> {
 			float shake = sin(t * 2400) * 4;
-			set(o, RIGHT_ARM, -150 + shake, 0, 30);
-			set(o, LEFT_ARM, -150 - shake, 0, -30);
+			set(o, RIGHT_ARM, -150 + shake, 0, -30);
+			set(o, LEFT_ARM, -150 - shake, 0, 30);
 			set(o, HEAD, -18, shake * 2, 0);
 		});
 		add("bow", 2.2f, false, (t, o) -> {
@@ -102,26 +103,28 @@ public final class Emotes {
 		});
 		add("potion", 3.0f, false, "minecraft:potion", (t, o) -> {
 			float sip = Math.max(0, sin(t * 120));
-			set(o, RIGHT_ARM, -95 - 25 * sip, -32, 0);
-			set(o, HEAD, -12 * sip, 0, 0);
+			set(o, RIGHT_ARM, -95 - 12 * sip, -46, 10);
+			set(o, HEAD, -10 * sip, 0, 0);
 		});
 		add("cookie", 2.8f, false, "minecraft:cookie", (t, o) -> {
-			set(o, RIGHT_ARM, -100 + sin(t * 540) * 6, -34, 0);
+			set(o, RIGHT_ARM, -94 + sin(t * 540) * 5, -49, 0);
 			set(o, HEAD, 6 + sin(t * 720) * 5, 0, 0);
 		});
 		add("banner", 3.0f, true, "minecraft:red_banner", (t, o) -> {
-			set(o, RIGHT_ARM, -172, 0, 8 + sin(t * 360) * 14);
+			set(o, RIGHT_ARM, -172, 0, -12 - sin(t * 360) * 10);
 			set(o, HEAD, -10, N, N);
 		});
 		add("spyglass", 3.0f, false, "minecraft:spyglass", (t, o) -> {
-			set(o, RIGHT_ARM, -100, -40, 0);
-			set(o, LEFT_ARM, -96, 34, 0);
-			set(o, HEAD, -4, sin(t * 90) * 30, 0);
+			// the spyglass stays at the eye while the head looks around (like vanilla's spyglass pose)
+			float look = sin(t * 90) * 20;
+			set(o, RIGHT_ARM, -114, look - 18, 0);
+			set(o, LEFT_ARM, -104, look + 32, 0);
+			set(o, HEAD, -4, look, 0);
 		});
 		add("dance", 4.0f, true, (t, o) -> {
 			float s = sin(t * 360);
-			set(o, RIGHT_ARM, -90 - s * 70, 0, 20 + Math.abs(s) * 20);
-			set(o, LEFT_ARM, -90 + s * 70, 0, -20 - Math.abs(s) * 20);
+			set(o, RIGHT_ARM, -90 - s * 70, 0, 18 - s * 36);
+			set(o, LEFT_ARM, -90 + s * 70, 0, -18 - s * 36);
 			set(o, RIGHT_LEG, s * 25, 0, 4);
 			set(o, LEFT_LEG, -s * 25, 0, -4);
 			set(o, HEAD, sin(t * 720) * 8, s * 18, 0);
@@ -133,8 +136,9 @@ public final class Emotes {
 			set(o, LEFT_ARM, -28, 22, 0);
 		});
 		add("heart", 2.6f, false, (t, o) -> {
-			set(o, RIGHT_ARM, -150, -22, 0);
-			set(o, LEFT_ARM, -150, 22, 0);
+			float beat = Math.abs(sin(t * 360)) * 4;
+			set(o, RIGHT_ARM, -150 + beat, -5, 0);
+			set(o, LEFT_ARM, -150 + beat, 5, 0);
 			set(o, HEAD, -6, 0, sin(t * 360) * 6);
 		});
 	}
