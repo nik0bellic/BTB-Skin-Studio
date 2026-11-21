@@ -22,7 +22,13 @@ import java.util.concurrent.CompletableFuture;
  * login of the running game; the token is only sent to api.minecraftservices.com and never stored.
  */
 public final class CapeService {
-	private static final String PROFILE = "https://api.minecraftservices.com/minecraft/profile";
+	/**
+	 * Test hook: in a development environment only, {@code -Dbtb.skinstudio.capeApi=http://127.0.0.1:port} sends
+	 * the calls to a local test server instead (never in a normal game, the login token stays with Mojang).
+	 */
+	private static final String TEST_API = net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment()
+			? System.getProperty("btb.skinstudio.capeApi") : null;
+	private static final String PROFILE = (TEST_API != null ? TEST_API : "https://api.minecraftservices.com") + "/minecraft/profile";
 	private static final HttpClient HTTP = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(8))
 			.followRedirects(HttpClient.Redirect.NEVER).build();
 
@@ -40,7 +46,10 @@ public final class CapeService {
 			if (o != null && o.has("capes")) {
 				for (var el : o.getAsJsonArray("capes")) {
 					JsonObject c = el.getAsJsonObject();
-					String url = c.has("url") ? c.get("url").getAsString().replaceFirst("^http://", "https://") : null;
+					String url = c.has("url") ? c.get("url").getAsString() : null;
+					if (url != null && TEST_API == null) {
+						url = url.replaceFirst("^http://", "https://");
+					}
 					out.add(new Cape(c.get("id").getAsString(), c.has("alias") ? c.get("alias").getAsString() : "Cape",
 							url, c.has("state") && "ACTIVE".equals(c.get("state").getAsString())));
 				}
@@ -68,7 +77,7 @@ public final class CapeService {
 	public static CompletableFuture<byte[]> texture(String url) {
 		return CompletableFuture.supplyAsync(() -> {
 			URI uri = URI.create(url);
-			if (!"textures.minecraft.net".equals(uri.getHost())) {
+			if (!"textures.minecraft.net".equals(uri.getHost()) && !(TEST_API != null && "127.0.0.1".equals(uri.getHost()))) {
 				throw new FormatException("unexpected host");
 			}
 			try {
@@ -88,7 +97,7 @@ public final class CapeService {
 	}
 
 	private static JsonObject send(HttpRequest.Builder b) {
-		String token = Minecraft.getInstance().getUser().getAccessToken();
+		String token = TEST_API != null ? "test-token-for-the-local-test-server" : Minecraft.getInstance().getUser().getAccessToken();
 		if (token == null || token.isBlank() || token.length() < 20) {
 			throw new FormatException(Tr.t("btb.err.cape_login"));
 		}

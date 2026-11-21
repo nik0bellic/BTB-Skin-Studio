@@ -47,6 +47,11 @@ public final class PlayerPreview {
 	public boolean loopEmote;
 	private long emoteStart;
 
+	/** A fixed pose to show instead of an emote (emote editor), in the format of {@code Emotes.sample}; null = none. */
+	public float[] poseOverride;
+	/** Item held with {@link #poseOverride} (e.g. "minecraft:diamond"), or null. */
+	public String itemOverride;
+
 	public void playEmote(String id) {
 		emote = id;
 		emoteStart = System.nanoTime();
@@ -75,7 +80,9 @@ public final class PlayerPreview {
 		if (!bodyNow.isNormal()) {
 			state.setData(de.behindtheblocks.skinstudio.client.render.CosmeticRenderData.BODY, new float[]{bodyNow.height(), bodyNow.head(), bodyNow.arms(), bodyNow.legs()});
 		}
-		if (emote != null) {
+		if (poseOverride != null) {
+			state.setData(de.behindtheblocks.skinstudio.client.render.CosmeticRenderData.EMOTE, poseOverride);
+		} else if (emote != null) {
 			float[] pose = de.behindtheblocks.skinstudio.emote.Emotes.sample(emote, (System.nanoTime() - emoteStart) / 1e9f);
 			if (pose == null && loopEmote) {
 				emoteStart = System.nanoTime();
@@ -122,7 +129,8 @@ public final class PlayerPreview {
 		state.boundingBoxHeight = 1.8f;
 		state.scale = 1;
 		// the emote's item (after the reset above: a spyglass needs the "using" flag)
-		var held = de.behindtheblocks.skinstudio.client.emote.ClientEmotes.itemOf(emote);
+		var held = poseOverride != null ? de.behindtheblocks.skinstudio.client.emote.ClientEmotes.item(itemOverride)
+				: de.behindtheblocks.skinstudio.client.emote.ClientEmotes.itemOf(emote);
 		if (held != null && net.minecraft.client.Minecraft.getInstance().player != null) {
 			de.behindtheblocks.skinstudio.client.emote.ClientEmotes.hold(state, held, net.minecraft.client.Minecraft.getInstance().player);
 		}

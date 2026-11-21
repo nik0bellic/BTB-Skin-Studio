@@ -174,6 +174,12 @@ final class AutoTest {
 				}
 			}
 			case "emote" -> de.behindtheblocks.skinstudio.client.emote.ClientEmotes.play(a[1]);
+			case "emoteown" -> {
+				var own = de.behindtheblocks.skinstudio.client.emote.CustomEmoteLibrary.ids();
+				if (!own.isEmpty()) {
+					de.behindtheblocks.skinstudio.client.emote.ClientEmotes.play(own.get(own.size() - 1));
+				}
+			}
 			case "blink" -> de.behindtheblocks.skinstudio.client.skin.ClientSkins.forceBlink = Boolean.parseBoolean(a[1]);
 			case "mouse" -> {
 				// simulated cursor position (GUI coordinates) for the emote wheel

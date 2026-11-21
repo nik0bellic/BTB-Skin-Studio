@@ -20,7 +20,7 @@ import java.util.UUID;
  */
 public final class SkinStudioPayloads {
 	/** Bump when the wire format changes incompatibly. */
-	public static final int PROTOCOL = 4;
+	public static final int PROTOCOL = 5;
 	public static final int CHUNK_SIZE = 30_000;
 	public static final int MAX_TRANSFER_BYTES = 512 * 1024;
 	public static final int MAX_CHUNKS = MAX_TRANSFER_BYTES / CHUNK_SIZE + 1;
@@ -224,10 +224,11 @@ public final class SkinStudioPayloads {
 
 	// ------------------------------------------------------------------ emotes
 
-	/** Client → server: start an emote (empty id = stop). */
-	public record PlayEmote(String id) implements CustomPacketPayload {
+	/** Client → server: start an emote (empty id = stop); {@code data} is the JSON of an own emote from the editor ("" for built-in ones). */
+	public record PlayEmote(String id, String data) implements CustomPacketPayload {
 		public static final Type<PlayEmote> TYPE = SkinStudioPayloads.payloadType("play_emote");
-		public static final StreamCodec<ByteBuf, PlayEmote> CODEC = StreamCodec.composite(ByteBufCodecs.stringUtf8(32), PlayEmote::id, PlayEmote::new);
+		public static final StreamCodec<ByteBuf, PlayEmote> CODEC = StreamCodec.composite(ByteBufCodecs.stringUtf8(32), PlayEmote::id,
+				ByteBufCodecs.stringUtf8(de.behindtheblocks.skinstudio.emote.CustomEmote.MAX_DATA), PlayEmote::data, PlayEmote::new);
 
 		@Override
 		public Type<PlayEmote> type() {
@@ -236,10 +237,11 @@ public final class SkinStudioPayloads {
 	}
 
 	/** Server → client: a player started (or stopped, empty id) an emote. */
-	public record EmotePlayed(UUID player, String id) implements CustomPacketPayload {
+	public record EmotePlayed(UUID player, String id, String data) implements CustomPacketPayload {
 		public static final Type<EmotePlayed> TYPE = SkinStudioPayloads.payloadType("emote_played");
 		public static final StreamCodec<ByteBuf, EmotePlayed> CODEC = StreamCodec.composite(
-				UUIDUtil.STREAM_CODEC, EmotePlayed::player, ByteBufCodecs.stringUtf8(32), EmotePlayed::id, EmotePlayed::new);
+				UUIDUtil.STREAM_CODEC, EmotePlayed::player, ByteBufCodecs.stringUtf8(32), EmotePlayed::id,
+				ByteBufCodecs.stringUtf8(de.behindtheblocks.skinstudio.emote.CustomEmote.MAX_DATA), EmotePlayed::data, EmotePlayed::new);
 
 		@Override
 		public Type<EmotePlayed> type() {
@@ -251,10 +253,11 @@ public final class SkinStudioPayloads {
 	 * An emote on replay puppets (BTB Cinematics): mannequins wearing the profile {@code profile} play it.
 	 * Kept apart from {@link EmotePlayed} so a player's live emotes never move a mannequin.
 	 */
-	public record PuppetEmote(UUID profile, String id) implements CustomPacketPayload {
+	public record PuppetEmote(UUID profile, String id, String data) implements CustomPacketPayload {
 		public static final Type<PuppetEmote> TYPE = SkinStudioPayloads.payloadType("puppet_emote");
 		public static final StreamCodec<ByteBuf, PuppetEmote> CODEC = StreamCodec.composite(
-				UUIDUtil.STREAM_CODEC, PuppetEmote::profile, ByteBufCodecs.stringUtf8(32), PuppetEmote::id, PuppetEmote::new);
+				UUIDUtil.STREAM_CODEC, PuppetEmote::profile, ByteBufCodecs.stringUtf8(32), PuppetEmote::id,
+				ByteBufCodecs.stringUtf8(de.behindtheblocks.skinstudio.emote.CustomEmote.MAX_DATA), PuppetEmote::data, PuppetEmote::new);
 
 		@Override
 		public Type<PuppetEmote> type() {

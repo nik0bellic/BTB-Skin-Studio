@@ -235,11 +235,49 @@ public final class Emotes {
 	}
 
 	public static Emote get(String id) {
-		return id == null ? null : ALL.get(id);
+		if (id == null) {
+			return null;
+		}
+		Emote e = ALL.get(id);
+		return e != null ? e : CUSTOM_EMOTES.get(id);
 	}
 
 	public static boolean exists(String id) {
-		return ALL.containsKey(id);
+		return id != null && (ALL.containsKey(id) || CUSTOM_EMOTES.containsKey(id));
+	}
+
+	public static boolean isBuiltIn(String id) {
+		return id != null && ALL.containsKey(id);
+	}
+
+	// ------------------------------------------------------------------ emotes from the emote editor
+
+	/** Custom emotes known here: the own ones ({@code u_…}) and those other players played ({@code c_…}). */
+	private static final Map<String, Emote> CUSTOM_EMOTES = java.util.Collections.synchronizedMap(new LinkedHashMap<>(64, 0.75f, true) {
+		@Override
+		protected boolean removeEldestEntry(Map.Entry<String, Emote> eldest) {
+			boolean drop = size() > 2000 && !eldest.getKey().startsWith("u_");
+			if (drop) {
+				CUSTOM_DATA.remove(eldest.getKey());
+			}
+			return drop;
+		}
+	});
+	private static final Map<String, CustomEmote> CUSTOM_DATA = new java.util.concurrent.ConcurrentHashMap<>();
+
+	public static void registerCustom(String id, CustomEmote e) {
+		CUSTOM_DATA.put(id, e);
+		CUSTOM_EMOTES.put(id, e.toEmote(id));
+	}
+
+	public static void unregisterCustom(String id) {
+		CUSTOM_DATA.remove(id);
+		CUSTOM_EMOTES.remove(id);
+	}
+
+	/** The editor data of a custom emote, or null for a built-in one. */
+	public static CustomEmote custom(String id) {
+		return id == null ? null : CUSTOM_DATA.get(id);
 	}
 
 	/**

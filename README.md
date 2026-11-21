@@ -72,6 +72,7 @@
 - Tasten werden als Tastaturkappen gezeigt, mit [Controlify](https://modrinth.com/mod/controlify) als Controller-Tasten
 - Reiter „Emotes“ in der Garderobe: Platz wählen, Emote anklicken – es liegt sofort dort; Maus über einem Emote zeigt es an der Figur, „Abspielen“ spielt es direkt an der Figur im Menü
 - Mitspieler mit der Mod sehen die Emotes
+- **Emote-Editor** (Reiter „Emotes“ → „Neues Emote“): eigene Emotes aus Keyframes bauen – Körperteil wählen (Kopf, Oberkörper, Arme, Beine, ganze Figur drehen oder bewegen), Zeitleiste anklicken, Regler ziehen; dazwischen wird weich übergeblendet. Länge, Wiederholen, Gegenstand in der Hand, Spiegeln (links/rechts tauschen), Pose kopieren/einfügen, Abspielen an der Figur. Eigene Emotes liegen in `config/btb_skinstudio/emotes/`, kommen aufs Rad wie alle anderen und werden an Mitspieler mit der Mod mitgeschickt (geprüft und begrenzt); BTB-Cinematics-Replays spielen sie ebenfalls ab.
 
 ![Emote-Rad](docs/modrinth/15_wheel_de.jpg)
 

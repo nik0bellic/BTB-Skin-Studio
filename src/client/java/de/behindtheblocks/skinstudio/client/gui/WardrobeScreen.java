@@ -1164,7 +1164,7 @@ public class WardrobeScreen extends Screen {
 			ui.rounded(ix, cy, iw, 30, 7, act ? (t.accent & 0xFFFFFF) | 0x38000000 : hov ? t.surfaceHover : t.surface);
 			ui.rounded(ix + 4, cy + 9, 12, 12, 6, act ? t.accent : t.field);
 			ui.text(String.valueOf(i + 1), ix + 7, cy + 11, act ? t.onAccent : t.text);
-			String name = id == null ? "–" : Tr.t("btb.emote." + id);
+			String name = id == null ? "–" : de.behindtheblocks.skinstudio.client.emote.CustomEmoteLibrary.name(id);
 			ui.text(ui.ellipsize(name, iw - 24), ix + 20, cy + 5, t.text);
 			ui.text(ui.ellipsize(Tr.t("btb.ui.emotes.direct_key", de.behindtheblocks.skinstudio.client.emote.EmoteKeys.keyName(i)), iw - 24), ix + 20, cy + 17, t.textFaint);
 			final int slot = i;
@@ -1191,7 +1191,13 @@ public class WardrobeScreen extends Screen {
 	private void drawEmoteBrowser(int x, int y, int w, int h) {
 		Theme t = ui.t;
 		ui.glass(x, y, w, h, 10);
-		var all = de.behindtheblocks.skinstudio.emote.Emotes.all();
+		// built-in emotes, then the own ones from the emote editor, then a card to make a new one
+		List<String> all = new ArrayList<>();
+		for (var e : de.behindtheblocks.skinstudio.emote.Emotes.all()) {
+			all.add(e.id());
+		}
+		all.addAll(de.behindtheblocks.skinstudio.client.emote.CustomEmoteLibrary.ids());
+		all.add(null);
 		var slots = ClientSettings.get().emoteSlots;
 		hoverEmote = null;
 		int detailH = 52;
@@ -1203,62 +1209,129 @@ public class WardrobeScreen extends Screen {
 		emoteScroll = Math.max(0, Math.min(emoteScroll, emoteMax));
 		ui.g.enableScissor(x + 2, top, x + w - 2, bottom);
 		for (int i = 0; i < all.size(); i++) {
-			var e = all.get(i);
+			String id = all.get(i);
 			int cx = x + 8 + (i % cols) * (cw + gap), cy = top + (i / cols) * (ch + gap) - emoteScroll;
 			if (cy + ch < top || cy > bottom) {
 				continue;
 			}
-			boolean sel = e.id().equals(selectedEmote);
 			boolean hov = ui.hover(cx, cy, cw, ch) && ui.mouseY >= top && ui.mouseY < bottom;
+			if (id == null) {
+				// "new emote" card
+				ui.rounded(cx, cy, cw, ch, 8, hov ? t.surfaceHover : t.surface);
+				ui.roundedOutline(cx, cy, cw, ch, 8, t.divider);
+				String label = Tr.t("btb.ui.emote_editor.new");
+				Icon.PLUS.draw(ui.g, cx + 6, cy + ch / 2 - 4, t.accent);
+				ui.text(ui.ellipsize(label, cw - 22), cx + 18, cy + ch / 2 - 4, t.text);
+				ui.region(cx, cy, cw, ch, () -> minecraft.gui.setScreen(new EmoteEditorScreen(this, null)));
+				continue;
+			}
+			var e = de.behindtheblocks.skinstudio.emote.Emotes.get(id);
+			if (e == null) {
+				continue;
+			}
+			boolean own = de.behindtheblocks.skinstudio.client.emote.CustomEmoteLibrary.isOwn(id);
+			boolean sel = id.equals(selectedEmote);
 			if (hov) {
-				hoverEmote = e.id();
+				hoverEmote = id;
 			}
 			ui.rounded(cx, cy, cw, ch, 8, sel ? t.surfaceSelected : hov ? t.surfaceHover : t.surface);
 			if (sel) {
 				ui.roundedOutline(cx, cy, cw, ch, 8, t.accent);
 			}
-			int place = slots.indexOf(e.id());
+			int place = slots.indexOf(id);
 			int nameW = cw - 12 - (place >= 0 ? 16 : 0);
-			var lines = font.split(Component.literal(Tr.t("btb.emote." + e.id())), nameW);
+			var lines = font.split(Component.literal(de.behindtheblocks.skinstudio.client.emote.CustomEmoteLibrary.name(id)), nameW);
 			int ly = cy + 6;
 			for (int k = 0; k < Math.min(2, lines.size()); k++) {
 				ui.g.text(font, lines.get(k), cx + 6, ly, t.text, false);
 				ly += 10;
 			}
 			String len = String.format(Locale.ROOT, "%.1f s", de.behindtheblocks.skinstudio.emote.Emotes.length(e));
-			String sub = e.item() != null ? Tr.t("btb.ui.emotes.with_item") + " · " + len : len;
-			ui.text(ui.ellipsize(sub, cw - 12), cx + 6, cy + ch - 12, t.textFaint);
+			String sub = (own ? Tr.t("btb.ui.emote_editor.own") + " · " : "") + (e.item() != null ? Tr.t("btb.ui.emotes.with_item") + " · " : "") + len;
+			ui.text(ui.ellipsize(sub, cw - 12), cx + 6, cy + ch - 12, own ? t.accent : t.textFaint);
 			if (place >= 0) {
 				ui.rounded(cx + cw - 16, cy + 4, 12, 12, 6, t.accent);
 				ui.text(String.valueOf(place + 1), cx + cw - 13, cy + 6, t.onAccent);
 			}
 			// a click puts the emote straight onto the chosen wheel place
-			ui.region(cx, cy, cw, ch, () -> assignEmote(e.id()));
+			ui.region(cx, cy, cw, ch, () -> assignEmote(id));
 		}
 		ui.g.disableScissor();
-		// detail bar: name, play, put on place
+		// detail bar: name, play, put on place; own emotes can be edited and deleted
 		int dy = y + h - detailH;
 		ui.rounded(x + 6, dy, w - 12, detailH - 6, 8, t.surface);
-		if (selectedEmote != null) {
-			var e = de.behindtheblocks.skinstudio.emote.Emotes.get(selectedEmote);
-			ui.title(ui.ellipsize(Tr.t("btb.emote." + selectedEmote), w - 30), x + 14, dy + 6, t.text);
-			String info = (e.item() != null ? Tr.t("btb.ui.emotes.with_item") + " · " : "")
-					+ String.format(Locale.ROOT, "%.1f s", de.behindtheblocks.skinstudio.emote.Emotes.length(e));
+		var selected = de.behindtheblocks.skinstudio.emote.Emotes.get(selectedEmote);
+		if (selected != null) {
+			boolean own = de.behindtheblocks.skinstudio.client.emote.CustomEmoteLibrary.isOwn(selectedEmote);
+			ui.title(ui.ellipsize(de.behindtheblocks.skinstudio.client.emote.CustomEmoteLibrary.name(selectedEmote), w - 30), x + 14, dy + 6, t.text);
+			String info = (selected.item() != null ? Tr.t("btb.ui.emotes.with_item") + " · " : "")
+					+ String.format(Locale.ROOT, "%.1f s", de.behindtheblocks.skinstudio.emote.Emotes.length(selected));
 			int place = slots.indexOf(selectedEmote);
 			if (place >= 0) {
 				info += " · " + Tr.t("btb.ui.emotes.on_place", place + 1);
 			}
 			ui.text(ui.ellipsize(info, w - 30), x + 14, dy + 18, t.textMuted);
+			int bx = x + 14;
 			String play = Tr.t("btb.ui.emotes.play");
-			int pw = Math.min(font.width(play) + 30, w - 28);
-			ui.button(x + 14, dy + 28, pw, 16, play, Icon.PLAY, Ui.Style.PRIMARY, true, () -> {
+			int pw = font.width(play) + 30;
+			ui.button(bx, dy + 28, pw, 16, play, Icon.PLAY, Ui.Style.PRIMARY, true, () -> {
 				// plays right here on the figure in the menu, from the start
 				hoverEmote = null;
 				preview.playEmote(selectedEmote);
 			}, null);
+			bx += pw + 4;
+			if (own) {
+				String edit = Tr.t("btb.ui.emote_editor.edit");
+				int ew = font.width(edit) + 30;
+				String editId = selectedEmote;
+				ui.button(bx, dy + 28, ew, 16, edit, Icon.EDIT, Ui.Style.SECONDARY, true,
+						() -> minecraft.gui.setScreen(new EmoteEditorScreen(this, editId)), null);
+				bx += ew + 4;
+				String del = Tr.t("btb.ui.emote_editor.delete");
+				int dw = font.width(del) + 30;
+				ui.button(bx, dy + 28, dw, 16, del, Icon.TRASH, Ui.Style.SECONDARY, true, () -> deleteOwnEmote(editId), null);
+			} else {
+				String make = Tr.t("btb.ui.emote_editor.new");
+				int mw = font.width(make) + 30;
+				ui.button(bx, dy + 28, mw, 16, make, Icon.PLUS, Ui.Style.SECONDARY, true,
+						() -> minecraft.gui.setScreen(new EmoteEditorScreen(this, null)), null);
+			}
 		} else {
 			ui.text(ui.ellipsize(Tr.t("btb.ui.emotes.click_to_assign", emoteSlot + 1), w - 30), x + 14, dy + 18, t.textMuted);
 		}
+	}
+
+	/** Deletes an own emote (asks first by needing a second click within a few seconds); wheel places get their default back. */
+	private void deleteOwnEmote(String id) {
+		long now = System.currentTimeMillis();
+		if (!id.equals(deleteArmed) || now - deleteArmedAt > 4000) {
+			deleteArmed = id;
+			deleteArmedAt = now;
+			toast(Tr.t("btb.ui.emote_editor.delete_confirm"), false);
+			return;
+		}
+		deleteArmed = null;
+		de.behindtheblocks.skinstudio.client.emote.CustomEmoteLibrary.delete(id);
+		var slots = ClientSettings.get().emoteSlots;
+		for (int i = 0; i < slots.size(); i++) {
+			if (id.equals(slots.get(i))) {
+				slots.set(i, de.behindtheblocks.skinstudio.emote.Emotes.DEFAULT_WHEEL.get(i));
+			}
+		}
+		ClientSettings.get().save();
+		selectedEmote = null;
+		preview.emote = null;
+		toast(Tr.t("btb.ui.emote_editor.deleted"), false);
+	}
+
+	private String deleteArmed;
+	private long deleteArmedAt;
+
+	/** After saving in the emote editor: the Emotes tab shows the emote, selected and playing on the figure. */
+	public void showEmote(String id) {
+		tab = Tab.EMOTES;
+		selectedEmote = id;
+		preview.playEmote(id);
 	}
 
 	/** Puts an emote on the chosen wheel place (the emote that was there before is replaced). */
@@ -1268,7 +1341,7 @@ public class WardrobeScreen extends Screen {
 		if (!id.equals(list.get(emoteSlot))) {
 			list.set(emoteSlot, id);
 			ClientSettings.get().save();
-			toast(Tr.t("btb.ui.emotes.assigned", Tr.t("btb.emote." + id), emoteSlot + 1), false);
+			toast(Tr.t("btb.ui.emotes.assigned", de.behindtheblocks.skinstudio.client.emote.CustomEmoteLibrary.name(id), emoteSlot + 1), false);
 		}
 	}
 
@@ -1762,6 +1835,7 @@ public class WardrobeScreen extends Screen {
 			case "charbase" -> Wardrobe.get().setCharacterBase(args[1]);
 			case "wearchar" -> wearCharacter();
 			case "emote" -> selectedEmote = args[1];
+			case "emoteeditor" -> minecraft.gui.setScreen(new EmoteEditorScreen(this, args.length > 1 ? args[1] : null));
 			case "playemote" -> preview.playEmote(selectedEmote);
 			case "adjust" -> adjustMode = true;
 			case "adjustset" -> {

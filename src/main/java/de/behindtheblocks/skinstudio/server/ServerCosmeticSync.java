@@ -83,7 +83,7 @@ public final class ServerCosmeticSync {
 		ServerPlayNetworking.registerGlobalReceiver(SetLoadout.TYPE, (payload, ctx) -> onSetLoadout(ctx.player(), payload, ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.SetSkin.TYPE, (payload, ctx) -> onSetSkin(ctx.player(), payload.skin(), ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.SetBody.TYPE, (payload, ctx) -> onBody(ctx.player(), payload.body(), ctx.server()));
-		ServerPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.PlayEmote.TYPE, (payload, ctx) -> onEmote(ctx.player(), payload.id(), ctx.server()));
+		ServerPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.PlayEmote.TYPE, (payload, ctx) -> onEmote(ctx.player(), payload.id(), payload.data(), ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(RequestCosmetic.TYPE, (payload, ctx) -> onRequest(ctx.player(), payload.hash(), ctx.server()));
 		ServerPlayNetworking.registerGlobalReceiver(CosmeticChunk.TYPE, (payload, ctx) -> onUploadChunk(ctx.player(), payload, ctx.server()));
 	}
@@ -220,8 +220,25 @@ public final class ServerCosmeticSync {
 		broadcast(server, new SkinStudioPayloads.SyncBodies(List.of(new SkinStudioPayloads.PlayerBody(player.getUUID(), clean))), null);
 	}
 
-	private void onEmote(ServerPlayer player, String id, MinecraftServer server) {
-		if (!modded.contains(player.getUUID()) || (!id.isEmpty() && !de.behindtheblocks.skinstudio.emote.Emotes.exists(id))) {
+	private void onEmote(ServerPlayer player, String id, String data, MinecraftServer server) {
+		if (!modded.contains(player.getUUID())) {
+			return;
+		}
+		String json = "";
+		if (de.behindtheblocks.skinstudio.emote.CustomEmote.isNetworkId(id)) {
+			// an emote from the editor: the data must match its id (the id is a hash of the data)
+			try {
+				var e = de.behindtheblocks.skinstudio.emote.CustomEmote.parse(data);
+				json = e.toJson();
+				if (!json.equals(data) || !de.behindtheblocks.skinstudio.emote.CustomEmote.idOf(json).equals(id)) {
+					return;
+				}
+				de.behindtheblocks.skinstudio.emote.Emotes.registerCustom(id, e);
+				CustomEmoteStore.save(server, id, json);
+			} catch (RuntimeException e) {
+				return;
+			}
+		} else if (!id.isEmpty() && !de.behindtheblocks.skinstudio.emote.Emotes.isBuiltIn(id)) {
 			return;
 		}
 		long now = System.currentTimeMillis();
@@ -230,13 +247,21 @@ public final class ServerCosmeticSync {
 			return;
 		}
 		lastEmote.put(player.getUUID(), now);
-		broadcast(server, new SkinStudioPayloads.EmotePlayed(player.getUUID(), id), player.getUUID());
+		broadcast(server, new SkinStudioPayloads.EmotePlayed(player.getUUID(), id, json), player.getUUID());
 		CinematicsCompat.logEmote(player.getUUID(), id);
 	}
 
 	/** Plays an emote on the replay puppets of {@code profile} for everyone with the mod (command, see {@link CinematicsCompat}). */
 	public void puppetEmote(MinecraftServer server, UUID profile, String id) {
-		broadcast(server, new SkinStudioPayloads.PuppetEmote(profile, id), null);
+		String data = "";
+		if (de.behindtheblocks.skinstudio.emote.CustomEmote.isNetworkId(id)) {
+			String json = CustomEmoteStore.load(server, id);
+			if (json == null) {
+				return;
+			}
+			data = json;
+		}
+		broadcast(server, new SkinStudioPayloads.PuppetEmote(profile, id, data), null);
 	}
 
 	private void broadcast(MinecraftServer server, net.minecraft.network.protocol.common.custom.CustomPacketPayload payload, UUID except) {

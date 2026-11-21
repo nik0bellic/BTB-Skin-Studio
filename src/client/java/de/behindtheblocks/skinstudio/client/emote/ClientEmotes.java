@@ -28,14 +28,14 @@ public final class ClientEmotes {
 		ClientPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.EmotePlayed.TYPE, (p, ctx) -> {
 			if (p.id().isEmpty()) {
 				PLAYING.remove(p.player());
-			} else if (Emotes.exists(p.id())) {
+			} else if (known(p.id(), p.data())) {
 				PLAYING.put(p.player(), new Playing(p.id(), System.nanoTime()));
 			}
 		});
 		ClientPlayNetworking.registerGlobalReceiver(SkinStudioPayloads.PuppetEmote.TYPE, (p, ctx) -> {
 			if (p.id().isEmpty()) {
 				PUPPETS.remove(p.profile());
-			} else if (Emotes.exists(p.id())) {
+			} else if (known(p.id(), p.data())) {
 				PUPPETS.put(p.profile(), new Playing(p.id(), System.nanoTime()));
 			}
 		});
@@ -46,6 +46,29 @@ public final class ClientEmotes {
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> de.behindtheblocks.skinstudio.client.Guard.run("emote tick", () -> tick(mc)));
 	}
 
+	/** True if the emote can be played here; an editor emote from another player is checked and registered first. */
+	private static boolean known(String id, String data) {
+		if (Emotes.isBuiltIn(id)) {
+			return true;
+		}
+		if (!de.behindtheblocks.skinstudio.emote.CustomEmote.isNetworkId(id) || data == null || data.isEmpty()) {
+			return false;
+		}
+		if (Emotes.custom(id) != null) {
+			return true;
+		}
+		try {
+			var e = de.behindtheblocks.skinstudio.emote.CustomEmote.parse(data);
+			if (!de.behindtheblocks.skinstudio.emote.CustomEmote.idOf(e.toJson()).equals(id)) {
+				return false;
+			}
+			Emotes.registerCustom(id, e);
+			return true;
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+
 	/** Starts an emote for the own player and tells the server (if it has the mod). */
 	public static void play(String id) {
 		Minecraft mc = Minecraft.getInstance();
@@ -53,6 +76,9 @@ public final class ClientEmotes {
 			return;
 		}
 		PLAYING.put(mc.player.getUUID(), new Playing(id, System.nanoTime()));
+		if (System.getProperty("btb.skinstudio.autotest") != null) {
+			de.behindtheblocks.skinstudio.BtbSkinStudio.LOGGER.info("Emote gestartet: {}", id);
+		}
 		startX = mc.player.getX();
 		startZ = mc.player.getZ();
 		// in first person the own emote cannot be seen: switch to the front view for its duration (like Bedrock)
@@ -82,8 +108,16 @@ public final class ClientEmotes {
 	}
 
 	private static void send(String id) {
-		if (ClientPlayNetworking.canSend(SkinStudioPayloads.PlayEmote.TYPE)) {
-			ClientPlayNetworking.send(new SkinStudioPayloads.PlayEmote(id));
+		if (!ClientPlayNetworking.canSend(SkinStudioPayloads.PlayEmote.TYPE)) {
+			return;
+		}
+		var custom = Emotes.custom(id);
+		if (custom != null) {
+			// an own emote from the editor travels with its data, under its content id
+			String json = custom.toJson();
+			ClientPlayNetworking.send(new SkinStudioPayloads.PlayEmote(de.behindtheblocks.skinstudio.emote.CustomEmote.idOf(json), json));
+		} else {
+			ClientPlayNetworking.send(new SkinStudioPayloads.PlayEmote(id, ""));
 		}
 	}
 
@@ -136,11 +170,20 @@ public final class ClientEmotes {
 
 	public static net.minecraft.world.item.ItemStack itemOf(String emote) {
 		Emotes.Emote e = Emotes.get(emote);
-		if (e == null || e.item() == null) {
+		return e == null ? null : item(e.item());
+	}
+
+	/** An item stack from an id like "minecraft:diamond", or null (no id, unknown or air). */
+	public static net.minecraft.world.item.ItemStack item(String itemId) {
+		if (itemId == null) {
 			return null;
 		}
-		var item = net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.parse(e.item()));
-		return item == null ? null : new net.minecraft.world.item.ItemStack(item);
+		var key = net.minecraft.resources.Identifier.tryParse(itemId);
+		if (key == null || !net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(key)) {
+			return null;
+		}
+		var stack = new net.minecraft.world.item.ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(key));
+		return stack.isEmpty() ? null : stack;
 	}
 
 	/**

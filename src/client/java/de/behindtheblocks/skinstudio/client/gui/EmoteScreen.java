@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * Emote wheel: the five places (set in the wardrobe's Emotes tab) around a circle, the own figure next to it
- * showing the hovered emote. Click or keys 1–5 play it.
+ * showing the hovered emote. Point with the mouse and click, or hold the key, point and let go.
  */
 public class EmoteScreen extends Screen {
 	private final Ui ui = new Ui();
@@ -30,8 +30,6 @@ public class EmoteScreen extends Screen {
 	/** Selected segment: follows the mouse direction (anywhere on screen) and the scroll wheel. */
 	private int sel = -1;
 	private double lastMx = Double.NaN, lastMy = Double.NaN;
-	/** Mouse position when the wheel opened: flicks are measured from here. */
-	private double anchorX = Double.NaN, anchorY = Double.NaN;
 	private int cx, cy, inner, outer;
 	private int[] fakeMouse;
 	private final long openedAt = System.currentTimeMillis();
@@ -107,38 +105,25 @@ public class EmoteScreen extends Screen {
 		var hl = font.split(Component.literal(hint), Math.min(width - 20, 300));
 		int hintH = hl.size() * 10 + 10;
 		int outer = Math.max(40, Math.min(100, (height - hintH - 24) / 2)), inner = (int) (outer * 0.4);
-		int previewW = Math.min(120, Math.max(70, width - outer * 2 - 60)), gap = 24;
-		int total = outer * 2 + gap + previewW;
-		// wheel and figure together in the middle of the screen
-		int cx = (width - total) / 2 + outer, cy = Math.max(outer + 6, (height - (outer * 2 + hintH)) / 2 + outer);
+		// the wheel sits exactly in the middle of the screen, where the mouse cursor is put when the wheel opens:
+		// moving the mouse from there points at a segment (hold the key, point, let go). The figure is beside it.
+		int cx = width / 2, cy = Math.max(outer + 6, (height - (outer * 2 + hintH)) / 2 + outer);
+		int gap = 16;
+		int previewW = Math.min(120, width - (cx + outer + gap) - 8);
 		this.cx = cx;
 		this.cy = cy;
 		this.inner = inner;
 		this.outer = outer;
-		// the mouse direction from the centre picks the segment – anywhere on the screen, like a radial menu;
-		// in the middle nothing is selected. Only updated when the mouse moves, so the scroll wheel can pick too.
-		// selection: pointing at a segment picks it; anywhere else the direction the mouse moved since the
-		// wheel opened counts (hold the key, flick the mouse, let go). Nothing is picked before the mouse moves.
-		if (Double.isNaN(anchorX)) {
-			anchorX = mouseX;
-			anchorY = mouseY;
-		}
+		// only updated when the mouse moves, so the scroll wheel and the arrow keys can pick too
 		if (mouseX != lastMx || mouseY != lastMy) {
 			boolean first = Double.isNaN(lastMx);
 			lastMx = mouseX;
 			lastMy = mouseY;
 			double dx = mouseX - cx, dy = mouseY - cy;
 			double d = Math.sqrt(dx * dx + dy * dy);
-			double ax = mouseX - anchorX, ay = mouseY - anchorY;
-			boolean overPreview = mouseX > cx + outer + 8;
-			if (!first && !overPreview) {
-				if (d >= inner * 0.6 && d <= outer) {
-					sel = de.behindtheblocks.skinstudio.client.gui.ui.WheelTexture.segmentAt(dx, dy, 0, Double.MAX_VALUE);
-				} else if (d < inner * 0.6) {
-					sel = -1;
-				} else if (ax * ax + ay * ay > 15 * 15) {
-					sel = de.behindtheblocks.skinstudio.client.gui.ui.WheelTexture.segmentAt(ax, ay, 0, Double.MAX_VALUE);
-				}
+			if (!first || d >= inner * 0.6) {
+				// pointing anywhere (inside or outside the ring) picks the segment in that direction; the middle picks nothing
+				sel = d < inner * 0.6 ? -1 : de.behindtheblocks.skinstudio.client.gui.ui.WheelTexture.segmentAt(dx, dy, 0, Double.MAX_VALUE);
 			}
 		}
 		int seg = sel;
@@ -171,7 +156,7 @@ public class EmoteScreen extends Screen {
 				keyCap(sx, sy - 12, String.valueOf(i + 1), hov);
 			}
 			// the full name, wrapped onto up to three lines – never cut off
-			var lines = font.split(Component.literal(id == null ? "–" : Tr.t("btb.emote." + id)), (int) (outer * 0.62));
+			var lines = font.split(Component.literal(id == null ? "–" : de.behindtheblocks.skinstudio.client.emote.CustomEmoteLibrary.name(id)), (int) (outer * 0.62));
 			int ly = sy;
 			for (var l : lines) {
 				g.text(font, l, sx - font.width(l) / 2, ly, fg, false);
@@ -179,7 +164,7 @@ public class EmoteScreen extends Screen {
 			}
 		}
 		// centre: hovered name or title
-		String title = hover != null ? Tr.t("btb.emote." + hover) : Tr.t("btb.ui.emotes.wheel");
+		String title = hover != null ? de.behindtheblocks.skinstudio.client.emote.CustomEmoteLibrary.name(hover) : Tr.t("btb.ui.emotes.wheel");
 		var tl = font.split(Component.literal(title), inner * 2 - 8);
 		int ty = cy - tl.size() * 5;
 		for (var l : tl) {
@@ -188,7 +173,7 @@ public class EmoteScreen extends Screen {
 		}
 		// hint below the wheel
 		int hy = cy + outer + 8;
-		int hcx = Math.max(cx, width / 2);
+		int hcx = cx;
 		for (var l : hl) {
 			int lx = Math.max(4, Math.min(width - 4 - font.width(l), hcx - font.width(l) / 2));
 			g.text(font, l, lx, hy, 0xFFE8E8EC, true);
@@ -202,9 +187,11 @@ public class EmoteScreen extends Screen {
 			preview.emote = null;
 		}
 		hovered = hover;
-		int px = cx + outer + gap;
-		ui.rounded(px, cy - outer, previewW, outer * 2, 16, t.dark ? 0xC81A1D24 : 0xD8FFFFFF);
-		preview.draw(g, px, cy - outer + 4, px + previewW, cy + outer - 4, cosmetics());
+		if (previewW >= 60) {
+			int px = cx + outer + gap;
+			ui.rounded(px, cy - outer, previewW, outer * 2, 16, t.dark ? 0xC81A1D24 : 0xD8FFFFFF);
+			preview.draw(g, px, cy - outer + 4, px + previewW, cy + outer - 4, cosmetics());
+		}
 		super.extractRenderState(g, mouseX, mouseY, a);
 		ui.end();
 	}

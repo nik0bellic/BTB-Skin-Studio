@@ -100,7 +100,8 @@ public final class ClientSettings {
 				// empty or unknown places (older versions) get the default emote of that place
 				for (int i = 0; i < 5; i++) {
 					String id = s.emoteSlots.get(i);
-					if (id == null || id.isBlank() || !de.behindtheblocks.skinstudio.emote.Emotes.exists(id)) {
+					boolean own = id != null && id.startsWith("u_") && de.behindtheblocks.skinstudio.client.emote.CustomEmoteLibrary.ids().contains(id);
+					if (id == null || id.isBlank() || !own && !de.behindtheblocks.skinstudio.emote.Emotes.isBuiltIn(id)) {
 						s.emoteSlots.set(i, de.behindtheblocks.skinstudio.emote.Emotes.DEFAULT_WHEEL.get(i));
 					}
 				}

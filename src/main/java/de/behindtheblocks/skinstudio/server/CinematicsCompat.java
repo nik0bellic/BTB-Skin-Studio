@@ -49,7 +49,8 @@ public final class CinematicsCompat {
 						.then(Commands.literal("puppetemote").then(Commands.argument("profile", UuidArgument.uuid())
 								.then(Commands.argument("emote", StringArgumentType.word()).executes(c -> {
 									String id = StringArgumentType.getString(c, "emote");
-									if (!id.equals("stop") && !de.behindtheblocks.skinstudio.emote.Emotes.exists(id)) {
+									if (!id.equals("stop") && !de.behindtheblocks.skinstudio.emote.Emotes.isBuiltIn(id)
+											&& !de.behindtheblocks.skinstudio.emote.CustomEmote.isNetworkId(id)) {
 										return 0;
 									}
 									sync.puppetEmote(c.getSource().getServer(), UuidArgument.getUuid(c, "profile"), id.equals("stop") ? "" : id);

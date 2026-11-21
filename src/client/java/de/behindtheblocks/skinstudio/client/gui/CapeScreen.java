@@ -39,6 +39,11 @@ public class CapeScreen extends Screen {
 	}
 
 	private void load() {
+		load(null);
+	}
+
+	/** Reads the owned capes again; {@code done} is shown afterwards (e.g. "saved"). */
+	private void load(String done) {
 		busy = true;
 		status = Tr.t("btb.ui.cape.loading");
 		statusError = false;
@@ -52,7 +57,7 @@ public class CapeScreen extends Screen {
 			}
 			capes.clear();
 			capes.addAll(list);
-			status = list.isEmpty() ? Tr.t("btb.ui.cape.none_owned") : null;
+			status = list.isEmpty() ? Tr.t("btb.ui.cape.none_owned") : done;
 			for (CapeService.Cape c : list) {
 				loadTexture(c);
 			}
@@ -93,9 +98,16 @@ public class CapeScreen extends Screen {
 				statusError = true;
 				return;
 			}
-			load();
-			status = Tr.t("btb.ui.cape.saved");
+			load(Tr.t("btb.ui.cape.saved"));
 		}, Minecraft.getInstance());
+	}
+
+	/** Autotest: "pick <n>" (0 = no cape, 1.. = owned capes in order). */
+	public void autotest(String[] args) {
+		if (args.length > 1 && args[0].equals("pick")) {
+			int n = Integer.parseInt(args[1]);
+			select(n == 0 ? null : capes.get(n - 1).id());
+		}
 	}
 
 	@Override
@@ -126,7 +138,9 @@ public class CapeScreen extends Screen {
 			y += 10;
 		}
 		y += 6;
-		int cw = 64, ch = 96, gap = 8, cols = Math.max(1, (w + gap) / (cw + gap));
+		// cards grow on large screens (up to twice the size)
+		int k = Math.max(1, Math.min(2, w / (6 * 76)));
+		int cw = 64 * k, ch = 96 * k - (k - 1) * 16, gap = 8, cols = Math.max(1, (w + gap) / (cw + gap));
 		boolean anyActive = capes.stream().anyMatch(CapeService.Cape::active);
 		int count = capes.size() + 1;
 		for (int i = 0; i < count; i++) {
@@ -148,15 +162,15 @@ public class CapeScreen extends Screen {
 				int[] sz = SIZES.get(c.id());
 				int s = Math.max(1, sz[0] / 64);
 				// front of the cape: 10 × 16 pixels at (1, 1)
-				g.blit(RenderPipelines.GUI_TEXTURED, tex, cx + 17, cy + 8, s, s, 30, 48, 10 * s, 16 * s, sz[0], sz[1]);
+				g.blit(RenderPipelines.GUI_TEXTURED, tex, cx + (cw - 30 * k) / 2, cy + 8, s, s, 30 * k, 48 * k, 10 * s, 16 * s, sz[0], sz[1]);
 			} else if (c == null) {
-				Icon.CLOSE.draw(g, cx + cw / 2 - 3, cy + 30, t.textMuted);
+				Icon.CLOSE.draw(g, cx + cw / 2 - 3, cy + 8 + 24 * k - 3, t.textMuted);
 			}
 			String name = c == null ? Tr.t("btb.ui.cape.off") : c.alias();
 			var lines = font.split(Component.literal(name), cw - 6);
-			int ly = cy + 62;
-			for (int k = 0; k < Math.min(2, lines.size()); k++) {
-				g.text(font, lines.get(k), cx + (cw - font.width(lines.get(k))) / 2, ly, t.text, false);
+			int ly = cy + 14 + 48 * k;
+			for (int li = 0; li < Math.min(2, lines.size()); li++) {
+				g.text(font, lines.get(li), cx + (cw - font.width(lines.get(li))) / 2, ly, t.text, false);
 				ly += 10;
 			}
 			if (!busy && !on) {
